@@ -10,13 +10,25 @@ class SupplierDirectoryIndex extends Component
 {
     use WithPagination;
 
-    public $supplier_name, $address, $items, $contact_person, $position, $mobile_no, $telephone_no, $email_address;
+    public $supplier_name = '';
+    public $address = '';
+    public $items = '';
+    public $contact_person = '';
+    public $position = '';
+    public $mobile_no = '';
+    public $telephone_no = '';
+    public $email_address = '';
+
+    public $search = '';
     public $isEditModalOpen = false;
     public $editSupplierId;
     public $isDeleteModalOpen = false;
     public $deletingSupplierId;
+
+
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
+
 
     protected $rules = [
         'supplier_name' => 'required|string|max:255',
@@ -28,6 +40,18 @@ class SupplierDirectoryIndex extends Component
         'telephone_no' => 'nullable|string|max:15',
         'email_address' => 'required|email|unique:supplier_directories,email_address',
     ];
+
+    protected $listeners = ['refreshSupplier' => '$refresh'];
+
+    public function mount(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
 
     protected $messages = [
         'supplier_name.required' => 'Supplier name is required.',
@@ -45,19 +69,9 @@ class SupplierDirectoryIndex extends Component
     // Close modals
     public function closeModal()
     {
-        $this->reset([
-            'supplier_name',
-            'address',
-            'items',
-            'contact_person',
-            'position',
-            'mobile_no',
-            'telephone_no',
-            'email_address',
-            'editSupplierId',
-            'isEditModalOpen',
-            'isDeleteModalOpen'
-        ]);
+        $this->isEditModalOpen = false;
+        $this->isDeleteModalOpen = false;
+        $this->reset(['supplier_name', 'address', 'items', 'contact_person', 'position', 'mobile_no', 'telephone_no', 'email_address', 'editSupplierId', 'isEditModalOpen', 'isDeleteModalOpen']);
     }
 
     // Save supplier (Create or Update)
@@ -72,21 +86,27 @@ class SupplierDirectoryIndex extends Component
 
     public function addSupplier()
     {
-        $this->validate();
+        try {
+            $this->validate();
 
-        SupplierDirectory::create([
-            'supplier_name' => $this->supplier_name,
-            'address' => $this->address,
-            'items' => $this->items,
-            'contact_person' => $this->contact_person,
-            'position' => $this->position,
-            'mobile_no' => $this->mobile_no,
-            'telephone_no' => $this->telephone_no,
-            'email_address' => $this->email_address,
-        ]);
+            SupplierDirectory::create([
+                'supplier_name' => $this->supplier_name,
+                'address' => $this->address,
+                'items' => $this->items,
+                'contact_person' => $this->contact_person,
+                'position' => $this->position,
+                'mobile_no' => $this->mobile_no,
+                'telephone_no' => $this->telephone_no,
+                'email_address' => $this->email_address,
+            ]);
 
-        $this->closeModal();
-        session()->flash('message', 'Supplier added successfully!');
+            $this->closeModal();
+            session()->flash('message', 'Supplier added successfully!');
+            $this->resetFields();
+        } catch (\Exception $e) {
+            session()->flash('error', 'There was an error adding the supplier.');
+            \Log::error('Error adding supplier: ' . $e->getMessage());
+        }
     }
 
     public function openEditModal($supplierId)
@@ -112,34 +132,20 @@ class SupplierDirectoryIndex extends Component
 
     public function updateSupplier()
     {
-        $this->validate([
-            'supplier_name' => 'required|string|max:255',
-            'address' => 'required|string|max:500',
-            'items' => 'required|string|max:500',
-            'contact_person' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'mobile_no' => 'required|digits:11',
-            'telephone_no' => 'nullable|string|max:15',
-            'email_address' => 'required|email|unique:supplier_directories,email_address,' . $this->editSupplierId,
-        ]);
+        try {
+            $validatedData = $this->validate();
 
-        $supplier = SupplierDirectory::find($this->editSupplierId);
-        if ($supplier) {
-            $supplier->update([
-                'supplier_name' => $this->supplier_name,
-                'address' => $this->address,
-                'items' => $this->items,
-                'contact_person' => $this->contact_person,
-                'position' => $this->position,
-                'mobile_no' => $this->mobile_no,
-                'telephone_no' => $this->telephone_no,
-                'email_address' => $this->email_address,
-            ]);
-
-            $this->closeModal();
-            session()->flash('message', 'Supplier updated successfully!');
-        } else {
-            session()->flash('error', 'Supplier not found.');
+            $supplier = SupplierDirectory::find($this->editSupplierId);
+            if ($supplier) {
+                $supplier->update($validatedData);
+                $this->closeModal();
+                session()->flash('message', 'Supplier updated successfully!');
+            } else {
+                session()->flash('error', 'Supplier not found.');
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error updating Supplier.');
+            \Log::error('Error updating Supplier: ' . $e->getMessage());
         }
     }
 
@@ -151,23 +157,20 @@ class SupplierDirectoryIndex extends Component
 
     public function deleteSupplier()
     {
-        $supplier = SupplierDirectory::find($this->deletingSupplierId);
+        try {
+            $supplier = SupplierDirectory::find($this->deletingSupplierId);
 
-        if ($supplier) {
-            $supplier->delete();
-            $this->closeModal();
-            session()->flash('message', 'Supplier deleted successfully!');
-        } else {
-            session()->flash('error', 'Supplier not found.');
+            if ($supplier) {
+                $supplier->delete();
+                $this->closeModal();
+                session()->flash('message', 'Supplier deleted successfully!');
+            } else {
+                session()->flash('error', 'Supplier not found.');
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error deleting supplier.');
+            \Log::error('Error deleting supplier: ' . $e->getMessage());
         }
-    }
-
-
-    public $search = ''; // Added search property
-
-    public function updatingSearch()
-    {
-        $this->resetPage(); // Reset pagination when searching
     }
 
     public function render()

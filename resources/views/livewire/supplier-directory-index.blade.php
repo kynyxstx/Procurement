@@ -91,7 +91,7 @@
     <br>
     <br>
     <!-- Search Input -->
-    <input type="text" wire:model="search" placeholder="Search suppliers..."
+    <input type="text" wire:model.debounce.300ms="search" placeholder="Search suppliers..."
         class="w-full max-w-md p-2 border rounded-md shadow-md mb-4" />
 
     <!-- Supplier Table -->
@@ -147,3 +147,33 @@
             {{ $suppliers->links() }}
         </div>
     </div>
+
+    <!-- Edit Modal -->
+    <div x-data="{ open: @entangle('editModal') }" x-show="open"
+        class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div class="bg-white p-5 rounded-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Edit Supplier</h2>
+            <input wire:model="supplier_name" type="text" class="w-full p-2 border rounded-md mb-2"
+                placeholder="Supplier Name">
+            <input wire:model="address" type="text" class="w-full p-2 border rounded-md mb-2" placeholder="Address">
+            <div class="flex justify-end space-x-2">
+                <button wire:click="updateSupplier" class="px-4 py-2 bg-green-500 text-white rounded-lg">Save</button>
+                <button @click="open = false" class="px-4 py-2 bg-gray-500 text-white rounded-lg">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div x-data="{ open: @entangle('deleteModal') }" x-show="open"
+        class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div class="bg-white p-5 rounded-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Delete Supplier?</h2>
+            <p>Are you sure you want to delete this supplier?</p>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button wire:click="deleteSupplier" class="px-4 py-2 bg-red-500 text-white rounded-lg">Delete</button>
+                <button @click="open = false" class="px-4 py-2 bg-gray-500 text-white rounded-lg">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+</div>
