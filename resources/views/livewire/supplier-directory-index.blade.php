@@ -31,14 +31,14 @@
             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" placeholder="Enter Address"
             required />
     </div>
-    @error('address')   <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+    @error('address')    <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
 
     <div class="mb-2" style="width: 400px;">
         <label for="items" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Items Supplied</label>
         <textarea wire:model="items" id="items" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
             placeholder="Enter Items"></textarea>
     </div>
-    @error('items')  <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+    @error('items')    <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
 
     <div class="mb-2" style="width: 400px;">
         <label for="contact_person" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contact
@@ -63,7 +63,7 @@
             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" placeholder="Enter Mobile No."
             required />
     </div>
-    @error('mobile_no')   <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+    @error('mobile_no')    <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
 
     <div class="mb-2" style="width: 400px;">
         <label for="telephone_no" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telephone
@@ -81,17 +81,24 @@
             required />
     </div>
     @error('email_address')    <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
-
+    <br>
     <div class="mb-5">
         <button wire:click="addSupplier" class="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
             Add Supplier
         </button>
     </div>
+    <br>
+    <br>
+    <br>
+    <!-- Search Input -->
+    <input type="text" wire:model="search" placeholder="Search suppliers..."
+        class="w-full max-w-md p-2 border rounded-md shadow-md mb-4" />
 
     <!-- Supplier Table -->
-    <div class="mt-8 p-10 w-full">
+    <div class="mt-8 p-10 w-full overflow-x-auto">
         <h1 style="text-align: center; font-size: 2em;">Supplier List</h1><br>
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
+            style="table-layout: fixed;">
             <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                 <tr>
                     <th class="px-6 py-3">Supplier Name</th>
@@ -105,6 +112,38 @@
                     <th class="px-6 py-3">Actions</th>
                 </tr>
             </thead>
+
+            <tbody>
+                @foreach ($suppliers as $supplier)
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border">{{ $supplier->supplier_name }}</td>
+                        <td class="py-2 px-4 border">{{ $supplier->address }}</td>
+                        <td class="py-2 px-4 border">{{ $supplier->items }}</td>
+                        <td class="py-2 px-4 border">{{ $supplier->contact_person }}</td>
+                        <td class="py-2 px-4 border">{{ $supplier->position }}</td>
+                        <td class="py-2 px-4 border">{{ $supplier->mobile_no }}</td>
+                        <td class="py-2 px-4 border">{{ $supplier->telephone_no }}</td>
+                        <td class="py-2 px-4 border truncate"
+                            style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ $supplier->email_address }}
+                        </td>
+                        <td class="py-2 px-4 border text-center">
+                            <div class="flex justify-center space-x-2">
+                                <button wire:click="openEditModal({{ $supplier->id }})"
+                                    class="text-blue-600 hover:underline">Edit</button>
+                                <button wire:click="openDeleteModal({{ $supplier->id }})"
+                                    class="text-red-600 hover:underline">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
         </table>
     </div>
-</div>
+
+    <!-- Pagination -->
+    <div class="mt-4 flex flex-col items-center">
+        <div>
+            {{ $suppliers->links() }}
+        </div>
+    </div>
