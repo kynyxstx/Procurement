@@ -134,39 +134,35 @@
 
             <tbody>
             @foreach ($suppliers as $supplier)
-                <tr class="hover:bg-gray-100">
-                    <td class="py-2 px-4 border">{{ $supplier->supplier_name }}</td>
-                    <td class="py-2 px-4 border">{{ $supplier->address }}</td>
-                    <td class="py-2 px-4 border">{{ $supplier->items }}</td>
-                    <td class="py-2 px-4 border">{{ $supplier->contact_person }}</td>
-                    <td class="py-2 px-4 border">{{ $supplier->position }}</td>
-                    <td class="py-2 px-4 border">{{ $supplier->mobile_no }}</td>
-                    <td class="py-2 px-4 border">{{ $supplier->telephone_no }}</td>
-                    <td class="py-2 px-4 border truncate"
-                        style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        {{ $supplier->email_address }}
-                    </td>
-                    <td class="py-2 px-4 border text-center">
-                        <div class="flex justify-center space-x-2">
-                            <button wire:click="openEditModal({{ $supplier->id }})"
-                                    class="text-blue-600 hover:underline">Edit
-                            </button>
-                            <button wire:click="openDeleteModal({{ $supplier->id }})"
-                                    class="text-red-600 hover:underline">Delete
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+            <tr class="hover:bg-gray-100">
+    <td class="py-2 px-4 border">{{ $supplier->supplier_name }}</td>
+    <td class="py-2 px-4 border">{{ $supplier->address }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->items }}</td>
+    <td class="py-2 px-4 border">{{ $supplier->contact_person }}</td>
+    <td class="py-2 px-4 border">{{ $supplier->position }}</td>
+    <td class="py-2 px-4 border">{{ $supplier->mobile_no }}</td>
+    <td class="py-2 px-4 border">{{ $supplier->telephone_no }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->email_address }}</td>
+    <td class="py-2 px-4 border text-center">
+        <div class="flex justify-center space-x-2">
+            <button wire:click="openEditModal({{ $supplier->id }})"
+                    class="text-blue-600 hover:underline">Edit
+            </button>
+            <button wire:click="openDeleteModal({{ $supplier->id }})"
+                    class="text-red-600 hover:underline">Delete
+            </button>
+        </div>
+    </td>
+</tr>
             @endforeach
             </tbody>
         </table>
     </div>
-
     <div class="mt-4 flex flex-col items-center">
-        <div>
-            {{ $suppliers->links() }}
-        </div>
+    <div>
+        {{ $suppliers->links() }}
     </div>
+</div>
 
     <div>
         @if ($isEditModalOpen)

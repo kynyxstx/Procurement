@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/test-pagination', function () {
+    return dd(view()->exists('pagination.tailwind'));
+});
+
+
 Route::get('/', function () {
     return view('welcome');
 });
