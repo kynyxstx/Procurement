@@ -25,21 +25,22 @@ class SupplierDirectoryIndex extends Component
     public $isDeleteModalOpen = false;
     public $deletingSupplierId;
 
-
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
 
-
-    protected $rules = [
-        'supplier_name' => 'required|string|max:255',
-        'address' => 'required|string|max:500',
-        'items' => 'required|string|max:500',
-        'contact_person' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'mobile_no' => 'required|digits:11',
-        'telephone_no' => 'nullable|string|max:15',
-        'email_address' => 'required|email|unique:supplier_directories,email_address',
-    ];
+    public function rules()
+    {
+        return [
+            'supplier_name' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'items' => 'required|string|max:500',
+            'contact_person' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'mobile_no' => 'required|digits:11',
+            'telephone_no' => 'nullable|string|max:15',
+            'email_address' => 'required|email|unique:supplier_directories,email_address,' . $this->editSupplierId,
+        ];
+    }
 
     protected $listeners = ['refreshSupplier' => '$refresh'];
 
@@ -88,7 +89,7 @@ class SupplierDirectoryIndex extends Component
     {
         try {
             $this->validate();
-
+    
             SupplierDirectory::create([
                 'supplier_name' => $this->supplier_name,
                 'address' => $this->address,
@@ -99,13 +100,15 @@ class SupplierDirectoryIndex extends Component
                 'telephone_no' => $this->telephone_no,
                 'email_address' => $this->email_address,
             ]);
-
+    
             $this->closeModal();
             session()->flash('message', 'Supplier added successfully!');
             $this->resetFields();
+            $this->dispatch('supplierAdded'); // Corrected line
         } catch (\Exception $e) {
             session()->flash('error', 'There was an error adding the supplier.');
             \Log::error('Error adding supplier: ' . $e->getMessage());
+            $this->dispatch('supplierAddFailed'); // Corrected line
         }
     }
 
@@ -134,18 +137,23 @@ class SupplierDirectoryIndex extends Component
     {
         try {
             $validatedData = $this->validate();
-
+    
             $supplier = SupplierDirectory::find($this->editSupplierId);
             if ($supplier) {
                 $supplier->update($validatedData);
                 $this->closeModal();
                 session()->flash('message', 'Supplier updated successfully!');
+                $this->dispatch('supplierUpdated'); // Corrected line
             } else {
                 session()->flash('error', 'Supplier not found.');
+                $this->dispatch('supplierUpdateFailed'); // Corrected line
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error updating Supplier.');
             \Log::error('Error updating Supplier: ' . $e->getMessage());
+            $this->dispatch('supplierUpdateFailed'); // Corrected line
+            $this->dispatch('supplierUpdated');
+            $this->dispatch('supplierUpdateFailed');    
         }
     }
 
@@ -159,17 +167,20 @@ class SupplierDirectoryIndex extends Component
     {
         try {
             $supplier = SupplierDirectory::find($this->deletingSupplierId);
-
+    
             if ($supplier) {
                 $supplier->delete();
                 $this->closeModal();
                 session()->flash('message', 'Supplier deleted successfully!');
+                $this->dispatch('supplierDeleted'); // Corrected line
             } else {
                 session()->flash('error', 'Supplier not found.');
+                $this->dispatch('supplierDeleteFailed'); // Corrected line
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error deleting supplier.');
             \Log::error('Error deleting supplier: ' . $e->getMessage());
+            $this->dispatch('supplierDeleteFailed'); // Corrected line (only one is needed)
         }
     }
 
@@ -181,8 +192,23 @@ class SupplierDirectoryIndex extends Component
                 ->orWhere('items', 'like', '%' . $this->search . '%')
                 ->orWhere('contact_person', 'like', '%' . $this->search . '%')
                 ->orWhere('mobile_no', 'like', '%' . $this->search . '%')
-                ->paginate(2),
+                ->paginate(10),
         ]);
     }
+        public function performSearch()
+    {
+        $this->resetPage(); // Reset pagination when searching
+    }
 
+    private function resetFields()
+    {
+        $this->supplier_name = '';
+        $this->address = '';
+        $this->items = '';
+        $this->contact_person = '';
+        $this->position = '';
+        $this->mobile_no = '';
+        $this->telephone_no = '';
+        $this->email_address = '';
+    }
 }
