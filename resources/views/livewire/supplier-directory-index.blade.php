@@ -135,13 +135,13 @@
             <tbody>
             @foreach ($suppliers as $supplier)
             <tr class="hover:bg-gray-100">
-    <td class="py-2 px-4 border">{{ $supplier->supplier_name }}</td>
-    <td class="py-2 px-4 border">{{ $supplier->address }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->supplier_name }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->address }}</td>
     <td class="py-2 px-4 border break-words">{{ $supplier->items }}</td>
-    <td class="py-2 px-4 border">{{ $supplier->contact_person }}</td>
-    <td class="py-2 px-4 border">{{ $supplier->position }}</td>
-    <td class="py-2 px-4 border">{{ $supplier->mobile_no }}</td>
-    <td class="py-2 px-4 border">{{ $supplier->telephone_no }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->contact_person }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->position }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->mobile_no }}</td>
+    <td class="py-2 px-4 border break-words">{{ $supplier->telephone_no }}</td>
     <td class="py-2 px-4 border break-words">{{ $supplier->email_address }}</td>
     <td class="py-2 px-4 border text-center">
         <div class="flex justify-center space-x-2">
