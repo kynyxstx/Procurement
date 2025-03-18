@@ -17,9 +17,9 @@ return new class extends Migration {
             $table->text('items');
             $table->string('contact_person');
             $table->string('position');
-            $table->string('mobile_no', 11);
+            $table->string('mobile_no', 11)->nullable();
             $table->string('telephone_no')->nullable();
-            $table->string('email_address')->unique();
+            $table->string('email_address')->nullable();
             $table->timestamps();
         });
     }

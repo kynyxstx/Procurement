@@ -36,9 +36,9 @@ class SupplierDirectoryIndex extends Component
             'items' => 'required|string|max:500',
             'contact_person' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            'mobile_no' => 'required|digits:11',
+            'mobile_no' => 'nullable|digits:11',
             'telephone_no' => 'nullable|string|max:15',
-            'email_address' => 'required|email|unique:supplier_directories,email_address,' . $this->editSupplierId,
+            'email_address' => 'nullable|email',
         ];
     }
 
@@ -64,7 +64,6 @@ class SupplierDirectoryIndex extends Component
         'mobile_no.digits' => 'Mobile number must be 11 digits.',
         'email_address.required' => 'Email is required.',
         'email_address.email' => 'Enter a valid email address.',
-        'email_address.unique' => 'This email is already in use.',
     ];
 
     // Close modals
@@ -89,7 +88,7 @@ class SupplierDirectoryIndex extends Component
     {
         try {
             $this->validate();
-    
+
             SupplierDirectory::create([
                 'supplier_name' => $this->supplier_name,
                 'address' => $this->address,
@@ -100,15 +99,15 @@ class SupplierDirectoryIndex extends Component
                 'telephone_no' => $this->telephone_no,
                 'email_address' => $this->email_address,
             ]);
-    
+
             $this->closeModal();
             session()->flash('message', 'Supplier added successfully!');
             $this->resetFields();
-            $this->dispatch('supplierAdded'); // Corrected line
+            $this->dispatch('supplierAdded');
         } catch (\Exception $e) {
-            session()->flash('error', 'There was an error adding the supplier.');
-            \Log::error('Error adding supplier: ' . $e->getMessage());
-            $this->dispatch('supplierAddFailed'); // Corrected line
+            session()->flash('error', 'Error updating Supplier.');
+            \Log::error('Error updating Supplier: ' . $e->getMessage());
+            $this->dispatch('supplierUpdateFailed'); // Keep only one instance
         }
     }
 
@@ -141,19 +140,18 @@ class SupplierDirectoryIndex extends Component
             $supplier = SupplierDirectory::find($this->editSupplierId);
             if ($supplier) {
                 $supplier->update($validatedData);
+                $this->resetFields();
                 $this->closeModal();
                 session()->flash('message', 'Supplier updated successfully!');
-                $this->dispatch('supplierUpdated'); // Corrected line
+                $this->dispatch('supplierUpdated');
             } else {
                 session()->flash('error', 'Supplier not found.');
-                $this->dispatch('supplierUpdateFailed'); // Corrected line
+                $this->dispatch('supplierUpdateFailed');
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error updating Supplier.');
             \Log::error('Error updating Supplier: ' . $e->getMessage());
-            $this->dispatch('supplierUpdateFailed'); // Corrected line
-            $this->dispatch('supplierUpdated');
-            $this->dispatch('supplierUpdateFailed');    
+            $this->dispatch('supplierUpdateFailed');
         }
     }
 
@@ -167,7 +165,7 @@ class SupplierDirectoryIndex extends Component
     {
         try {
             $supplier = SupplierDirectory::find($this->deletingSupplierId);
-    
+
             if ($supplier) {
                 $supplier->delete();
                 $this->closeModal();
@@ -192,10 +190,10 @@ class SupplierDirectoryIndex extends Component
                 ->orWhere('items', 'like', '%' . $this->search . '%')
                 ->orWhere('contact_person', 'like', '%' . $this->search . '%')
                 ->orWhere('mobile_no', 'like', '%' . $this->search . '%')
-                ->paginate(10),
+                ->paginate(5),
         ]);
     }
-        public function performSearch()
+    public function performSearch()
     {
         $this->resetPage(); // Reset pagination when searching
     }
