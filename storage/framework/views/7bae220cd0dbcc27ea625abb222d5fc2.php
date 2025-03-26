@@ -1,0 +1,2 @@
+<img src="<?php echo e(asset('images/logo.png')); ?>" alt="<?php echo e(config('app.name')); ?> Logo" class="block h-12 w-auto" <?php echo e($attributes); ?> />
+<?php /**PATH C:\Users\Florence\Desktop\Procurement\Procurement\resources\views/components/application-mark.blade.php ENDPATH**/ ?>
