@@ -16,6 +16,11 @@
                             {{ __('Supplier Directory') }}
                         </x-nav-link>
                     </div>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link href="{{ route('Summary_Items_Procured') }}" :active="request()->routeIs('Summary_Items_Procured')">
+                            {{ __('Items Procured') }}
+                        </x-nav-link>
+                    </div>
                 </div>
 
                 <div class="hidden sm:flex sm:items-center sm:ms-6">

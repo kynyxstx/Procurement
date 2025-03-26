@@ -20,10 +20,12 @@ class SupplierDirectoryIndex extends Component
     public $email_address = '';
 
     public $search = '';
+    public $filterSupplier = '';
     public $isEditModalOpen = false;
     public $editSupplierId;
     public $isDeleteModalOpen = false;
     public $deletingSupplierId;
+    public $isAddModalOpen = false;
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
@@ -60,15 +62,14 @@ class SupplierDirectoryIndex extends Component
         'items.required' => 'Please specify the items.',
         'contact_person.required' => 'Contact person is required.',
         'position.required' => 'Position is required.',
-        'mobile_no.required' => 'Mobile number is required.',
         'mobile_no.digits' => 'Mobile number must be 11 digits.',
-        'email_address.required' => 'Email is required.',
         'email_address.email' => 'Enter a valid email address.',
     ];
 
     // Close modals
     public function closeModal()
     {
+        $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
         $this->reset(['supplier_name', 'address', 'items', 'contact_person', 'position', 'mobile_no', 'telephone_no', 'email_address', 'editSupplierId', 'isEditModalOpen', 'isDeleteModalOpen']);
@@ -107,8 +108,13 @@ class SupplierDirectoryIndex extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Error updating Supplier.');
             \Log::error('Error updating Supplier: ' . $e->getMessage());
-            $this->dispatch('supplierUpdateFailed'); // Keep only one instance
+            $this->dispatch('supplierUpdateFailed');
         }
+    }
+
+    public function openAddModal()
+    {
+        $this->isAddModalOpen = true;
     }
 
     public function openEditModal($supplierId)
@@ -136,7 +142,7 @@ class SupplierDirectoryIndex extends Component
     {
         try {
             $validatedData = $this->validate();
-    
+
             $supplier = SupplierDirectory::find($this->editSupplierId);
             if ($supplier) {
                 $supplier->update($validatedData);
@@ -170,27 +176,42 @@ class SupplierDirectoryIndex extends Component
                 $supplier->delete();
                 $this->closeModal();
                 session()->flash('message', 'Supplier deleted successfully!');
-                $this->dispatch('supplierDeleted'); // Corrected line
+                $this->dispatch('supplierDeleted');
             } else {
                 session()->flash('error', 'Supplier not found.');
-                $this->dispatch('supplierDeleteFailed'); // Corrected line
+                $this->dispatch('supplierDeleteFailed');
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error deleting supplier.');
             \Log::error('Error deleting supplier: ' . $e->getMessage());
-            $this->dispatch('supplierDeleteFailed'); // Corrected line (only one is needed)
+            $this->dispatch('supplierDeleteFailed');
         }
     }
 
     public function render()
     {
+        $suppliers = SupplierDirectory::query()
+            ->when($this->search, function ($query) {
+                $query->where('supplier_name', 'like', '%' . $this->search . '%')
+                    ->orWhere('address', 'like', '%' . $this->search . '%')
+                    ->orWhere('items', 'like', '%' . $this->search . '%')
+                    ->orWhere('contact_person', 'like', '%' . $this->search . '%')
+                    ->orWhere('mobile_no', 'like', '%' . $this->search . '%')
+                    ->orWhere('telephone_no', 'like', '%' . $this->search . '%')
+                    ->orWhere('email_address', 'like', '%' . $this->search . '%');
+            })
+            ->when($this->filterSupplier, function ($query) { // Changed to filterSupplier
+                $supplierNames = explode(';', $this->filterSupplier); // Changed variable name
+                $query->where(function ($query) use ($supplierNames) { // Changed variable name
+                    foreach ($supplierNames as $supplierName) { // Changed variable name
+                        $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%'); // Filter by supplier_name
+                    }
+                });
+            })
+            ->paginate(5);
+
         return view('livewire.supplier-directory-index', [
-            'suppliers' => SupplierDirectory::where('supplier_name', 'like', '%' . $this->search . '%')
-                ->orWhere('address', 'like', '%' . $this->search . '%')
-                ->orWhere('items', 'like', '%' . $this->search . '%')
-                ->orWhere('contact_person', 'like', '%' . $this->search . '%')
-                ->orWhere('mobile_no', 'like', '%' . $this->search . '%')
-                ->paginate(5),
+            'suppliers' => $suppliers,
         ]);
     }
     public function performSearch()

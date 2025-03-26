@@ -19,4 +19,8 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/Summary_Items_Procured', function () {
+        return view('livewire.items-procured-index');
+    })->name('Summary_Items_Procured');
 });
