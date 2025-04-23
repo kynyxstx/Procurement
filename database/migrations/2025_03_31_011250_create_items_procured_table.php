@@ -4,14 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('items_procureds', function (Blueprint $table) {
+        Schema::create('items_procured', function (Blueprint $table) {
             $table->id();
             $table->string('supplier');
             $table->string('item_project');

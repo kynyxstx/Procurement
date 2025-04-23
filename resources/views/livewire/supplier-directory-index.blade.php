@@ -66,12 +66,10 @@
                 value="Philippine Vision Group;Mayon Clinical Laboratory and Medical Service;Detoxicare Molecular Diagnostics Lab. Inc.;Clearbridge Medical Philippines Inc.;Diagnostica Trading">
                 Medical Supplies</option>
         </select>
-        <input type="text" wire:model.live="search" placeholder="Search suppliers..."
+        <input type="text" wire:model.live="search" wire:model.live="performSearch" placeholder="Search suppliers..."
             class="w-full max-w-md p-2 border rounded-md shadow-md mr-2" />
-        <button wire:click="performSearch"
-            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700">Search</button>
         <div class="flex flex-col items-start p-10">
-            <button wire:click="openAddModal" class="px-5 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700">
+            <button wire:click="openAddModal" class="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
                 Add Supplier
             </button>
         </div>
@@ -150,7 +148,7 @@
                                 class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
                                 placeholder="Enter Supplier Name" required />
                             @error('supplier_name')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                <p class="text-red-500 text-sm">{{ $errors->first('supplier_name') }}</p>
                             @enderror
                         </div>
                         <div class="mb-2">
@@ -160,7 +158,7 @@
                                 class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
                                 placeholder="Enter Address" required />
                             @error('address')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                <p class="text-red-500 text-sm">{{ $errors->first('mobile_no') }}</p>
                             @enderror
                         </div>
                         <div class="mb-2">
@@ -170,7 +168,7 @@
                                 class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
                                 placeholder="Enter Items" required></textarea>
                             @error('items')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                <p class="text-red-500 text-sm">{{ $errors->first('address') }}</p>
                             @enderror
                         </div>
                         <div class="mb-2">
@@ -181,7 +179,7 @@
                                 class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
                                 placeholder="Enter Contact Person" required />
                             @error('contact_person')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                <p class="text-red-500 text-sm">{{ $errors->first('contact_person') }}</p>
                             @enderror
                         </div>
                         <div class="mb-2">
@@ -191,7 +189,7 @@
                                 class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
                                 placeholder="Enter Position" required />
                             @error('position')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                <p class="text-red-500 text-sm">{{ $errors->first('position') }}</p>
                             @enderror
                         </div>
                         <div class="mb-2">
@@ -202,7 +200,7 @@
                                 class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
                                 placeholder="Enter Mobile No." />
                             @error('mobile_no')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                <p class="text-red-500 text-sm">{{ $errors->first('mobile_no') }}</p>
                             @enderror
                         </div>
                         <div class="mb-2">
@@ -221,7 +219,7 @@
                                 class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
                                 placeholder="Enter Email Address" />
                             @error('email_address')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                                <p class="text-red-500 text-sm">{{ $errors->first('email_address') }}</p>
                             @enderror
                         </div>
                         <div class="flex justify-end space-x-2">
@@ -268,7 +266,8 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
                             <input wire:model="address" id="editAddress" type="text" placeholder="Enter Address"
                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                            @error('address') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            @error('address') <span class="text-red-500 text-sm">{{ $errors->first('address') }}</span>
+                            @enderror
                         </div>
 
                         <div class="mb-4">
@@ -276,7 +275,8 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Items</label>
                             <textarea wire:model="items" id="editItems" placeholder="Enter Items"
                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></textarea>
-                            @error('items') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            @error('items') <span class="text-red-500 text-sm">{{ $errors->first('items') }}</span>
+                            @enderror
                         </div>
 
                         <div class="mb-4">
@@ -286,7 +286,8 @@
                             <input wire:model="contact_person" id="editContactPerson" type="text"
                                 placeholder="Enter Contact Person"
                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                            @error('contact_person') <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @error('contact_person') <span
+                                class="text-red-500 text-sm">{{ $errors->first('contact_person') }}</span>
                             @enderror
                         </div>
 
@@ -295,7 +296,7 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Position</label>
                             <input wire:model="position" id="editPosition" type="text" placeholder="Enter Position"
                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                            @error('position') <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @error('position') <span class="text-red-500 text-sm">{{ $errors->first('position') }}</span>
                             @enderror
                         </div>
 
@@ -305,7 +306,7 @@
                                 No.</label>
                             <input wire:model="mobile_no" id="editMobileNo" type="text" placeholder="Enter Mobile No."
                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                            @error('mobile_no') <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @error('mobile_no') <span class="text-red-500 text-sm">{{ $errors->first('mobile_no') }}</span>
                             @enderror
                         </div>
 
@@ -316,7 +317,8 @@
                             <input wire:model="telephone_no" id="editTelephoneNo" type="text"
                                 placeholder="Enter Telephone No."
                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                            @error('telephone_no') <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @error('telephone_no') <span
+                                class="text-red-500 text-sm">{{ $errors->first('telephone_no') }}</span>
                             @enderror
                         </div>
 
@@ -327,7 +329,8 @@
                             <input wire:model="email_address" id="editEmailAddress" type="email"
                                 placeholder="Enter Email Address"
                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                            @error('email_address') <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @error('email_address') <span
+                                class="text-red-500 text-sm">{{ $errors->first('email_address') }}</span>
                             @enderror
                         </div>
 

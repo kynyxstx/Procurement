@@ -190,8 +190,21 @@ class SupplierDirectoryIndex extends Component
 
     public function render()
     {
-        $suppliers = SupplierDirectory::query()
-            ->when($this->search, function ($query) {
+        $query = SupplierDirectory::query();
+
+        // IF FILTER SELECTED all items, meals, etc
+        if ($this->filterSupplier) {
+            $supplierNames = explode(';', $this->filterSupplier);
+            $query->where(function ($query) use ($supplierNames) {
+                foreach ($supplierNames as $supplierName) {
+                    $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%');
+                }
+            });
+        }
+
+        // Search filter sa lahat ng variables
+        if ($this->search) {
+            $query->where(function ($query) {
                 $query->where('supplier_name', 'like', '%' . $this->search . '%')
                     ->orWhere('address', 'like', '%' . $this->search . '%')
                     ->orWhere('items', 'like', '%' . $this->search . '%')
@@ -199,16 +212,10 @@ class SupplierDirectoryIndex extends Component
                     ->orWhere('mobile_no', 'like', '%' . $this->search . '%')
                     ->orWhere('telephone_no', 'like', '%' . $this->search . '%')
                     ->orWhere('email_address', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->filterSupplier, function ($query) { // Changed to filterSupplier
-                $supplierNames = explode(';', $this->filterSupplier); // Changed variable name
-                $query->where(function ($query) use ($supplierNames) { // Changed variable name
-                    foreach ($supplierNames as $supplierName) { // Changed variable name
-                        $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%'); // Filter by supplier_name
-                    }
-                });
-            })
-            ->paginate(5);
+            });
+        }
+
+        $suppliers = $query->paginate(20);
 
         return view('livewire.supplier-directory-index', [
             'suppliers' => $suppliers,

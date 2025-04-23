@@ -19,7 +19,7 @@
         <div>
             <x-slot name="header">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    SUMMARY OF ITEMS PROCURED
+                    PROCUREMENT MONITORING
                 </h2>
             </x-slot>
         </div>
@@ -31,9 +31,10 @@
                         <div class="flex items-center">
                             <select wire:model="filterItems" wire:change="performSearch"
                                 class="w-full p-2 border rounded-md shadow-md mr-2">
-                                <option value="">Year</option>
-                                <option value="Venue;Meals;Accommodation">2024</option>
-                                <option value="Services;Catering;Maintenance">2025</option>
+                                <option value="">Endorsement Days</option>
+                                <option value="Venue;Meals;Accommodation">3 days</option>
+                                <option value="Services;Catering;Maintenance">5 days</option>
+                                <option value="">More than 5 days</option>
                             </select>
                             <input type="text" wire:model="search" placeholder="Search suppliers..."
                                 class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
@@ -49,21 +50,29 @@
 
                     <!--Table-->
                     <div class="p-10 w-full overflow-x-auto">
-                        <h1 style="font-size: 2em;">List of Items Summary</h1><br>
+                        <h1 style="font-size: 2em;">Procurement Monitoring</h1><br>
 
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
                             style="table-layout: fixed;">
                             <thead
                                 class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                 <tr>
-                                    <th class="px-6 py-3">SUPPLIER</th>
-                                    <th class="px-6 py-3">ITEM/PROJECT</th>
-                                    <th class="px-6 py-3">UNIT COST</th>
+                                    <th class="px-6 py-3">PR No.</th>
+                                    <th class="px-6 py-3">Title</th>
+                                    <th class="px-6 py-3">Processor</th>
+                                    <th class="px-6 py-3">Supplier</th>
+                                    <th class="px-6 py-3">End-User</th>
+                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3">Date of Endorsement</th>
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr class="hover:bg-gray-100">
+                                    <td class="py-2 px-4 border break-words">Try</td>
+                                    <td class="py-2 px-4 border break-words">Try</td>
+                                    <td class="py-2 px-4 border break-words">Try</td>
+                                    <td class="py-2 px-4 border break-words">Try</td>
                                     <td class="py-2 px-4 border break-words">Try</td>
                                     <td class="py-2 px-4 border break-words">Try</td>
                                     <td class="py-2 px-4 border break-words">Try</td>

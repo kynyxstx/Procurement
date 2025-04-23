@@ -21,8 +21,17 @@
                             {{ __('Items Procured') }}
                         </x-nav-link>
                     </div>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link href="{{ route('Procurement_Monitoring') }}" :active="request()->routeIs('Procurement_Monitoring')">
+                            {{ __('Procurement Monitoring') }}
+                        </x-nav-link>
+                    </div>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link href="{{ route('Procurement-Outgoing') }}" :active="request()->routeIs('Procurement-Outgoing')">
+                            {{ __('Procurement Outgoing') }}
+                        </x-nav-link>
+                    </div>
                 </div>
-
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
                     <!-- Teams Dropdown -->
                     @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())

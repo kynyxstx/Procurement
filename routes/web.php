@@ -23,4 +23,12 @@ Route::middleware([
     Route::get('/Summary_Items_Procured', function () {
         return view('livewire.items-procured-index');
     })->name('Summary_Items_Procured');
+
+    Route::get('/Procurement_Monitoring', function () {
+        return view('livewire.procurement-monitoring');
+    })->name('Procurement_Monitoring');
+
+    Route::get('/Procurement-Outgoing', function () {
+        return view('livewire.procurement-outgoing');
+    })->name('Procurement-Outgoing');
 });
