@@ -14,5 +14,5 @@ class ItemsProcured extends Model
         "item_project",
         "unit_cost"
     ];
+    protected $table = 'items_procured';
 }
-

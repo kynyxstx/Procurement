@@ -18,7 +18,7 @@
     <div>
         <x-slot name="header">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                SUMMARY OF ITEMS PROCURED
+                2025 PROCUREMENT OUTGOING
             </h2>
         </x-slot>
     </div>
@@ -30,9 +30,19 @@
                     <div class="flex items-center">
                         <select wire:model="filterItems" wire:change="performSearch"
                             class="w-full p-2 border rounded-md shadow-md mr-2">
-                            <option value="">Year</option>
-                            <option value="Venue;Meals;Accommodation">2024</option>
-                            <option value="Services;Catering;Maintenance">2025</option>
+                            <option value="">Month </option>
+                            <option value="Venue;Meals;Accommodation">January</option>
+                            <option value="Services;Catering;Maintenance">February</option>
+                            <option value="">March</option>
+                            <option value="">April</option>
+                            <option value="">May</option>
+                            <option value="">June</option>
+                            <option value="">July</option>
+                            <option value="">August</option>
+                            <option value="">September</option>
+                            <option value="">October</option>
+                            <option value="">November</option>
+                            <option value="">December</option>
                         </select>
                         <input type="text" wire:model="search" placeholder="Search suppliers..."
                             class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
@@ -46,32 +56,42 @@
                     </div>
                 </div>
 
-                <!--Table-->
                 <div class="p-10 w-full overflow-x-auto">
-                    <h1 style="font-size: 2em;">List of Items Summary</h1><br>
-
+                    <h1 style="font-size: 2em;">Procurement Outgoing</h1><br>
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
                         style="table-layout: fixed;">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                             <tr>
-                                <th class="px-6 py-3">SUPPLIER</th>
-                                <th class="px-6 py-3">ITEM/PROJECT</th>
-                                <th class="px-6 py-3">UNIT COST</th>
+                                <th class="px-6 py-3">Date</th>
+                                <th class="px-6 py-3">End-User</th>
+                                <th class="px-6 py-3">PR-Number</th>
+                                <th class="px-6 py-3">Particulars</th>
+                                <th class="px-6 py-3">Amount</th>
+                                <th class="px-6 py-3">Creditor</th>
+                                <th class="px-6 py-3">Remarks</th>
+                                <th class="px-6 py-3">Responsibility</th>
+                                <th class="px-6 py-3">Received by</th>
                                 <th class="px-6 py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($items as $item)
+                            @foreach ($outgoings as $outgoing)
                                 <tr class="hover:bg-gray-100">
-                                    <td class="py-2 px-4 border break-words">{{ $item->supplier }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $item->item_project }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $item->unit_cost }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->received_date }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->end_user }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->pr_no }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->particulars }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->amount }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->creditor }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->remarks }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->responsibility }}</td>
+                                    <td class="py-2 px-4 border break-words">{{ $outgoing->received_by }}</td>
                                     <td class="py-2 px-4 border text-center">
                                         <div class="flex justify-center space-x-2">
-                                            <button wire:click="openEditModal({{ $item->id }})"
+                                            <button wire:click="openEditModal({{ $outgoing->id }})"
                                                 class="text-blue-600 hover:underline">Edit
                                             </button>
-                                            <button wire:click="openDeleteModal({{ $item->id }})"
+                                            <button wire:click="openDeleteModal({{ $outgoing->id }})"
                                                 class="text-red-600 hover:underline">Delete
                                             </button>
                                         </div>
@@ -79,7 +99,6 @@
                                 </tr>
                             @endforeach
                         </tbody>
-
                     </table>
                 </div>
             </div>

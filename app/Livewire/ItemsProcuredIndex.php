@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\ItemsProcured;
 use Livewire\WithPagination;
 
+
 class ItemsProcuredIndex extends Component
 {
     use WithPagination;
@@ -184,7 +185,7 @@ class ItemsProcuredIndex extends Component
 
         return view('livewire.items-procured-index', [
             'items' => $items,
-        ]);
+        ])->layout('layouts.app');
     }
 
     public function performSearch()
