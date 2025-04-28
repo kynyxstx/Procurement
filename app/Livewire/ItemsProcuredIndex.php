@@ -181,7 +181,7 @@ class ItemsProcuredIndex extends Component
                     }
                 });
             })
-            ->paginate(5);
+            ->paginate(700);
 
         return view('livewire.items-procured-index', [
             'items' => $items,
