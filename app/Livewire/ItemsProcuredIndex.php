@@ -14,6 +14,8 @@ class ItemsProcuredIndex extends Component
     public $supplier = '';
     public $item_project = '';
     public $unit_cost = '';
+    public $year = '';
+    public $month = '';
 
     public $search = '';
     public $filterSupplier = '';
@@ -32,6 +34,8 @@ class ItemsProcuredIndex extends Component
             'supplier' => 'required|string|max:255',
             'item_project' => 'required|string|max:500',
             'unit_cost' => 'nullable|string|max:255',
+            'year' => 'required|string|max:4',
+            'month' => 'required|string|max:10',
         ];
     }
 
@@ -65,11 +69,25 @@ class ItemsProcuredIndex extends Component
     // Save item (Create or Update)
     public function saveItem()
     {
-        if ($this->editItemId) {
-            $this->updateItem();
-        } else {
-            $this->addItem();
-        }
+        $this->validate();
+
+        ItemsProcured::create([
+            'supplier' => $this->supplier,
+            'item_project' => $this->item_project,
+            'unit_cost' => $this->unit_cost,
+            'year' => $this->year,
+            'month' => $this->month,
+        ]);
+
+        $this->closeModal();
+        session()->flash('message', 'Item added successfully!');
+        $this->resetInputFields();
+        $this->loadItems();
+    }
+
+    protected function loadItems()
+    {
+        $this->items = ItemsProcured::latest()->paginate(100);
     }
 
     public function addItem()
@@ -81,22 +99,32 @@ class ItemsProcuredIndex extends Component
                 'supplier' => $this->supplier,
                 'item_project' => $this->item_project,
                 'unit_cost' => $this->unit_cost,
+                'year' => $this->year, // Make sure $this->year has a value
+                'month' => $this->month, // And $this->month
             ]);
 
             $this->closeModal();
             session()->flash('message', 'Item added successfully!');
-            $this->resetFields();
-            $this->dispatch('itemAdded');
+            $this->resetInputFields();
         } catch (\Exception $e) {
             session()->flash('error', 'Error adding Item.');
             \Log::error('Error adding Item: ' . $e->getMessage());
-            $this->dispatch('itemAddFailed');
         }
     }
 
     public function openAddModal()
     {
+        $this->resetInputFields();
         $this->isAddModalOpen = true;
+    }
+
+    private function resetInputFields()
+    {
+        $this->supplier = '';
+        $this->item_project = '';
+        $this->unit_cost = '';
+        $this->year = '';
+        $this->month = '';
     }
 
     public function openEditModal($itemId)
@@ -108,6 +136,8 @@ class ItemsProcuredIndex extends Component
             $this->supplier = $item->supplier;
             $this->item_project = $item->item_project;
             $this->unit_cost = $item->unit_cost;
+            $this->year = $item->year;
+            $this->month = $item->month;
 
             $this->isEditModalOpen = true;
         } else {
@@ -122,11 +152,18 @@ class ItemsProcuredIndex extends Component
 
             $item = ItemsProcured::find($this->editItemId);
             if ($item) {
-                $item->update($validatedData);
-                $this->resetFields();
+                $item->update([
+                    'supplier' => $validatedData['supplier'],
+                    'item_project' => $validatedData['item_project'],
+                    'unit_cost' => $validatedData['unit_cost'],
+                    'year' => $validatedData['year'],
+                    'month' => $validatedData['month'],
+                ]);
+                $this->resetInputFields();
                 $this->closeModal();
                 session()->flash('message', 'Item updated successfully!');
                 $this->dispatch('itemUpdated');
+                $this->loadItems();
             } else {
                 session()->flash('error', 'Item not found.');
                 $this->dispatch('itemUpdateFailed');
@@ -154,6 +191,7 @@ class ItemsProcuredIndex extends Component
                 $this->closeModal();
                 session()->flash('message', 'Item deleted successfully!');
                 $this->dispatch('itemDeleted');
+                $this->loadItems();
             } else {
                 session()->flash('error', 'Item not found.');
                 $this->dispatch('itemDeleteFailed');
@@ -191,12 +229,5 @@ class ItemsProcuredIndex extends Component
     public function performSearch()
     {
         $this->resetPage();
-    }
-
-    private function resetFields()
-    {
-        $this->supplier = '';
-        $this->item_project = '';
-        $this->unit_cost = '';
     }
 }

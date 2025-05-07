@@ -8,11 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class ItemsProcured extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        "supplier",
-        "item_project",
-        "unit_cost"
-    ];
+    protected $fillable = ['supplier', 'item_project', 'unit_cost', 'year', 'month'];
     protected $table = 'items_procured';
 }

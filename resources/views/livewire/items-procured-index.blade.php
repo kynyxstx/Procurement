@@ -11,6 +11,21 @@
         </div>
     </div>
 @endif
+
+@if (session()->has('error'))
+    <div class="flex justify-center">
+        <div class="mt-4 px-6 py-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800 w-full max-w-md flex items-center"
+            role="alert">
+            <svg class="flex-shrink-0 inline w-5 h-5 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+            <span>{{ session('error') }}</span>
+        </div>
+    </div>
+@endif
+
 <div>
     <div>
         <x-slot name="header">
@@ -54,6 +69,8 @@
                                     <th class="px-6 py-3">Supplier</th>
                                     <th class="px-6 py-3">Item / Project</th>
                                     <th class="px-6 py-3">Unit Cost</th>
+                                    <th class="px-6 py-3">Year</th>
+                                    <th class="px-6 py-3">Month</th>
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
@@ -63,6 +80,8 @@
                                         <td class="py-2 px-4 border break-words">{{ $item->supplier }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $item->item_project }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $item->unit_cost }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $item->year }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $item->month }}</td>
                                         <td class="py-2 px-4 border text-center">
                                             <div class="flex justify-center space-x-2">
                                                 <button wire:click="openEditModal({{ $item->id }})"
@@ -125,6 +144,31 @@
                                             <p class="text-red-500 text-sm">{{ $errors->first('unit_cost') }}</p>
                                         @enderror
                                     </div>
+
+                                    {{-- Add Year Field --}}
+                                    <div class="mb-2">
+                                        <label for="year"
+                                            class="block text-sm font-medium text-gray-900 dark:text-white">Year</label>
+                                        <input wire:model="year" type="text" id="year"
+                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            placeholder="Enter Year" required />
+                                        @error('year')
+                                            <p class="text-red-500 text-sm">{{ $errors->first('year') }}</p>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Add Month Field --}}
+                                    <div class="mb-2">
+                                        <label for="month"
+                                            class="block text-sm font-medium text-gray-900 dark:text-white">Month</label>
+                                        <input wire:model="month" type="text" id="month"
+                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            placeholder="Enter Month" required />
+                                        @error('month')
+                                            <p class="text-red-500 text-sm">{{ $errors->first('month') }}</p>
+                                        @enderror
+                                    </div>
+
                                     <div class="flex justify-end space-x-2">
                                         <button type="button" wire:click="closeModal"
                                             class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</button>
@@ -181,6 +225,31 @@
                                             <p class="text-red-500 text-sm">{{ $errors->first('unit_cost') }}</p>
                                         @enderror
                                     </div>
+
+                                    {{-- Add Year Field --}}
+                                    <div class="mb-2">
+                                        <label for="edit_year"
+                                            class="block text-sm font-medium text-gray-900 dark:text-white">Year</label>
+                                        <input wire:model="year" type="text" id="edit_year"
+                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            placeholder="Enter Year" required />
+                                        @error('year')
+                                            <p class="text-red-500 text-sm">{{ $errors->first('year') }}</p>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Add Month Field --}}
+                                    <div class="mb-2">
+                                        <label for="edit_month"
+                                            class="block text-sm font-medium text-gray-900 dark:text-white">Month</label>
+                                        <input wire:model="month" type="text" id="edit_month"
+                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            placeholder="Enter Month" required />
+                                        @error('month')
+                                            <p class="text-red-500 text-sm">{{ $errors->first('month') }}</p>
+                                        @enderror
+                                    </div>
+
                                     <div class="flex justify-end space-x-2">
                                         <button type="button" wire:click="closeModal"
                                             class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</button>
