@@ -223,7 +223,7 @@ class ProcurementOutgoingIndex extends Component
                 });
             });
 
-        $outgoings = $query->paginate(5);
+        $outgoings = $query->paginate(100);
 
         return view('livewire.procurement-outgoing-index', [
             'outgoings' => $outgoings,

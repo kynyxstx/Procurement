@@ -181,7 +181,7 @@ class ItemsProcuredIndex extends Component
                     }
                 });
             })
-            ->paginate(700);
+            ->paginate(perPage: 100);
 
         return view('livewire.items-procured-index', [
             'items' => $items,
@@ -190,7 +190,7 @@ class ItemsProcuredIndex extends Component
 
     public function performSearch()
     {
-        $this->resetPage(); // Reset pagination when searching
+        $this->resetPage();
     }
 
     private function resetFields()

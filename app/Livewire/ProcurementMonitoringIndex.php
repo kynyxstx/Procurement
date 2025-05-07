@@ -199,7 +199,7 @@ class ProcurementMonitoringIndex extends Component
                 });
             });
 
-        $monitorings = $query->paginate(100);
+        $monitorings = $query->paginate(10);
 
         return view('livewire.procurement-monitoring-index', [
             'monitorings' => $monitorings,
