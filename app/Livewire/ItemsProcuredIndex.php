@@ -99,8 +99,8 @@ class ItemsProcuredIndex extends Component
                 'supplier' => $this->supplier,
                 'item_project' => $this->item_project,
                 'unit_cost' => $this->unit_cost,
-                'year' => $this->year, // Make sure $this->year has a value
-                'month' => $this->month, // And $this->month
+                'year' => $this->year,
+                'month' => $this->month,
             ]);
 
             $this->closeModal();

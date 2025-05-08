@@ -21,7 +21,7 @@ class ProcurementOutgoingIndex extends Component
     public $received_by = '';
 
     public $search = '';
-    public $filterCreditor = ''; // Changed from filterSupplier to be more relevant
+    public $filterCreditor = '';
     public $isEditModalOpen = false;
     public $editItemId;
     public $isDeleteModalOpen = false;
@@ -223,7 +223,7 @@ class ProcurementOutgoingIndex extends Component
                 });
             });
 
-        $outgoings = $query->paginate(100);
+        $outgoings = $query->paginate(5);
 
         return view('livewire.procurement-outgoing-index', [
             'outgoings' => $outgoings,

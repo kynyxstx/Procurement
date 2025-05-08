@@ -98,6 +98,11 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="mt-4 flex-wrap items-center">
+                        <div>
+                            {{ $outgoings->links() }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

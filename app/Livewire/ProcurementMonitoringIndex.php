@@ -78,6 +78,11 @@ class ProcurementMonitoringIndex extends Component
         }
     }
 
+    public function loadItems()
+    {
+        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement']);
+    }
+
     public function addItem()
     {
         try {

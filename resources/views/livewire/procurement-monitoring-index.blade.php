@@ -88,6 +88,11 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="mt-4 flex-wrap items-center">
+                        <div>
+                            {{ $monitorings->links() }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
