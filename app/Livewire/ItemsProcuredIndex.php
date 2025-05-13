@@ -217,31 +217,21 @@ class ItemsProcuredIndex extends Component
         $query = ItemsProcured::query();
 
         if (property_exists($this, 'filterMonth') && $this->filterMonth) {
-            $Month = explode(',', $this->filterMonth);
-            $query->where(function ($query) use ($Month) {
-                foreach ($Month as $month) {
-                    $query->orWhere('month', 'like', '%' . $month . '%');
-                }
-            });
+            $query->whereRaw('LOWER(month) = ?', [strtolower($this->filterMonth)]);
         }
 
         if (property_exists($this, 'filterYear') && $this->filterYear) {
-            $Year = explode(',', $this->filterYear);
-            $query->where(function ($query) use ($Year) {
-                foreach ($Year as $year) {
-                    $query->orWhere('year', 'like', '%' . $year . '%');
-                }
-            });
+            $query->where('year', $this->filterYear);
         }
 
         if ($this->search) {
-            $searchTerm = $this->search;
-            $query->where(function ($query) use ($searchTerm) {
-                $query->where('supplier', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('item_project', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('unit_cost', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('year', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('month', 'like', '%' . $searchTerm . '%');
+            $searchItem = $this->search;
+            $query->where(function ($query) use ($searchItem) {
+                $query->where('supplier', 'like', "%{$searchItem}%")
+                    ->orWhere('item_project', 'like', "%{$searchItem}%")
+                    ->orWhere('unit_cost', 'like', "%{$searchItem}%")
+                    ->orWhere('year', 'like', "%{$searchItem}%")
+                    ->orWhereRaw('LOWER(month) LIKE ?', ['%' . strtolower($searchItem) . '%']);
             });
         }
 

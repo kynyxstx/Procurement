@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\ProcurementMonitoring;
 use Livewire\WithPagination;
+use function Laravel\Prompts\search;
 
 class ProcurementMonitoringIndex extends Component
 {
@@ -186,23 +187,19 @@ class ProcurementMonitoringIndex extends Component
 
     public function render()
     {
-        $query = ProcurementMonitoring::query()
-            ->when($this->search, function ($query) {
-                $query->where('pr_no', 'like', '%' . $this->search . '%')
-                    ->orWhere('title', 'like', '%' . $this->search . '%')
-                    ->orWhere('processor', 'like', '%' . $this->search . '%')
-                    ->orWhere('supplier', 'like', '%' . $this->search . '%')
-                    ->orWhere('end_user', 'like', '%' . $this->search . '%')
-                    ->orWhere('status', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->filterSupplier, function ($query) {
-                $supplierNames = explode(';', $this->filterSupplier);
-                $query->where(function ($query) use ($supplierNames) {
-                    foreach ($supplierNames as $supplierName) {
-                        $query->orWhere('supplier', 'like', '%' . trim($supplierName) . '%');
-                    }
-                });
+        $query = ProcurementMonitoring::query();
+
+        if ($this->search) {
+            $searchMonitoring = $this->search;
+            $query->where(function ($query) use ($searchMonitoring) {
+                $query->where('pr_no', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('title', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('processor', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('supplier', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('end_user', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('status', 'like', "%{$searchMonitoring}%");
             });
+        }
 
         $monitorings = $query->paginate(10);
 
