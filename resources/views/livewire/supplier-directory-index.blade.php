@@ -1,22 +1,20 @@
 <div class="flex flex-col items-center p-10">
 
-    @if (session()->has('message'))
-        <div class="flex justify-center">
-            <div class="mt-4 px-6 py-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800 w-full max-w-md flex items-center"
-                role="alert">
-                <svg class="flex-shrink-0 inline w-5 h-5 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                </svg>
-                <span>{{ session('message') }}</span>
+    @if ($showNotification)
+        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
+            role="alert">
+            <strong class="font-bold">Success!</strong>
+            <span class="block sm:inline">{{ $notificationMessage }}</span>
+            <div class="mt-2 flex justify-end">
+                <button wire:click="dismissNotification"
+                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    OK
+                </button>
             </div>
         </div>
     @endif
 
-    <!-- Search Input, Search Button, tsaka Filter -->
     <div class="w-full flex justify-between items-center mb-4 pl-10">
-        <!-- <div class="flex items-center"> Itong part na to maglalapit sila, if enable get it end hanggang search button to -->
         <select wire:model="filterSupplier" wire:change="performSearch" class="p-2 border rounded-md shadow-md mr-2"
             style="width: 300px;">
             <option value="" style="color: #ffffff; font-weight: bold; background-color: #636363;">
@@ -28,7 +26,7 @@
                 Services Catering & Maintenance</option>
             <option
                 value=" Maningning Trading;Token Avenue Trading;Grafiq Advertising System Corp.;Mathel
-                    Enterprises;Macjab;Awards Central Philippines Inc.;TJ;Marbelle Consumer Goods Trading;Karen International Inc.;AJ">
+                                            Enterprises;Macjab;Awards Central Philippines Inc.;TJ;Marbelle Consumer Goods Trading;Karen International Inc.;AJ">
                 Tokens & Awards</option>
             <option
                 value="Kingsford Hotel Manila, Inc.;First Commonwealth Hotel Corp.;Park Inn by Radisson North Edsa;Century Park Hotel;La Breza Hotel;Harolds Evotel;Joy Nostalg;Hotel Lucky Chinatown;Luxent Hotel;Park inn by Raddison North EDSA;Seda Vertis North;Harolds Evotel Quezon City;GOH Management, Inc.;Eurotel Corporation;East Richmonde Hotel;Madison 101 Inc.;Go Hotels Timog;Northbelle Properties (B Hotel Quezon City);Camelot Hotel;Eastwood Richmonde Hotel;Y Hotels and Resorts Group, Inc.;Madison 101 Inc.;Prestige Hotels & Resort, Inc.;Sequoia Manila Corp;Hive Hotel and Convention Place;Erawan Philippines (Quezon City) Inc.;The Linden Suites;Paradigma International, Inc.;Astoria Plaza;Cocoon Boutique Hotel;Joy-Nostalg Hotel and Suites Manila;St. Francis Square Development Corp.;Azteco Corporation;Sequoia Manila Corp;Brentwood Suites;Novotel Manila;Madison 101 Tower & Hotel;Paramount Hotels & Facilities Mgt. Company Inc. (Microtel by Wyndham);Microtel by Wyndham;Crowne Plaza Manila Galleria;Seda Vertis North Hotel;USA Development Corp./ACE Hotel;Shercon Resort and Ecology Park;The Plaza Hotel - Balanga City;Wynwood Hotel Manila;Nanay Carmela's Kitchen Food Production;GOH Management, Inc.;Belmont Hotel Manila;Luxent Hotel;Novotel Manila Araneta City;Estancia de Lorenzo, Inc.;Abagatan Ti Manila;Timberland Highlands Resorts">
@@ -75,7 +73,6 @@
         </div>
     </div>
 
-    <!-- Supplier Table -->
     <div class="p-10 w-full overflow-x-auto">
         <h1 style="font-size: 2em;">Suppliers List</h1><br>
 
@@ -249,7 +246,7 @@
                 </div>
 
                 <div>
-                    <form wire:submit.prevent="updateSupplier">
+                    <form wire:submit.prevent="saveSupplier">
                         <div class="mb-4">
                             <label for="editSupplierName"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Supplier
@@ -361,54 +358,10 @@
         </div>
     @endif
 
-    @if (session()->has('message'))
-        <div class="fixed top-4 right-4 bg-green-200 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-            role="alert">
-            <strong class="font-bold">Success!</strong>
-            <span class="block sm:inline">{{ session('message') }}</span>
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="fixed top-4 right-4 bg-red-200 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-            role="alert">
-            <strong class="font-bold">Error!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-        </div>
-    @endif
+    <script>
+        document.addEventListener('livewire:load', function () {
+            // You can remove or modify the existing livewire.on listeners
+            // as the notification is now handled by the $showNotification property.
+        });
+    </script>
 </div>
-<script>
-    document.addEventListener('livewire:load', function () {
-        window.livewire.on('supplierUpdated', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-green-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('supplierDeleted', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-green-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('supplierUpdateFailed', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-red-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('supplierDeleteFailed', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-red-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('supplierAdded', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-green-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('supplierAddFailed', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-red-200').forEach(el => el.remove());
-            }, 3000);
-        });
-    });
-
-</script>

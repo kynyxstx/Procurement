@@ -25,6 +25,9 @@ class ItemsProcuredIndex extends Component
     public $deletingItemId;
     public $isAddModalOpen = false;
 
+    public $showNotification = false;
+    public $notificationMessage = '';
+
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
 
@@ -41,6 +44,10 @@ class ItemsProcuredIndex extends Component
 
     protected $listeners = ['refreshItemsProcured' => '$refresh'];
 
+    public function loadData()
+    {
+        $this->resetPage(); // Reset pagination if needed
+    }
     public function mount(): void
     {
         $this->resetPage();
@@ -104,17 +111,19 @@ class ItemsProcuredIndex extends Component
             ]);
 
             $this->closeModal();
-            session()->flash('message', 'Item added successfully!');
+            $this->notificationMessage = 'Item added successfully!';
+            $this->showNotification = true;
             $this->resetInputFields();
+            $this->dispatch('itemAdded');
         } catch (\Exception $e) {
             session()->flash('error', 'Error adding Item.');
             \Log::error('Error adding Item: ' . $e->getMessage());
+            $this->dispatch('itemAddFailed');
         }
     }
 
     public function openAddModal()
     {
-        $this->resetInputFields();
         $this->isAddModalOpen = true;
     }
 
@@ -152,18 +161,12 @@ class ItemsProcuredIndex extends Component
 
             $item = ItemsProcured::find($this->editItemId);
             if ($item) {
-                $item->update([
-                    'supplier' => $validatedData['supplier'],
-                    'item_project' => $validatedData['item_project'],
-                    'unit_cost' => $validatedData['unit_cost'],
-                    'year' => $validatedData['year'],
-                    'month' => $validatedData['month'],
-                ]);
+                $item->update($validatedData);
                 $this->resetInputFields();
                 $this->closeModal();
-                session()->flash('message', 'Item updated successfully!');
+                $this->notificationMessage = 'Item updated successfully!';
+                $this->showNotification = true;
                 $this->dispatch('itemUpdated');
-                $this->loadItems();
             } else {
                 session()->flash('error', 'Item not found.');
                 $this->dispatch('itemUpdateFailed');
@@ -189,9 +192,9 @@ class ItemsProcuredIndex extends Component
             if ($item) {
                 $item->delete();
                 $this->closeModal();
-                session()->flash('message', 'Item deleted successfully!');
+                $this->notificationMessage = 'Item deleted successfully!';
+                $this->showNotification = true;
                 $this->dispatch('itemDeleted');
-                $this->loadItems();
             } else {
                 session()->flash('error', 'Item not found.');
                 $this->dispatch('itemDeleteFailed');
@@ -203,27 +206,50 @@ class ItemsProcuredIndex extends Component
         }
     }
 
+    public function dismissNotification()
+    {
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+    }
+
     public function render()
     {
-        $items = ItemsProcured::query()
-            ->when($this->search, function ($query) {
-                $query->where('supplier', 'like', '%' . $this->search . '%')
-                    ->orWhere('item_project', 'like', '%' . $this->search . '%')
-                    ->orWhere('unit_cost', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->filterSupplier, function ($query) {
-                $supplierNames = explode(';', $this->filterSupplier);
-                $query->where(function ($query) use ($supplierNames) {
-                    foreach ($supplierNames as $supplierName) {
-                        $query->orWhere('supplier', 'like', '%' . trim($supplierName) . '%');
-                    }
-                });
-            })
-            ->paginate(perPage: 100);
+        $query = ItemsProcured::query();
+
+        if (property_exists($this, 'filterMonth') && $this->filterMonth) {
+            $Month = explode(',', $this->filterMonth);
+            $query->where(function ($query) use ($Month) {
+                foreach ($Month as $month) {
+                    $query->orWhere('month', 'like', '%' . $month . '%');
+                }
+            });
+        }
+
+        if (property_exists($this, 'filterYear') && $this->filterYear) {
+            $Year = explode(',', $this->filterYear);
+            $query->where(function ($query) use ($Year) {
+                foreach ($Year as $year) {
+                    $query->orWhere('year', 'like', '%' . $year . '%');
+                }
+            });
+        }
+
+        if ($this->search) {
+            $searchTerm = $this->search;
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('supplier', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('item_project', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('unit_cost', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('year', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('month', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $items = $query->paginate(100);
 
         return view('livewire.items-procured-index', [
             'items' => $items,
-        ])->layout('layouts.app');
+        ])->layout('layouts.app', ['title' => 'Items Procured']);
     }
 
     public function performSearch()

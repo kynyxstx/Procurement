@@ -27,6 +27,9 @@ class SupplierDirectoryIndex extends Component
     public $deletingSupplierId;
     public $isAddModalOpen = false;
 
+    public $showNotification = false;
+    public $notificationMessage = '';
+
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
 
@@ -102,16 +105,16 @@ class SupplierDirectoryIndex extends Component
             ]);
 
             $this->closeModal();
-            session()->flash('message', 'Supplier added successfully!');
+            $this->notificationMessage = 'Supplier added successfully!';
+            $this->showNotification = true;
             $this->resetFields();
             $this->dispatch('supplierAdded');
         } catch (\Exception $e) {
-            session()->flash('error', 'Error updating Supplier.');
-            \Log::error('Error updating Supplier: ' . $e->getMessage());
-            $this->dispatch('supplierUpdateFailed');
+            session()->flash('error', 'Error adding Supplier.');
+            \Log::error('Error adding Supplier: ' . $e->getMessage());
+            $this->dispatch('supplierAddFailed');
         }
     }
-
     public function openAddModal()
     {
         $this->isAddModalOpen = true;
@@ -148,7 +151,8 @@ class SupplierDirectoryIndex extends Component
                 $supplier->update($validatedData);
                 $this->resetFields();
                 $this->closeModal();
-                session()->flash('message', 'Supplier updated successfully!');
+                $this->notificationMessage = 'Supplier updated successfully!';
+                $this->showNotification = true;
                 $this->dispatch('supplierUpdated');
             } else {
                 session()->flash('error', 'Supplier not found.');
@@ -175,7 +179,8 @@ class SupplierDirectoryIndex extends Component
             if ($supplier) {
                 $supplier->delete();
                 $this->closeModal();
-                session()->flash('message', 'Supplier deleted successfully!');
+                $this->notificationMessage = 'Supplier deleted successfully!';
+                $this->showNotification = true;
                 $this->dispatch('supplierDeleted');
             } else {
                 session()->flash('error', 'Supplier not found.');
@@ -188,11 +193,15 @@ class SupplierDirectoryIndex extends Component
         }
     }
 
+    public function dismissNotification()
+    {
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+    }
     public function render()
     {
         $query = SupplierDirectory::query();
-
-        // IF FILTER SELECTED all items, meals, etc
+        // Filter by supplier name
         if ($this->filterSupplier) {
             $supplierNames = explode(';', $this->filterSupplier);
             $query->where(function ($query) use ($supplierNames) {
