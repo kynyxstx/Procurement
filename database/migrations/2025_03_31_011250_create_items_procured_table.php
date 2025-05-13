@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->string('supplier');
             $table->string('item_project');
             $table->string('unit_cost');
+            $table->string('year');
+            $table->string('month');
             $table->timestamps();
         });
     }
