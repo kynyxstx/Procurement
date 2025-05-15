@@ -33,6 +33,16 @@ class SupplierDirectoryIndex extends Component
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
 
+    /**
+     * The properties that should be included in the query string.
+     *
+     * @var array
+     */
+
+    protected $queryString = [
+        'search',
+    ];
+
     public function rules()
     {
         return [
@@ -52,6 +62,11 @@ class SupplierDirectoryIndex extends Component
     public function mount(): void
     {
         $this->resetPage();
+
+        // Check if 'search' exists in the query string and update the property
+        if (request()->has('search')) {
+            $this->search = request()->query('search');
+        }
     }
 
     public function updated($propertyName)
@@ -198,21 +213,17 @@ class SupplierDirectoryIndex extends Component
         $this->showNotification = false;
         $this->notificationMessage = '';
     }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
     public function render()
     {
         $query = SupplierDirectory::query();
-        // Filter by supplier name
-        if ($this->filterSupplier) {
-            $supplierNames = explode(';', $this->filterSupplier);
-            $query->where(function ($query) use ($supplierNames) {
-                foreach ($supplierNames as $supplierName) {
-                    $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%');
-                }
-            });
-        }
 
-        // Search filter sa lahat ng variables
-        if ($this->search) {
+        // Apply search if it's not empty
+        if (!empty($this->search)) {
             $query->where(function ($query) {
                 $query->where('supplier_name', 'like', '%' . $this->search . '%')
                     ->orWhere('address', 'like', '%' . $this->search . '%')
@@ -224,7 +235,19 @@ class SupplierDirectoryIndex extends Component
             });
         }
 
+        // Filter by supplier name
+        if ($this->filterSupplier) {
+            $supplierNames = explode(';', $this->filterSupplier);
+            $query->where(function ($query) use ($supplierNames) {
+                foreach ($supplierNames as $supplierName) {
+                    $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%');
+                }
+            });
+        }
+
         $suppliers = $query->paginate(20);
+
+
 
         return view('livewire.supplier-directory-index', [
             'suppliers' => $suppliers,

@@ -6,7 +6,6 @@ use Livewire\Component;
 use App\Models\ItemsProcured;
 use Livewire\WithPagination;
 
-
 class ItemsProcuredIndex extends Component
 {
     use WithPagination;
@@ -17,8 +16,9 @@ class ItemsProcuredIndex extends Component
     public $year = '';
     public $month = '';
 
+    public $filterYear = '';
+    public $filterMonth = '';
     public $search = '';
-    public $filterSupplier = '';
     public $isEditModalOpen = false;
     public $editItemId;
     public $isDeleteModalOpen = false;
@@ -30,6 +30,12 @@ class ItemsProcuredIndex extends Component
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'filterYear' => ['except' => ''],
+        'filterMonth' => ['except' => ''],
+    ];
 
     public function rules()
     {
@@ -44,10 +50,6 @@ class ItemsProcuredIndex extends Component
 
     protected $listeners = ['refreshItemsProcured' => '$refresh'];
 
-    public function loadData()
-    {
-        $this->resetPage(); // Reset pagination if needed
-    }
     public function mount(): void
     {
         $this->resetPage();
@@ -64,7 +66,6 @@ class ItemsProcuredIndex extends Component
         'unit_cost.required' => 'Unit cost is required.',
     ];
 
-    // Close modals
     public function closeModal()
     {
         $this->isAddModalOpen = false;
@@ -73,36 +74,14 @@ class ItemsProcuredIndex extends Component
         $this->reset(['supplier', 'item_project', 'unit_cost', 'editItemId', 'isEditModalOpen', 'isDeleteModalOpen']);
     }
 
-    // Save item (Create or Update)
     public function saveItem()
     {
-        $this->validate();
-
-        ItemsProcured::create([
-            'supplier' => $this->supplier,
-            'item_project' => $this->item_project,
-            'unit_cost' => $this->unit_cost,
-            'year' => $this->year,
-            'month' => $this->month,
-        ]);
-
-        $this->closeModal();
-        session()->flash('message', 'Item added successfully!');
-        $this->resetInputFields();
-        $this->loadItems();
-    }
-
-    protected function loadItems()
-    {
-        $this->items = ItemsProcured::latest()->paginate(100);
-    }
-
-    public function addItem()
-    {
+        \Log::info('Attempting to save item...');
         try {
             $this->validate();
+            \Log::info('Validation successful.');
 
-            ItemsProcured::create([
+            $newItem = ItemsProcured::create([
                 'supplier' => $this->supplier,
                 'item_project' => $this->item_project,
                 'unit_cost' => $this->unit_cost,
@@ -110,21 +89,26 @@ class ItemsProcuredIndex extends Component
                 'month' => $this->month,
             ]);
 
+            \Log::info('Item created successfully. ID: ' . $newItem->id);
+
             $this->closeModal();
             $this->notificationMessage = 'Item added successfully!';
             $this->showNotification = true;
             $this->resetInputFields();
-            $this->dispatch('itemAdded');
+            // Pagination handled in render
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Database error adding item: ' . $e->getMessage());
+            session()->flash('error', 'Error adding item to the database: ' . $e->getMessage());
         } catch (\Exception $e) {
-            session()->flash('error', 'Error adding Item.');
-            \Log::error('Error adding Item: ' . $e->getMessage());
-            $this->dispatch('itemAddFailed');
+            \Log::error('An unexpected error occurred while adding item: ' . $e->getMessage());
+            session()->flash('error', 'An unexpected error occurred: ' . $e->getMessage());
         }
     }
 
-    public function openAddModal()
+    public function dismissNotification()
     {
-        $this->isAddModalOpen = true;
+        $this->showNotification = false;
+        $this->notificationMessage = '';
     }
 
     private function resetInputFields()
@@ -134,6 +118,11 @@ class ItemsProcuredIndex extends Component
         $this->unit_cost = '';
         $this->year = '';
         $this->month = '';
+    }
+
+    public function openAddModal()
+    {
+        $this->isAddModalOpen = true;
     }
 
     public function openEditModal($itemId)
@@ -206,22 +195,21 @@ class ItemsProcuredIndex extends Component
         }
     }
 
-    public function dismissNotification()
-    {
-        $this->showNotification = false;
-        $this->notificationMessage = '';
-    }
-
     public function render()
     {
         $query = ItemsProcured::query();
 
-        if (property_exists($this, 'filterMonth') && $this->filterMonth) {
-            $query->whereRaw('LOWER(month) = ?', [strtolower($this->filterMonth)]);
+        \Log::info('Filter Year: ' . $this->filterYear);
+        \Log::info('Filter Month: ' . $this->filterMonth);
+
+        if ($this->filterYear) {
+            $query->where('year', $this->filterYear);
+            \Log::info('Applying Year Filter: ' . $this->filterYear);
         }
 
-        if (property_exists($this, 'filterYear') && $this->filterYear) {
-            $query->where('year', $this->filterYear);
+        if ($this->filterMonth) {
+            $query->whereRaw('LOWER(month) = ?', [strtolower($this->filterMonth)]);
+            \Log::info('Applying Month Filter: ' . $this->filterMonth);
         }
 
         if ($this->search) {
@@ -233,17 +221,16 @@ class ItemsProcuredIndex extends Component
                     ->orWhere('year', 'like', "%{$searchItem}%")
                     ->orWhereRaw('LOWER(month) LIKE ?', ['%' . strtolower($searchItem) . '%']);
             });
+            \Log::info('Applying Search: ' . $this->search);
         }
 
-        $items = $query->paginate(100);
+        \Log::info('SQL Query: ' . $query->toSql());
+        \Log::info('SQL Bindings: ' . json_encode($query->getBindings()));
+
+        $items = $query->paginate($this->perPage);
 
         return view('livewire.items-procured-index', [
             'items' => $items,
         ])->layout('layouts.app', ['title' => 'Items Procured']);
-    }
-
-    public function performSearch()
-    {
-        $this->resetPage();
     }
 }
