@@ -23,10 +23,13 @@ class ProcurementOutgoingIndex extends Component
     public $search = '';
     public $filterCreditor = '';
     public $isEditModalOpen = false;
-    public $editItemId;
+    public $editOutgoingId;
     public $isDeleteModalOpen = false;
-    public $deletingItemId;
+    public $deletingOutgoingId;
     public $isAddModalOpen = false;
+
+    public $showNotification = false;
+    public $notificationMessage = '';
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
@@ -35,7 +38,7 @@ class ProcurementOutgoingIndex extends Component
     {
         return [
             'received_date' => 'nullable|date',
-            'end_user' => 'nullable|string|max:255',
+            'end_user' => 'required|string|max:255',
             'pr_no' => 'required|string|max:255',
             'particulars' => 'nullable|string|max:500',
             'amount' => 'nullable|numeric',
@@ -47,7 +50,6 @@ class ProcurementOutgoingIndex extends Component
     }
 
     protected $listeners = ['refreshProcurementMonitoring' => '$refresh'];
-
 
     public function mount(): void
     {
@@ -61,6 +63,7 @@ class ProcurementOutgoingIndex extends Component
 
     protected $messages = [
         'pr_no.required' => 'PR No is required.',
+        'end_user.required' => 'End User is required.',
     ];
 
     // Close modals
@@ -79,23 +82,23 @@ class ProcurementOutgoingIndex extends Component
             'remarks',
             'responsibility',
             'received_by',
-            'editItemId',
+            'editOutgoingId',
             'isEditModalOpen',
             'isDeleteModalOpen',
         ]);
     }
 
-    // Save item (Create or Update)
-    public function saveItem()
+    // Save Outgoing (Create or Update)
+    public function saveOutgoing()
     {
-        if ($this->editItemId) {
-            $this->updateItem();
+        if ($this->editOutgoingId) {
+            $this->updateOutgoing();
         } else {
-            $this->addItem();
+            $this->addOutgoing();
         }
     }
 
-    public function addItem()
+    public function addOutgoing()
     {
         try {
             $this->validate();
@@ -115,11 +118,11 @@ class ProcurementOutgoingIndex extends Component
             $this->closeModal();
             session()->flash('message', 'Procurement record added successfully!');
             $this->resetFields();
-            $this->dispatch('itemAdded');
+            $this->dispatch('outgoingAdded');
         } catch (\Exception $e) {
             session()->flash('error', 'Error adding procurement record.');
             \Log::error('Error adding procurement record: ' . $e->getMessage());
-            $this->dispatch('itemAddFailed');
+            $this->dispatch('outgoingAddFailed');
         }
     }
 
@@ -128,21 +131,21 @@ class ProcurementOutgoingIndex extends Component
         $this->isAddModalOpen = true;
     }
 
-    public function openEditModal($itemId)
+    public function openEditModal($outgoingId)
     {
-        $item = ProcurementOutgoing::find($itemId);
+        $outgoing = ProcurementOutgoing::find($outgoingId);
 
-        if ($item) {
-            $this->editItemId = $itemId;
-            $this->received_date = $item->received_date ? $item->received_date->format('Y-m-d') : null;
-            $this->end_user = $item->end_user;
-            $this->pr_no = $item->pr_no;
-            $this->particulars = $item->particulars;
-            $this->amount = $item->amount;
-            $this->creditor = $item->creditor;
-            $this->remarks = $item->remarks;
-            $this->responsibility = $item->responsibility;
-            $this->received_by = $item->received_by;
+        if ($outgoing) {
+            $this->editOutgoingId = $outgoingId;
+            $this->received_date = $outgoing->received_date ? $outgoing->received_date->format('Y-m-d') : null;
+            $this->end_user = $outgoing->end_user;
+            $this->pr_no = $outgoing->pr_no;
+            $this->particulars = $outgoing->particulars;
+            $this->amount = $outgoing->amount;
+            $this->creditor = $outgoing->creditor;
+            $this->remarks = $outgoing->remarks;
+            $this->responsibility = $outgoing->responsibility;
+            $this->received_by = $outgoing->received_by;
 
             $this->isEditModalOpen = true;
         } else {
@@ -150,53 +153,53 @@ class ProcurementOutgoingIndex extends Component
         }
     }
 
-    public function updateItem()
+    public function updateOutgoing()
     {
         try {
             $validatedData = $this->validate();
 
-            $item = ProcurementOutgoing::find($this->editItemId);
-            if ($item) {
-                $item->update($validatedData);
+            $outgoing = ProcurementOutgoing::find($this->editOutgoingId);
+            if ($outgoing) {
+                $outgoing->update($validatedData);
                 $this->resetFields();
                 $this->closeModal();
                 session()->flash('message', 'Procurement record updated successfully!');
-                $this->dispatch('itemUpdated');
+                $this->dispatch('outgoingUpdated');
             } else {
                 session()->flash('error', 'Procurement record not found.');
-                $this->dispatch('itemUpdateFailed');
+                $this->dispatch('outgoingUpdateFailed');
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error updating procurement record.');
             \Log::error('Error updating procurement record: ' . $e->getMessage());
-            $this->dispatch('itemUpdateFailed');
+            $this->dispatch('outgoingUpdateFailed');
         }
     }
 
-    public function openDeleteModal($itemId)
+    public function openDeleteModal($outgoingId)
     {
-        $this->deletingItemId = $itemId;
+        $this->deletingOutgoingId = $outgoingId;
         $this->isDeleteModalOpen = true;
     }
 
-    public function deleteItem()
+    public function deleteOutgoing()
     {
         try {
-            $item = ProcurementOutgoing::find($this->deletingItemId);
+            $outgoing = ProcurementOutgoing::find($this->deletingOutgoingId);
 
-            if ($item) {
-                $item->delete();
+            if ($outgoing) {
+                $outgoing->delete();
                 $this->closeModal();
                 session()->flash('message', 'Procurement record deleted successfully!');
-                $this->dispatch('itemDeleted');
+                $this->dispatch('outgoingDeleted');
             } else {
                 session()->flash('error', 'Procurement record not found.');
-                $this->dispatch('itemDeleteFailed');
+                $this->dispatch('outgoingDeleteFailed');
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error deleting procurement record.');
             \Log::error('Error deleting procurement record: ' . $e->getMessage());
-            $this->dispatch('itemDeleteFailed');
+            $this->dispatch('outgoingDeleteFailed');
         }
     }
 

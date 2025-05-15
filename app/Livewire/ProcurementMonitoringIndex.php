@@ -2,10 +2,10 @@
 
 namespace App\Livewire;
 
+use Illuminate\Notifications\Notification;
 use Livewire\Component;
 use App\Models\ProcurementMonitoring;
 use Livewire\WithPagination;
-use function Laravel\Prompts\search;
 
 class ProcurementMonitoringIndex extends Component
 {
@@ -22,14 +22,15 @@ class ProcurementMonitoringIndex extends Component
     public $search = '';
     public $filterSupplier = '';
     public $isEditModalOpen = false;
-    public $editItemId;
+    public $editMonitoringId;
     public $isDeleteModalOpen = false;
-    public $deletingItemId;
+    public $deletingmonitoringId;
     public $isAddModalOpen = false;
+    public $showNotification = false;
+    public $notificationMessage = '';
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
-
     public function rules()
     {
         return [
@@ -66,25 +67,24 @@ class ProcurementMonitoringIndex extends Component
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
-        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'editItemId', 'isEditModalOpen', 'isDeleteModalOpen']);
+        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'editMonitoringId', 'isEditModalOpen', 'isDeleteModalOpen']);
     }
 
-    // Save item (Create or Update)
-    public function saveItem()
+    public function saveMonitoring()
     {
-        if ($this->editItemId) {
-            $this->updateItem();
+        if ($this->editMonitoringId) {
+            $this->updateMonitoring();
         } else {
-            $this->addItem();
+            $this->addMonitoring();
         }
     }
 
-    public function loadItems()
+    public function loadMonitoring()
     {
         $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement']);
     }
 
-    public function addItem()
+    public function addMonitoring()
     {
         try {
             $this->validate();
@@ -100,13 +100,14 @@ class ProcurementMonitoringIndex extends Component
             ]);
 
             $this->closeModal();
-            session()->flash('message', 'Procurement record added successfully!');
+            $this->showNotification = 'Procurement Monitoring Added Successfully';
+            $this->notificationMessage = true;
             $this->resetFields();
-            $this->dispatch('itemAdded');
+            $this->dispatch('monitoringAdded');
         } catch (\Exception $e) {
             session()->flash('error', 'Error adding procurement record.');
             \Log::error('Error adding procurement record: ' . $e->getMessage());
-            $this->dispatch('itemAddFailed');
+            $this->dispatch('monitoringAddFailed');
         }
     }
 
@@ -115,19 +116,19 @@ class ProcurementMonitoringIndex extends Component
         $this->isAddModalOpen = true;
     }
 
-    public function openEditModal($itemId)
+    public function openEditModal($imonitoringId)
     {
-        $item = ProcurementMonitoring::find($itemId);
+        $monitoring = ProcurementMonitoring::find($imonitoringId);
 
-        if ($item) {
-            $this->editItemId = $itemId;
-            $this->pr_no = $item->pr_no;
-            $this->title = $item->title;
-            $this->processor = $item->processor;
-            $this->supplier = $item->supplier;
-            $this->end_user = $item->end_user;
-            $this->status = $item->status;
-            $this->date_endorsement = $item->date_endorsement ? $item->date_endorsement->format('Y-m-d') : null;
+        if ($monitoring) {
+            $this->editMonitoringId = $monitoring->id;
+            $this->pr_no = $monitoring->pr_no;
+            $this->title = $monitoring->title;
+            $this->processor = $monitoring->processor;
+            $this->supplier = $monitoring->supplier;
+            $this->end_user = $monitoring->end_user;
+            $this->status = $monitoring->status;
+            $this->date_endorsement = $monitoring->date_endorsement;
 
             $this->isEditModalOpen = true;
         } else {
@@ -135,54 +136,62 @@ class ProcurementMonitoringIndex extends Component
         }
     }
 
-    public function updateItem()
+    public function updateMonitoring()
     {
         try {
             $validatedData = $this->validate();
 
-            $item = ProcurementMonitoring::find($this->editItemId);
-            if ($item) {
-                $item->update($validatedData);
+            $monitoring = ProcurementMonitoring::find($this->editMonitoringId);
+            if ($monitoring) {
+                $monitoring->update($validatedData);
                 $this->resetFields();
                 $this->closeModal();
-                session()->flash('message', 'Procurement record updated successfully!');
-                $this->dispatch('itemUpdated');
+                $this->notificationMessage = 'Procurement Monitoring Updated Successfully';
+                $this->showNotification = true;
+                $this->dispatch('monitoringUpdated');
             } else {
                 session()->flash('error', 'Procurement record not found.');
-                $this->dispatch('itemUpdateFailed');
+                $this->dispatch('monitoringUpdateFailed');
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error updating procurement record.');
             \Log::error('Error updating procurement record: ' . $e->getMessage());
-            $this->dispatch('itemUpdateFailed');
+            $this->dispatch('monitoringUpdateFailed');
         }
     }
 
-    public function openDeleteModal($itemId)
+    public function openDeleteModal($monitoringId)
     {
-        $this->deletingItemId = $itemId;
+        $this->deletingMonitoringId = $monitoringId;
         $this->isDeleteModalOpen = true;
     }
 
-    public function deleteItem()
+    public function deleteMonitoring()
     {
         try {
-            $item = ProcurementMonitoring::find($this->deletingItemId);
+            $monitoring = ProcurementMonitoring::find($this->deletingMonitoringId);
 
-            if ($item) {
-                $item->delete();
+            if ($monitoring) {
+                $monitoring->delete();
                 $this->closeModal();
-                session()->flash('message', 'Procurement record deleted successfully!');
-                $this->dispatch('itemDeleted');
+                $this->notificationMessage = 'Procurement Monitoring Deleted Successfully';
+                $this->showNotification = true;
+                $this->dispatch('monitoringDeleted');
             } else {
                 session()->flash('error', 'Procurement record not found.');
-                $this->dispatch('itemDeleteFailed');
+                $this->dispatch('monitoringDeleteFailed');
             }
         } catch (\Exception $e) {
             session()->flash('error', 'Error deleting procurement record.');
             \Log::error('Error deleting procurement record: ' . $e->getMessage());
-            $this->dispatch('itemDeleteFailed');
+            $this->dispatch('monitoringDeleteFailed');
         }
+    }
+
+    public function dismissNotification()
+    {
+        $this->showNotification = false;
+        $this->notificationMessage = '';
     }
 
     public function render()
