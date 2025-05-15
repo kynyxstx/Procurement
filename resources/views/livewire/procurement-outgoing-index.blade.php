@@ -341,57 +341,16 @@
 @endif
 @if ($isDeleteModalOpen)
     <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                    Delete Outgoing
-                </h3>
-                <button wire:click="closeModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
-                    &#x2715;
-                </button>
-            </div>
-            <div>
-                <p>Are you sure you want to delete this outgoing record?</p>
-                <button wire:click="deleteOutgoing"
-                    class="mt-4 px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700">
-                    Delete
-                </button>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full text-center">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this item?
+            </p>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button wire:click="closeModal"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</button>
+                <button wire:click="deleteItem"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
             </div>
         </div>
     </div>
 @endif
-
-<script>
-    document.addEventListener('livewire:load', function () {
-        window.livewire.on('outgoingUpdated', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-green-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('outgoingDeleted', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-green-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('outgoingUpdateFailed', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-red-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('outgoingDeleteFailed', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-red-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('outgoingAdded', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-green-200').forEach(el => el.remove());
-            }, 3000);
-        });
-        window.livewire.on('outgoingAddFailed', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.bg-red-200').forEach(el => el.remove());
-            }, 3000);
-        });
-    });
-</script>

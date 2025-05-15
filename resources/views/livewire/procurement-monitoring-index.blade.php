@@ -297,7 +297,7 @@
             <div class="mt-6 flex justify-center space-x-4">
                 <button wire:click="closeModal"
                     class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</button>
-                <button wire:click="deleteItem"
+                <button wire:click="deleteMonitoring"
                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
             </div>
         </div>
