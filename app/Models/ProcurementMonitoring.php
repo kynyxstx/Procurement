@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProcurementMonitoring extends Model
 {
-
     use HasFactory;
     protected $table = 'procurement_monitoring';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'pr_no',
         'title',
@@ -19,17 +24,16 @@ class ProcurementMonitoring extends Model
         'status',
         'date_endorsement'
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'date_endorsement' => 'datetime',
     ];
-    public function getDateEndorsementAttribute($value)
-    {
-        return \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
-    }
-    public function setDateEndorsementAttribute($value)
-    {
-        $this->attributes['date_endorsement'] = \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
-    }
+
     public function getCreatedAtAttribute($value)
     {
         return \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
