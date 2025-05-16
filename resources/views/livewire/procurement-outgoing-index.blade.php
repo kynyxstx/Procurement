@@ -44,7 +44,7 @@
                                 <option value="November">November</option>
                                 <option value="December">December</option>
                             </select>
-                            <input type="text" wire:model="search" placeholder="Search particulars..."
+                            <input type="text" wire:model="search" placeholder="Search outgoing..."
                                 class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
                                 wire:keydown.enter="performSearch" />
                         </div>

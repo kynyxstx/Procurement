@@ -27,13 +27,13 @@
                     <div class="w-full flex justify-between items-center mb-4 pl-10">
                         <div class="flex items-center">
                             <select wire:model="filterItems" wire:change="performSearch"
-                                class="w-full p-2 border rounded-md shadow-md mr-2">
+                                class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
                                 <option value="">Endorsement Days</option>
                                 <option value="3">3 days</option>
                                 <option value="5">5 days</option>
                                 <option value="more_than_5">More than 5 days</option>
                             </select>
-                            <input type="text" wire:model="search" placeholder="Search suppliers..."
+                            <input type="text" wire:model="search" placeholder="Search monitoring..."
                                 class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
                                 wire:keydown.enter="performSearch" />
                         </div>

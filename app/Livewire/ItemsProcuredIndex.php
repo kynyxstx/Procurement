@@ -29,14 +29,18 @@ class ItemsProcuredIndex extends Component
     public $notificationMessage = '';
 
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 5;
+    protected $perPage = 50;
+    /**
+     * The properties that should be included in the query string.
+     *
+     * @var array
+     */
 
     protected $queryString = [
-        'search' => ['except' => ''],
-        'filterYear' => ['except' => ''],
-        'filterMonth' => ['except' => ''],
+        'search',
+        'filterYear',
+        'filterMonth',
     ];
-
     public function rules()
     {
         return [
