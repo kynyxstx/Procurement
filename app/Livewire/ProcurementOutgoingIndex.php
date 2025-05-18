@@ -21,7 +21,10 @@ class ProcurementOutgoingIndex extends Component
     public $received_by = '';
 
     public $search = '';
-    public $filterCreditor = '';
+    public $filterMonth = '';
+    public $sortBy = 'received_date';
+    public $sortDirection = 'desc';
+
     public $isEditModalOpen = false;
     public $editOutgoingId;
     public $isDeleteModalOpen = false;
@@ -33,7 +36,7 @@ class ProcurementOutgoingIndex extends Component
     public string $notificationType = 'success';
 
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 5;
+    protected $perPage = 10;
 
     public function rules()
     {
@@ -60,6 +63,9 @@ class ProcurementOutgoingIndex extends Component
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
+        if (in_array($propertyName, ['search', 'filterMonth'])) {
+            $this->performSearch();
+        }
     }
 
     protected $messages = [
@@ -214,16 +220,12 @@ class ProcurementOutgoingIndex extends Component
                     ->orWhere('responsibility', 'like', '%' . $this->search . '%')
                     ->orWhere('received_by', 'like', '%' . $this->search . '%');
             })
-            ->when($this->filterCreditor, function ($query) {
-                $creditorNames = explode(';', $this->filterCreditor);
-                $query->where(function ($query) use ($creditorNames) {
-                    foreach ($creditorNames as $creditorName) {
-                        $query->orWhere('creditor', 'like', '%' . trim($creditorName) . '%');
-                    }
-                });
-            });
+            ->when($this->filterMonth, function ($query) {
+                $query->whereMonth('received_date', date('m', strtotime($this->filterMonth)));
+            })
+            ->orderBy($this->sortBy, $this->sortDirection);
 
-        $outgoings = $query->paginate(5);
+        $outgoings = $query->paginate($this->perPage);
 
         return view('livewire.procurement-outgoing-index', [
             'outgoings' => $outgoings,

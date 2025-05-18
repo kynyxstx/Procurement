@@ -20,11 +20,11 @@ class ProcurementMonitoringIndex extends Component
 
     public $monitoringId;
     public $search = '';
-    public $filterSupplier = '';
+    public $filterMonitoring = '';
     public $isEditModalOpen = false;
     public $editMonitoringId;
     public $isDeleteModalOpen = false;
-    public $deletingMonitoringId; // Corrected variable name
+    public $deletingMonitoringId;
     public $isAddModalOpen = false;
     public $showNotification = false;
     public $notificationMessage = '';
