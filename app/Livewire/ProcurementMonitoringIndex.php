@@ -177,7 +177,7 @@ class ProcurementMonitoringIndex extends Component
         $this->title = $monitoring->title;
         $this->processor = $monitoring->processor;
         $this->supplier = $monitoring->supplier;
-        $this->end_user = $monitoring->end_user; // Make sure you're setting this
+        $this->end_user = $monitoring->end_user;
         $this->status = $monitoring->status;
         $this->date_endorsement = $monitoring->date_endorsement ? $monitoring->date_endorsement->format('Y-m-d') : null;
         $this->isEditModalOpen = true;

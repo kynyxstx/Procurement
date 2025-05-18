@@ -12,15 +12,15 @@ return new class extends Migration {
     {
         Schema::create('procurement_outgoing', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('received_date');
-            $table->string('end_user');
-            $table->string('pr_no');
-            $table->string('particulars');
-            $table->string('amount');
-            $table->string('creditor');
-            $table->string('remarks');
-            $table->string('responsibility');
-            $table->string('received_by');
+            $table->dateTime('received_date')->nullable();
+            $table->string('end_user')->nullable();
+            $table->string('pr_no')->nullable();
+            $table->string('particulars')->nullable();
+            $table->string('amount')->nullable();
+            $table->string('creditor')->nullable();
+            $table->string('remarks')->nullable();
+            $table->string('responsibility')->nullable();
+            $table->string('received_by')->nullable();
             $table->timestamps();
         });
     }

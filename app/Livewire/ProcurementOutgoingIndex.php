@@ -30,6 +30,7 @@ class ProcurementOutgoingIndex extends Component
 
     public $showNotification = false;
     public $notificationMessage = '';
+    public string $notificationType = 'success';
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
@@ -66,6 +67,14 @@ class ProcurementOutgoingIndex extends Component
         'end_user.required' => 'End User is required.',
     ];
 
+    public function dismissNotification()
+    {
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+        $this->notificationType = 'success';
+    }
+
+
     // Close modals
     public function closeModal()
     {
@@ -101,28 +110,20 @@ class ProcurementOutgoingIndex extends Component
     public function addOutgoing()
     {
         try {
-            $this->validate();
+            $amount = str_replace(',', '.', $this->amount);
+            $this->amount = $amount;
+            $validatedData = $this->validate();
 
-            ProcurementOutgoing::create([
-                'received_date' => $this->received_date,
-                'end_user' => $this->end_user,
-                'pr_no' => $this->pr_no,
-                'particulars' => $this->particulars,
-                'amount' => $this->amount,
-                'creditor' => $this->creditor,
-                'remarks' => $this->remarks,
-                'responsibility' => $this->responsibility,
-                'received_by' => $this->received_by,
-            ]);
+            ProcurementOutgoing::create($validatedData);
 
             $this->closeModal();
-            session()->flash('message', 'Procurement record added successfully!');
             $this->resetFields();
-            $this->dispatch('outgoingAdded');
+            $this->dispatch('notify', message: 'Procurement record added successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('notify', message: 'Validation error occurred.', type: 'error');
         } catch (\Exception $e) {
-            session()->flash('error', 'Error adding procurement record.');
             \Log::error('Error adding procurement record: ' . $e->getMessage());
-            $this->dispatch('outgoingAddFailed');
+            $this->dispatch('notify', message: 'Error adding procurement record.', type: 'error');
         }
     }
 
@@ -156,50 +157,46 @@ class ProcurementOutgoingIndex extends Component
     public function updateOutgoing()
     {
         try {
+            $this->amount = str_replace(',', '.', $this->amount);
             $validatedData = $this->validate();
-
             $outgoing = ProcurementOutgoing::find($this->editOutgoingId);
+
             if ($outgoing) {
                 $outgoing->update($validatedData);
                 $this->resetFields();
                 $this->closeModal();
-                session()->flash('message', 'Procurement record updated successfully!');
-                $this->dispatch('outgoingUpdated');
+                $this->dispatch('notify', message: 'Procurement record updated successfully!');
             } else {
-                session()->flash('error', 'Procurement record not found.');
-                $this->dispatch('outgoingUpdateFailed');
+                $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
             }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('notify', message: 'Validation error occurred.', type: 'error');
         } catch (\Exception $e) {
-            session()->flash('error', 'Error updating procurement record.');
             \Log::error('Error updating procurement record: ' . $e->getMessage());
-            $this->dispatch('outgoingUpdateFailed');
+            $this->dispatch('notify', message: 'Error updating procurement record.', type: 'error');
         }
     }
+
 
     public function openDeleteModal($outgoingId)
     {
         $this->deletingOutgoingId = $outgoingId;
         $this->isDeleteModalOpen = true;
     }
-
     public function deleteOutgoing()
     {
         try {
             $outgoing = ProcurementOutgoing::find($this->deletingOutgoingId);
-
             if ($outgoing) {
                 $outgoing->delete();
                 $this->closeModal();
-                session()->flash('message', 'Procurement record deleted successfully!');
-                $this->dispatch('outgoingDeleted');
+                $this->dispatch('notify', message: 'Procurement record deleted successfully!');
             } else {
-                session()->flash('error', 'Procurement record not found.');
-                $this->dispatch('outgoingDeleteFailed');
+                $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Error deleting procurement record.');
             \Log::error('Error deleting procurement record: ' . $e->getMessage());
-            $this->dispatch('outgoingDeleteFailed');
+            $this->dispatch('notify', message: 'Error deleting procurement record.', type: 'error');
         }
     }
 
