@@ -40,16 +40,28 @@
                     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                         <div class="w-full flex justify-between items-center mb-4 pl-10">
                             <div class="flex items-center">
-                                <select wire:model="filterItems" wire:change="performSearch"
+                                <select wire:model="filterDays" wire:change="performSearch"
                                     class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
                                     <option value="">Endorsement Days</option>
                                     <option value="3">3 days</option>
                                     <option value="5">5 days</option>
                                     <option value="more_than_5">More than 5 days</option>
                                 </select>
-                                <input type="text" wire:model="search" placeholder="Search monitoring..."
-                                    class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
-                                    wire:keydown.enter="performSearch" />
+                                <select wire:model="filterProcessor" wire:change="performSearch"
+                                    class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
+                                    <option value="">All Processor</option>
+                                    <option value="Bernadette De Castro">Bernadette</option>
+                                    <option value="Chester Aranda">Chester</option>
+                                    <option value="Ryne Christian Cruz">Ryne</option>
+                                    <option value="Joshua Mhir Aviñante">JM</option>
+                                    <option value="Darryl Ivan Bernardo">DADA</option>
+                                    <option value="Jeremiah Canlas">Jeremiah</option>
+                                    <option value="Rheymart Bangcoyo">Rheymart</option>
+                                    <option value="Ma. Christina Millan">Christina</option>
+                                    <option value="Marycar Masilang">YCAR</option>
+                                </select>
+                                <input type="text" wire:model.live="search" placeholder="Search monitoring..."
+                                    class="w-full max-w-md p-2 border rounded-md shadow-md mr-2" />
                             </div>
                             <div class="flex flex-col items-start p-10">
                                 <button wire:click="openAddModal"
@@ -77,9 +89,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if ($monitorings->isNotEmpty()) {{-- Ensure $monitorings is not empty before
-                                        looping
-                                        --}}
+                                    @if ($monitorings->isNotEmpty())
                                         @foreach ($monitorings as $monitoring)
                                             <tr class="hover:bg-gray-100">
                                                 <td class="py-2 px-4 border break-words">{{ $monitoring->pr_no }}</td>

@@ -20,7 +20,9 @@ class ProcurementMonitoringIndex extends Component
 
     public $monitoringId;
     public $search = '';
-    public $filterMonitoring = '';
+    public $filterDays = '';
+    public $filterProcessor = '';
+
     public $isEditModalOpen = false;
     public $editMonitoringId;
     public $isDeleteModalOpen = false;
@@ -30,7 +32,7 @@ class ProcurementMonitoringIndex extends Component
     public $notificationMessage = '';
 
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 10; // Increased perPage for better visibility during testing
+    protected $perPage = 10;
     /**
      * The properties that should be included in the query string.
      *
@@ -154,8 +156,8 @@ class ProcurementMonitoringIndex extends Component
             $this->closeModal();
             $this->notificationMessage = 'Procurement Monitoring Deleted Successfully!';
             $this->showNotification = true;
-            $this->emitSelf('$refresh'); // Refresh the component
-            $this->forceRender(); // Force a full re-render
+            $this->emitSelf('$refresh');
+            $this->forceRender();
             $this->dispatch('monitoringDeleted');
         } catch (\Exception $e) {
             \Log::error('Error deleting procurement record: ' . $e->getMessage());
@@ -224,6 +226,16 @@ class ProcurementMonitoringIndex extends Component
                     ->orWhere('supplier', 'like', "%{$searchMonitoring}%")
                     ->orWhere('end_user', 'like', "%{$searchMonitoring}%")
                     ->orWhere('status', 'like', "%{$searchMonitoring}%");
+            });
+        }
+
+
+        if ($this->filterProcessor) {
+            $filterProcessors = explode(';', $this->filterProcessor);
+            $query->where(function ($query) use ($filterProcessors) {
+                foreach ($filterProcessors as $name) {
+                    $query->orWhere('processor', 'like', '%' . trim($name) . '%');
+                }
             });
         }
 

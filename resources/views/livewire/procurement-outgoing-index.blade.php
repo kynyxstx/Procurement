@@ -44,6 +44,14 @@
                                     <option value="November">November</option>
                                     <option value="December">December</option>
                                 </select>
+                                <select wire:model="filterMonth" wire:change="performSearch"
+                                    class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
+                                    <option value="">All End-User</option>
+                                </select>
+                                <select wire:model="filterMonth" wire:change="performSearch"
+                                    class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
+                                    <option value="">All Responsibility</option>
+                                </select>
                                 <input type="text" wire:model.debounce.300ms="search" placeholder="Search outgoing..."
                                     class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
                                     wire:keyup="performSearch" />
