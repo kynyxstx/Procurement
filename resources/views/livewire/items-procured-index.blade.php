@@ -34,22 +34,24 @@
                 </h2>
             </x-slot>
         </div>
+
         <div class="py-8">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="w-full flex justify-between items-center mb-4 pl-10">
-                        <div class="flex items-center mt-10">
-                            <select wire:model.live="filterYear" class="w-full p-2 border rounded-md shadow-md mr-2"
-                                style="min-width: 200px;">
+                    <div class="pl-10 mb-4">
+                        <div class="flex items-center space-x-2">
+                        </div>
+                        <div class="flex items-center space-x-4 mt-20">
+                            <select wire:model.live="filterYear" class="p-2 border rounded-md shadow-sm"
+                                style="min-width: 120px;">
                                 <option value="">Year</option>
                                 <option value="2024" @if($filterYear === '2024') selected @endif>2024</option>
                                 <option value="2025" @if($filterYear === '2025') selected @endif>2025</option>
                             </select>
-                            <select wire:model.live="filterMonth" class="w-full p-2 border rounded-md shadow-md mr-2"
-                                style="min-width: 200px;">
+                            <select wire:model.live="filterMonth" class="p-2 border rounded-md shadow-sm"
+                                style="min-width: 150px;">
                                 <option value="">Month</option>
-                                <option value="January" @if($filterMonth === 'January') selected @endif>January
-                                </option>
+                                <option value="January" @if($filterMonth === 'January') selected @endif>January</option>
                                 <option value="February" @if($filterMonth === 'February') selected @endif>February
                                 </option>
                                 <option value="March" @if($filterMonth === 'March') selected @endif>March</option>
@@ -57,36 +59,32 @@
                                 <option value="May" @if($filterMonth === 'May') selected @endif>May</option>
                                 <option value="June" @if($filterMonth === 'June') selected @endif>June</option>
                                 <option value="July" @if($filterMonth === 'July') selected @endif>July</option>
-                                <option value="August" @if($filterMonth === 'August') selected @endif>August
+                                <option value="August" @if($filterMonth === 'August') selected @endif>August</option>
+                                <option value="September" @if($filterMonth === 'September') selected @endif>September
                                 </option>
-                                <option value="September" @if($filterMonth === 'September') selected @endif>
-                                    September
-                                </option>
-                                <option value="October" @if($filterMonth === 'October') selected @endif>October
-                                </option>
+                                <option value="October" @if($filterMonth === 'October') selected @endif>October</option>
                                 <option value="November" @if($filterMonth === 'November') selected @endif>November
                                 </option>
                                 <option value="December" @if($filterMonth === 'December') selected @endif>December
                                 </option>
-                            </select> <input type="text" wire:model.live="search" placeholder="Search suppliers..."
-                                style="min-width: 350px;"
-                                class="w-full max-w-md p-2 border rounded-md shadow-md mr-2" />
-                        </div>
-                        <div class="flex flex-col items-start p-10 mt-10">
+                            </select>
+                            <input type="text" wire:model.live="search" placeholder="Search suppliers..."
+                                style="min-width: 300px;" class="p-2 border rounded-md shadow-sm mr-2" />
                             <button wire:click="exportToExcel"
-                                class="px-5 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 mb-2">
+                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
                                 Export to Excel
                             </button>
                             <button wire:click="exportToPDF"
-                                class="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 mb-2">
+                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring focus:border-red-300 ml-2">
                                 Export to PDF
                             </button>
                             <button wire:click="openAddModal"
-                                class="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 ml-2">
                                 Add Item
                             </button>
                         </div>
                     </div>
+
 
                     <div class="p-10 w-full overflow-x-auto">
                         <h1 style="font-size: 2em;">Items Procured List</h1><br>

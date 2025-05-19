@@ -25,11 +25,13 @@
         <div class="py-8">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="w-full flex justify-between items-center mb-4 pl-10">
-                        <div class="flex items-center mt-10">
+                    <div class="pl-10 mb-4">
+                        <div class="flex items-center space-x-2">
+                        </div>
+                        <div class="flex items-center space-x-4 mt-20">
                             <select wire:model="filterMonth" wire:change="performSearch"
-                                class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
-                                <option value="">Month </option>
+                                class="p-2 border rounded-md shadow-md" style="min-width: 150px;">
+                                <option value="">Month</option>
                                 <option value="January">January</option>
                                 <option value="February">February</option>
                                 <option value="March">March</option>
@@ -44,7 +46,7 @@
                                 <option value="December">December</option>
                             </select>
                             <select wire:model="filterEndUser" wire:change="performSearch"
-                                class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
+                                class="p-2 border rounded-md shadow-md" style="min-width: 180px;">
                                 <option value="">All End-User</option>
                                 <option value="ONS-PMS">ONS-PMS</option>
                                 <option value="ESSS-SSD">ESSS-SSD</option>
@@ -68,37 +70,22 @@
                                 <option value="GSD-EMS">GSD-EMS</option>
                                 <option value="FAS-OANS">FAS-OANS</option>
                             </select>
-                            <select wire:model="filterReceivedby" wire:change="performSearch"
-                                class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
-                                <option value="">All Received By</option>
-                                <option value="MAE">MAE</option>
-                                <option value="BENJI">BENJI</option>
-                                <option value="JET">JET</option>
-                                <option value="ALQUIN">ALQUIN</option>
-                                <option value="A. TAN">A. TAN</option>
-                                <option value="FAYE">FAYE</option>
-                                <option value="MARIBETH">MARIBETH</option>
-                                <option value="AGNES">AGNES</option>
-                                <option value="LYKA">LYKA</option>
-                                <option value="ROSE">ROSE</option>
-                                <option value="MIGS">MIGS</option>
-                                <option value="MAT">MAT</option>
-                                <option value="CATHY">CATHY</option>
-                                <option value="VERGEL">VERGEL</option>
-                                <option value="TIN">TIN</option>
-                            </select>
-                            <input type="text" wire:model.live="search" placeholder="Search outgoing..."
-                                class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
-                                wire:keyup="performSearch" />
-                        </div>
-                        <div class="flex flex-col items-start p-10 mt-10">
+                            <input type="text" wire:model.live="search" placeholder="Search monitoring..."
+                                class="p-2 border rounded-md shadow-md mr-2" style="min-width: 250px;" />
+                            <button wire:click="exportToExcel"
+                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">
+                                Export to Excel
+                            </button>
+                            <button wire:click="exportToPDF"
+                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700 ml-2">
+                                Export to PDF
+                            </button>
                             <button wire:click="openAddModal"
-                                class="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
                                 Add Outgoing
                             </button>
                         </div>
                     </div>
-
                     <div class="p-10 w-full overflow-x-auto">
                         <h1 style="font-size: 2em;">Procurement Outgoing</h1><br>
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
@@ -118,26 +105,28 @@
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody> @foreach ($outgoings as $outgoing) <tr class="hover:bg-gray-100">
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->received_date }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->end_user }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->pr_no }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->particulars }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->amount }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->creditor }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->remarks }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->responsibility }}</td>
-                                    <td class="py-2 px-4 border break-words">{{ $outgoing->received_by }}</td>
-                                    <td class="py-2 px-4 border text-center">
-                                        <div class="flex justify-center space-x-2">
-                                            <button wire:click=" openEditModal({{ $outgoing->id }})"
-                                                class="text-blue-600 hover:underline">Edit</button>
-                                            <button wire:click="openDeleteModal({{ $outgoing->id }})"
-                                                class="text-red-600 hover:underline">Delete</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                            <tbody>
+                                @foreach ($outgoings as $outgoing)
+                                    <tr class="hover:bg-gray-100">
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->received_date }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->end_user }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->pr_no }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->particulars }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->amount }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->creditor }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->remarks }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->responsibility }}</td>
+                                        <td class="py-2 px-4 border break-words">{{ $outgoing->received_by }}</td>
+                                        <td class="py-2 px-4 border text-center">
+                                            <div class="flex justify-center space-x-2">
+                                                <button wire:click="openEditModal({{ $outgoing->id }})"
+                                                    class="text-blue-600 hover:underline">Edit</button>
+                                                <button wire:click="openDeleteModal({{ $outgoing->id }})"
+                                                    class="text-red-600 hover:underline">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                                 @if ($outgoings->isEmpty())
                                     <tr>
                                         <td colspan="10" class="text-center py-4">No outgoing procurement found.</td>
@@ -146,7 +135,8 @@
                             </tbody>
                         </table>
                         <div class="mt-4 flex-wrap items-center">
-                            <div> {{ $outgoings->links() }}
+                            <div>
+                                {{ $outgoings->links() }}
                             </div>
                         </div>
                     </div>
