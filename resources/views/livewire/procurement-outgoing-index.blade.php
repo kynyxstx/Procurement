@@ -75,7 +75,7 @@
                                 <option value="BENJI">BENJI</option>
                                 <option value="JET">JET</option>
                                 <option value="ALQUIN">ALQUIN</option>
-                                <option value="A. TIN">A. TAN</option>
+                                <option value="A. TAN">A. TAN</option>
                                 <option value="FAYE">FAYE</option>
                                 <option value="MARIBETH">MARIBETH</option>
                                 <option value="AGNES">AGNES</option>
@@ -85,6 +85,7 @@
                                 <option value="MAT">MAT</option>
                                 <option value="CATHY">CATHY</option>
                                 <option value="VERGEL">VERGEL</option>
+                                <option value="TIN">TIN</option>
                             </select>
                             <input type="text" wire:model.live="search" placeholder="Search outgoing..."
                                 class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"
