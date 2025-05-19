@@ -22,6 +22,7 @@ class ProcurementOutgoingIndex extends Component
 
     public $search = '';
     public $filterMonth = '';
+    public $filterEndUser = '';
     public $sortBy = 'received_date';
     public $sortDirection = 'desc';
 
@@ -224,6 +225,15 @@ class ProcurementOutgoingIndex extends Component
                 $query->whereMonth('received_date', date('m', strtotime($this->filterMonth)));
             })
             ->orderBy($this->sortBy, $this->sortDirection);
+
+        if ($this->filterEndUser) {
+            $endUserNames = explode(';', $this->filterEndUser);
+            $query->where(function ($query) use ($endUserNames) {
+                foreach ($endUserNames as $endUserName) {
+                    $query->orWhere('end_user', 'like', '%' . trim($endUserName) . '%');
+                }
+            });
+        }
 
         $outgoings = $query->paginate($this->perPage);
 

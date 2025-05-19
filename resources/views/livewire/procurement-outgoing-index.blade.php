@@ -44,13 +44,30 @@
                                     <option value="November">November</option>
                                     <option value="December">December</option>
                                 </select>
-                                <select wire:model="filterMonth" wire:change="performSearch"
+                                <select wire:model="filterEndUser" wire:change="performSearch"
                                     class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
                                     <option value="">All End-User</option>
-                                </select>
-                                <select wire:model="filterMonth" wire:change="performSearch"
-                                    class="w-full p-2 border rounded-md shadow-md mr-2" style="min-width: 200px;">
-                                    <option value="">All Responsibility</option>
+                                    <option value="ONS-PMS">ONS-PMS</option>
+                                    <option value="ESSS-SSD">ESSS-SSD</option>
+                                    <option value="ITDS-KMCD">ITDS-KMCD</option>
+                                    <option value="ITDS-RDMD">ITDS-RDMD</option>
+                                    <option value="NCS-PHCD">NCS-PHCD</option>
+                                    <option value="ONS-ICU">ONS-ICU</option>
+                                    <option value="SS-SSD">SS-SSD</option>
+                                    <option value="SSSS-LSSD">SSSS-LSSD</option>
+                                    <option value="ONS-LS">ONS-LS</option>
+                                    <option value="CRS-CRMD">CRS-CRMD</option>
+                                    <option value="FAS-GSD">FAS-GSD</option>
+                                    <option value="PRO-ISMD">PRO-ISMD</option>
+                                    <option value="MAS-SAD">MAS-SAD</option>
+                                    <option value="CTCO-CBSS">CTCO-CBSS</option>
+                                    <option value="FAS-HRD">FAS-HRD</option>
+                                    <option value="ONS-PMS">ONS-PMS</option>
+                                    <option value="SSSS-LDRSSD">SSSS-LDRSSD</option>
+                                    <option value="ESSS-LPSD">ESSS-LPSD</option>
+                                    <option value="ESSS-CSD">ESSS-CSD</option>
+                                    <option value="GSD-EMS">GSD-EMS</option>
+                                    <option value="FAS-OANS">FAS-OANS</option>
                                 </select>
                                 <input type="text" wire:model.debounce.300ms="search" placeholder="Search outgoing..."
                                     class="w-full max-w-md p-2 border rounded-md shadow-md mr-2"

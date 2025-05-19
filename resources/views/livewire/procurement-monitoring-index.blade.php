@@ -52,13 +52,13 @@
                                     <option value="">All Processor</option>
                                     <option value="Bernadette De Castro">Bernadette</option>
                                     <option value="Chester Aranda">Chester</option>
-                                    <option value="Ryne Christian Cruz">Ryne</option>
-                                    <option value="Joshua Mhir Aviñante">JM</option>
                                     <option value="Darryl Ivan Bernardo">DADA</option>
                                     <option value="Jeremiah Canlas">Jeremiah</option>
-                                    <option value="Rheymart Bangcoyo">Rheymart</option>
+                                    <option value="Joshua Mhir Aviñante">JM</option>
                                     <option value="Ma. Christina Millan">Christina</option>
                                     <option value="Marycar Masilang">YCAR</option>
+                                    <option value="Rheymart Bangcoyo">Rheymart</option>
+                                    <option value="Ryne Christian Cruz">Ryne</option>
                                 </select>
                                 <input type="text" wire:model.live="search" placeholder="Search monitoring..."
                                     class="w-full max-w-md p-2 border rounded-md shadow-md mr-2" />
