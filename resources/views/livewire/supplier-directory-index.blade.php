@@ -115,6 +115,11 @@
                         </td>
                     </tr>
                 @endforeach
+                @if ($suppliers->isEmpty())
+                    <tr>
+                        <td colspan="9" class="text-center py-4">No suppliers found.</td>
+                    </tr>
+                @endif
             </tbody>
         </table>
         <div class="mt-4 flex-wrap items-center">

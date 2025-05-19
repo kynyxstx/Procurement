@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\ProcurementMonitoring;
 use Livewire\WithPagination;
@@ -126,20 +127,20 @@ class ProcurementMonitoringIndex extends Component
             $validatedData = $this->validate();
             \Log::info('Validated data for update: ' . json_encode($validatedData));
 
-            $monitoring = ProcurementMonitoring::findOrFail($this->editMonitoringId); // Use findOrFail
-            $monitoring->update($validatedData); // Ensure $validatedData includes 'end_user'
+            $monitoring = ProcurementMonitoring::findOrFail($this->editMonitoringId);
+            $monitoring->update($validatedData);
 
             $this->resetFields();
             $this->closeModal();
             $this->notificationMessage = 'Procurement Monitoring Updated Successfully!';
             $this->showNotification = true;
-            $this->dispatch('refreshProcurementMonitoring'); // Use $this->dispatch()
+            $this->dispatch('refreshProcurementMonitoring');
             $this->dispatch('monitoringUpdated');
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Validation error during update: ' . $e->getMessage());
             session()->flash('error', 'Validation error during update.');
             $this->dispatch('monitoringUpdateFailed');
-            throw $e; // Re-throw the exception to see the error in the browser if needed
+            throw $e;
         } catch (\Exception $e) {
             \Log::error('Error updating procurement record: ' . $e->getMessage());
             session()->flash('error', 'Error updating procurement record.');
@@ -213,40 +214,6 @@ class ProcurementMonitoringIndex extends Component
         $this->notificationMessage = '';
     }
 
-    public function render()
-    {
-        $query = ProcurementMonitoring::query();
-
-        if ($this->search) {
-            $searchMonitoring = $this->search;
-            $query->where(function ($query) use ($searchMonitoring) {
-                $query->where('pr_no', 'like', "%{$searchMonitoring}%")
-                    ->orWhere('title', 'like', "%{$searchMonitoring}%")
-                    ->orWhere('processor', 'like', "%{$searchMonitoring}%")
-                    ->orWhere('supplier', 'like', "%{$searchMonitoring}%")
-                    ->orWhere('end_user', 'like', "%{$searchMonitoring}%")
-                    ->orWhere('status', 'like', "%{$searchMonitoring}%");
-            });
-        }
-
-
-        if ($this->filterProcessor) {
-            $filterProcessors = explode(';', $this->filterProcessor);
-            $query->where(function ($query) use ($filterProcessors) {
-                foreach ($filterProcessors as $name) {
-                    $query->orWhere('processor', 'like', '%' . trim($name) . '%');
-                }
-            });
-        }
-
-        $monitorings = $query->paginate($this->perPage);
-
-        return view('livewire.procurement-monitoring-index', [
-            'monitorings' => $monitorings,
-        ])->layout('layouts.app');
-    }
-
-
     public function performSearch()
     {
         $this->resetPage(); // Reset pagination when searching
@@ -261,5 +228,49 @@ class ProcurementMonitoringIndex extends Component
         $this->end_user = '';
         $this->status = '';
         $this->date_endorsement = '';
+    }
+
+    public function render()
+    {
+        $today = Carbon::now()->startOfDay();
+        $query = ProcurementMonitoring::query();
+
+        if ($this->search) {
+            $searchMonitoring = $this->search;
+            $query->where(function ($query) use ($searchMonitoring) {
+                $query->where('pr_no', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('title', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('processor', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('supplier', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('end_user', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('status', 'like', "%{$searchMonitoring}%");
+            });
+        }
+
+        if ($this->filterProcessor) {
+            $filterProcessors = explode(';', $this->filterProcessor);
+            $query->where(function ($query) use ($filterProcessors) {
+                foreach ($filterProcessors as $name) {
+                    $query->orWhere('processor', 'like', '%' . trim($name) . '%');
+                }
+            });
+        }
+
+        // New filtering logic based on endorsement days
+        if ($this->filterDays === 'within_3_days') {
+            $query->where('date_endorsement', '>=', $today->subDays(2)->toDateString())
+                ->where('date_endorsement', '<=', Carbon::now()->toDateString());
+        } elseif ($this->filterDays === '3_to_8_days') {
+            $query->where('date_endorsement', '<', $today->subDays(2)->toDateString())
+                ->where('date_endorsement', '>=', $today->subDays(7)->toDateString());
+        } elseif ($this->filterDays === 'more_than_8_days') {
+            $query->where('date_endorsement', '<', $today->subDays(7)->toDateString());
+        }
+
+        $monitorings = $query->paginate($this->perPage);
+
+        return view('livewire.procurement-monitoring-index', [
+            'monitorings' => $monitorings,
+        ])->layout('layouts.app');
     }
 }
