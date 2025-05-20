@@ -2,30 +2,35 @@
 
 namespace App\Exports;
 
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Models\SupplierDirectory; // Make sure this is correct based on your model's namespace
+use Maatwebsite\Excel\Concerns\FromQuery; // IMPORTANT: Use FromQuery
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize; // Optional but good for formatting
 
-class SuppliersExport implements FromCollection, WithHeadings, ShouldAutoSize
+class SuppliersExport implements FromQuery, WithHeadings, ShouldAutoSize
 {
-    protected $suppliers;
+    protected $query; // This will hold your Eloquent query builder
 
-    public function __construct(Collection $suppliers)
+    public function __construct($query)
     {
-        $this->suppliers = $suppliers;
+        $this->query = $query;
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function collection()
+    public function query() // Method name is query() when using FromQuery
     {
-        return $this->suppliers;
+        // Return the query builder instance that was passed in the constructor
+        return $this->query;
     }
 
+    /**
+     * @return array
+     */
     public function headings(): array
     {
+        // Define your column headers here
         return [
             'ID',
             'Supplier Name',

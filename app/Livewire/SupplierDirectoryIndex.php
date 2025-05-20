@@ -281,9 +281,11 @@ class SupplierDirectoryIndex extends Component
     // For Excel
     public function exportToExcel()
     {
-        $query = SupplierDirectory::query();
-        $this->applyFilters($query); // Apply the same filters used for the table
-        return Excel::download(new SuppliersExport($query->get()), 'suppliers.xlsx'); // Pass the collection
+        $query = SupplierDirectory::query(); // Start a fresh query instance
+        $this->applyFilters($query);        // Apply your search/filters to this query
+
+        // Pass the query builder instance directly to your export class
+        return Excel::download(new SuppliersExport($query), 'suppliers directory.xlsx');
     }
 
     // For PDF
@@ -293,10 +295,10 @@ class SupplierDirectoryIndex extends Component
         $this->applyFilters($query); // Apply the same filters
         $suppliers = $query->get(); // Get the collection of filtered data
 
-        $pdf = Pdf::loadView('exports.suppliers_pdf', ['suppliers' => $suppliers]); // Corrected view path
+        $pdf = Pdf::loadView('exports.suppliers_pdf', ['suppliers' => $suppliers]);
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();
-        }, 'suppliers.pdf');
+        }, 'suppliers directory.pdf');
     }
 
     public function performSearch()
