@@ -2,12 +2,12 @@
 
 namespace App\Exports;
 
-use App\Models\SupplierDirectory;
+use App\Models\ProcurementOutgoing;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class SuppliersExport implements FromQuery, WithHeadings, ShouldAutoSize
+class OutgoingExport implements FromQuery, WithHeadings, ShouldAutoSize
 {
     protected $query;
 
@@ -31,14 +31,15 @@ class SuppliersExport implements FromQuery, WithHeadings, ShouldAutoSize
     {
         return [
             'ID',
-            'Supplier Name',
-            'Address',
-            'Items',
-            'Contact Person',
-            'Position',
-            'Mobile No.',
-            'Telephone No.',
-            'Email Address',
+            'received_date',
+            'end_user',
+            'pr_no',
+            'particulars',
+            'amount',
+            'creditor',
+            'remarks',
+            'responsibility',
+            'received_by',
             'Created At',
             'Updated At',
         ];

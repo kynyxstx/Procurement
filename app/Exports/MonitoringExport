@@ -2,12 +2,12 @@
 
 namespace App\Exports;
 
-use App\Models\SupplierDirectory;
+use App\Models\ProcurementMonitoring;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class SuppliersExport implements FromQuery, WithHeadings, ShouldAutoSize
+class MonitoringExport implements FromQuery, WithHeadings, ShouldAutoSize
 {
     protected $query;
 
@@ -30,15 +30,13 @@ class SuppliersExport implements FromQuery, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
-            'ID',
-            'Supplier Name',
-            'Address',
-            'Items',
-            'Contact Person',
-            'Position',
-            'Mobile No.',
-            'Telephone No.',
-            'Email Address',
+            'pr_no',
+            'title',
+            'processor',
+            'supplier',
+            'end_user',
+            'status',
+            'date_endorsement',
             'Created At',
             'Updated At',
         ];
