@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Summary of Item Procurement List PDF</title>
+    <title>Item Procurement</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,29 +39,28 @@
     <table>
         <thead>
             <tr>
-                <th>Received Date</th>
-                <th>End User</th>
-                <th>PR No.</th>
-                <th>Particulars</th>
-                <th>Amount</th>
-                <th>Creditor</th>
-                <th>Remarks</th>
-                <th>Responsibility</th>
-                <th>Received By</th>
+                <th>ID</th>
+                <th>Supplier</th>
+                <th>Item/Project</th>
+                <th>Unit Cost</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Created At</th>
+                <th>Updated At</th>
             </tr>
         </thead>
         <tbody>
             @forelse($items as $item)
                 <tr>
-                    <td>{{ $item->received_date }}</td>
-                    <td>{{ $item->end_user }}</td>
-                    <td>{{ $item->pr_no }}</td>
-                    <td>{{ $item->particulars }}</td>
-                    <td>{{ $item->amount }}</td>
-                    <td>{{ $item->creditor }}</td>
-                    <td>{{ $item->remarks }}</td>
-                    <td>{{ $item->responsibility }}</td>
-                    <td>{{ $item->received_by }}</td>
+                    <td>{{ $item->id }}</td>
+                    <td>{{ $item->supplier }}</td>
+                    <td>{{ $item->item_project }}</td>
+                    <td>{{ number_format((float) $item->unit_cost, 2) }}</td>
+                    <td>{{ $item->year }}</td>
+                    <td>{{ $item->month }}</td>
+                    <td>{{ $item->created_at ? $item->created_at->format('Y-m-d H:i') : 'N/A' }}</td>
+                    <td>{{ $item->updated_at ? $item->updated_at->format('Y-m-d H:i') : 'N/A' }}</td>
+
                 </tr>
             @empty
                 <tr>

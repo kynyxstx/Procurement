@@ -6,6 +6,11 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\ProcurementMonitoring;
 use Livewire\WithPagination;
+use App\Exports\MonitoringExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Illuminate\Support\Facades\Log; // Added for logging
 
 class ProcurementMonitoringIndex extends Component
 {
@@ -32,13 +37,18 @@ class ProcurementMonitoringIndex extends Component
     public $showNotification = false;
     public $notificationMessage = '';
 
+    public $selectedYear;
+    public $selectedMonth;
+
     protected $paginationTheme = 'tailwind';
     protected $perPage = 10;
-    /**
-     * The properties that should be included in the query string.
-     *
-     * @var array
-     */
+
+    protected $listeners = ['refreshProcurementMonitoring' => '$refresh'];
+
+    public function mount(): void
+    {
+        $this->resetPage();
+    }
     public function rules()
     {
         return [
@@ -50,13 +60,6 @@ class ProcurementMonitoringIndex extends Component
             'status' => 'nullable|string|max:255',
             'date_endorsement' => 'nullable|date',
         ];
-    }
-
-    protected $listeners = ['refreshProcurementMonitoring' => '$refresh'];
-
-    public function mount(): void
-    {
-        $this->resetPage();
     }
 
     public function updated($propertyName)
@@ -94,7 +97,7 @@ class ProcurementMonitoringIndex extends Component
 
     public function addMonitoring()
     {
-        \Log::info('Attempting to add monitoring: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement'])));
+        Log::info('Attempting to add monitoring: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement'])));
         try {
             $this->validate();
 
@@ -115,17 +118,17 @@ class ProcurementMonitoringIndex extends Component
             $this->dispatch('refreshProcurementMonitoring'); // Use $this->dispatch()
             $this->dispatch('monitoringAdded');
         } catch (\Exception $e) {
-            \Log::error('Error adding procurement record: ' . $e->getMessage());
+            Log::error('Error adding procurement record: ' . $e->getMessage());
             session()->flash('error', 'Error adding procurement record.');
             $this->dispatch('monitoringAddFailed');
         }
     }
     public function updateMonitoring()
     {
-        \Log::info('Attempting to update monitoring ID ' . $this->editMonitoringId . ' with data: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement'])));
+        Log::info('Attempting to update monitoring ID ' . $this->editMonitoringId . ' with data: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement'])));
         try {
             $validatedData = $this->validate();
-            \Log::info('Validated data for update: ' . json_encode($validatedData));
+            Log::info('Validated data for update: ' . json_encode($validatedData));
 
             $monitoring = ProcurementMonitoring::findOrFail($this->editMonitoringId);
             $monitoring->update($validatedData);
@@ -137,19 +140,19 @@ class ProcurementMonitoringIndex extends Component
             $this->dispatch('refreshProcurementMonitoring');
             $this->dispatch('monitoringUpdated');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation error during update: ' . $e->getMessage());
+            Log::error('Validation error during update: ' . $e->getMessage());
             session()->flash('error', 'Validation error during update.');
             $this->dispatch('monitoringUpdateFailed');
             throw $e;
         } catch (\Exception $e) {
-            \Log::error('Error updating procurement record: ' . $e->getMessage());
+            Log::error('Error updating procurement record: ' . $e->getMessage());
             session()->flash('error', 'Error updating procurement record.');
             $this->dispatch('monitoringUpdateFailed');
         }
     }
     public function deleteMonitoring()
     {
-        \Log::info('Attempting to delete monitoring ID: ' . $this->deletingMonitoringId);
+        Log::info('Attempting to delete monitoring ID: ' . $this->deletingMonitoringId);
         try {
             $monitoring = ProcurementMonitoring::findOrFail($this->deletingMonitoringId); // Use findOrFail
             $monitoring->delete();
@@ -157,11 +160,11 @@ class ProcurementMonitoringIndex extends Component
             $this->closeModal();
             $this->notificationMessage = 'Procurement Monitoring Deleted Successfully!';
             $this->showNotification = true;
-            $this->emitSelf('$refresh');
-            $this->forceRender();
+            $this->emitSelf('$refresh'); // Consider replacing emitSelf with dispatch for Livewire 3
+            $this->forceRender(); // This might not be necessary with refresh, test without first
             $this->dispatch('monitoringDeleted');
         } catch (\Exception $e) {
-            \Log::error('Error deleting procurement record: ' . $e->getMessage());
+            Log::error('Error deleting procurement record: ' . $e->getMessage());
             session()->flash('error', 'Error deleting procurement record.');
             $this->dispatch('monitoringDeleteFailed');
         }
@@ -188,7 +191,7 @@ class ProcurementMonitoringIndex extends Component
 
     public function openEditModal($monitoringId)
     {
-        \Log::info('Opening edit modal for ID: ' . $monitoringId);
+        Log::info('Opening edit modal for ID: ' . $monitoringId);
         $monitoring = ProcurementMonitoring::findOrFail($monitoringId);
         $this->editMonitoringId = $monitoring->id;
         $this->pr_no = $monitoring->pr_no;
@@ -203,7 +206,7 @@ class ProcurementMonitoringIndex extends Component
 
     public function openDeleteModal($monitoringId)
     {
-        \Log::info('Opening delete modal for ID: ' . $monitoringId);
+        Log::info('Opening delete modal for ID: ' . $monitoringId);
         $this->deletingMonitoringId = $monitoringId;
         $this->isDeleteModalOpen = true;
     }
@@ -230,10 +233,13 @@ class ProcurementMonitoringIndex extends Component
         $this->date_endorsement = '';
     }
 
-    public function render()
+    // --- Helper method to build the base query with all filters ---
+// --- Helper method to build the base query with all filters ---
+    private function buildMonitoringQuery()
     {
         $today = Carbon::now()->startOfDay();
         $query = ProcurementMonitoring::query();
+
 
         if ($this->search) {
             $searchMonitoring = $this->search;
@@ -258,19 +264,86 @@ class ProcurementMonitoringIndex extends Component
 
         // New filtering logic based on endorsement days
         if ($this->filterDays === 'within_3_days') {
-            $query->where('date_endorsement', '>=', $today->subDays(2)->toDateString())
+            $query->where('date_endorsement', '>=', $today->copy()->subDays(2)->toDateString())
                 ->where('date_endorsement', '<=', Carbon::now()->toDateString());
         } elseif ($this->filterDays === '3_to_8_days') {
-            $query->where('date_endorsement', '<', $today->subDays(2)->toDateString())
-                ->where('date_endorsement', '>=', $today->subDays(7)->toDateString());
+            $query->where('date_endorsement', '<', $today->copy()->subDays(2)->toDateString())
+                ->where('date_endorsement', '>=', $today->copy()->subDays(7)->toDateString());
         } elseif ($this->filterDays === 'more_than_8_days') {
-            $query->where('date_endorsement', '<', $today->subDays(7)->toDateString());
+            $query->where('date_endorsement', '<', $today->copy()->subDays(7)->toDateString());
         }
 
-        $monitorings = $query->paginate($this->perPage);
+        // IMPORTANT: Only apply year/month filters if they are actually selected AND valid.
+        // If 'date_endorsement' can be null or empty, these might filter out valid data.
+        // I've removed the default 'date('Y')' and 'date('m')' from mount() if you don't use these filters in your UI.
+        // Let's make sure they are only applied if the properties are explicitly set by user interaction.
+
+        // Re-added the checks for selectedYear and selectedMonth, but ensure they are ONLY
+        // applied if the property is not null and has a meaningful value from UI input.
+        // If your UI doesn't explicitly set these, data might disappear.
+        if ($this->selectedYear && $this->selectedYear !== 'all') { // Assuming 'all' could be an option in your UI
+            $query->whereYear('date_endorsement', $this->selectedYear);
+        }
+        if ($this->selectedMonth && $this->selectedMonth !== 'all') { // Assuming 'all' could be an option in your UI
+            $query->whereMonth('date_endorsement', $this->selectedMonth);
+        }
+
+        return $query;
+    }
+
+    public function render()
+    {
+        $monitorings = $this->buildMonitoringQuery()->paginate($this->perPage);
 
         return view('livewire.procurement-monitoring-index', [
             'monitorings' => $monitorings,
         ])->layout('layouts.app');
     }
+
+    // --- EXCEL EXPORT ---
+    public function exportToExcel()
+    {
+        // Get the filtered query
+        $exportQuery = $this->buildMonitoringQuery();
+
+        Log::info('Exporting ' . $exportQuery->count() . ' ProcurementMonitoring items to Excel.');
+
+        // Use the MonitoringExport class with the filtered query
+        return Excel::download(new MonitoringExport($exportQuery), 'procurement_monitoring.xlsx');
+    }
+
+    // --- PDF EXPORT ---
+    public function exportToPDF()
+    {
+        // Get the filtered query and retrieve the data
+        $data = $this->buildMonitoringQuery()->get();
+
+        Log::info('Exporting ' . $data->count() . ' ProcurementMonitoring items to PDF.');
+
+        // Setup Dompdf options
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans'); // Recommended for better UTF-8 support
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true); // Enable loading remote assets (images, CSS)
+
+        $dompdf = new Dompdf($options);
+
+        // Load the view for the PDF content
+        // Make sure you create this Blade view: resources/views/exports/procurement_monitoring_pdf.blade.php
+        $html = view('exports.monitoring_pdf', compact('data'))->render();
+
+        $dompdf->loadHtml($html);
+
+        // (Optional) Set paper size and orientation
+        $dompdf->setPaper('A4', 'landscape'); // or 'portrait'
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Stream the file to the browser
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, 'procurement_monitoring.pdf');
+    }
 }
+

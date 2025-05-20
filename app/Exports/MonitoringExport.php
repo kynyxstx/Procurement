@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class ItemExport implements FromQuery, WithHeadings, ShouldAutoSize
+class MonitoringExport implements FromQuery, WithHeadings, ShouldAutoSize
 {
     protected $query;
 
@@ -21,7 +21,7 @@ class ItemExport implements FromQuery, WithHeadings, ShouldAutoSize
      */
     public function query()
     {
-        return $this->query;
+        return $this->query; // This will now receive the filtered query from Livewire
     }
 
     /**
@@ -30,12 +30,13 @@ class ItemExport implements FromQuery, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
-            'ID',
+            'PR No', // Changed for better readability in Excel
+            'Title',
+            'Processor',
             'Supplier',
-            'Item/project',
-            'Unit cost',
-            'Year',
-            'Month',
+            'End User',
+            'Status',
+            'Date Endorsement',
             'Created At',
             'Updated At',
         ];

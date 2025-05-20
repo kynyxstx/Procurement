@@ -5,6 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\ItemsProcured;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ItemsProcuredExport;
 
 class ItemsProcuredIndex extends Component
 {
@@ -16,9 +18,11 @@ class ItemsProcuredIndex extends Component
     public $year = '';
     public $month = '';
 
+    // These are already declared, and are the correct ones to use for filters
     public $filterYear = '';
     public $filterMonth = '';
     public $search = '';
+
     public $isEditModalOpen = false;
     public $editItemId;
     public $isDeleteModalOpen = false;
@@ -30,17 +34,18 @@ class ItemsProcuredIndex extends Component
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 50;
+
     /**
      * The properties that should be included in the query string.
      *
      * @var array
      */
-
     protected $queryString = [
         'search',
         'filterYear',
         'filterMonth',
     ];
+
     public function rules()
     {
         return [
@@ -75,7 +80,7 @@ class ItemsProcuredIndex extends Component
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
-        $this->reset(['supplier', 'item_project', 'unit_cost', 'editItemId', 'isEditModalOpen', 'isDeleteModalOpen']);
+        $this->reset(['supplier', 'item_project', 'unit_cost', 'editItemId', 'isEditModalOpen', 'isDeleteModalOpen', 'year', 'month']); // Added year and month to reset
     }
 
     public function saveItem()
@@ -126,6 +131,7 @@ class ItemsProcuredIndex extends Component
 
     public function openAddModal()
     {
+        $this->resetInputFields(); // Ensure fields are clear when opening add modal
         $this->isAddModalOpen = true;
     }
 
@@ -196,6 +202,36 @@ class ItemsProcuredIndex extends Component
             session()->flash('error', 'Error deleting item.');
             \Log::error('Error deleting item: ' . $e->getMessage());
             $this->dispatch('itemDeleteFailed');
+        }
+    }
+
+    // Corrected export method name as per previous error
+    public function exportExcel() // Renamed from exportToExcel to match common usage, can be exportToExcel if you prefer
+    {
+        // Use $this->filterYear and $this->filterMonth instead of undeclared $this->selectedYear/$selectedMonth
+        $filename = 'Item Procurement.xlsx'; // Shortened filename, < 31 chars
+
+        try {
+            return Excel::download(new ItemsProcuredExport($this->filterYear, $this->filterMonth, $this->search), $filename);
+        } catch (\Exception $e) {
+            \Log::error('Error exporting items to Excel: ' . $e->getMessage());
+            session()->flash('error', 'Failed to export to Excel: ' . $e->getMessage());
+            return back();
+        }
+    }
+
+    // New exportPdf method, as per previous error
+    public function exportPdf()
+    {
+        // Use $this->filterYear and $this->filterMonth instead of undeclared $this->selectedYear/$selectedMonth
+        $filename = 'Item Procurement.pdf'; // Shortened filename, < 31 chars
+
+        try {
+            return Excel::download(new ItemsProcuredExport($this->filterYear, $this->filterMonth, $this->search), $filename, \Maatwebsite\Excel\Excel::DOMPDF);
+        } catch (\Exception $e) {
+            \Log::error('Error exporting items to PDF: ' . $e->getMessage());
+            session()->flash('error', 'Failed to export to PDF: ' . $e->getMessage());
+            return back();
         }
     }
 

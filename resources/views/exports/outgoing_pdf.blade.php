@@ -2,10 +2,12 @@
 <html>
 
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Outgoing Procurement List PDF</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'DejaVu Sans', sans-serif;
+            /* Recommended for better UTF-8 support */
             font-size: 8px;
         }
 
@@ -20,6 +22,8 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            vertical-align: top;
+            /* Added to keep content at top if row height varies */
         }
 
         th {
@@ -51,7 +55,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($outgoings as $outgoing)
+            @forelse($data as $outgoing) {{-- Changed from $outgoings to $data as per exportToPDF method --}}
                 <tr>
                     <td>{{ $outgoing->received_date }}</td>
                     <td>{{ $outgoing->end_user }}</td>
@@ -65,7 +69,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8">No outgoing procurement available for this report.</td>
+                    <td colspan="9">No outgoing procurement available for this report.</td> {{-- Adjusted colspan --}}
                 </tr>
             @endforelse
         </tbody>

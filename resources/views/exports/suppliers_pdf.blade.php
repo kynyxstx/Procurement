@@ -18,7 +18,7 @@
         th,
         td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 4px;
             text-align: left;
         }
 
@@ -28,14 +28,14 @@
 
         h1 {
             text-align: center;
-            font-size: 18px;
+            font-size: 15px;
             margin-bottom: 20px;
         }
     </style>
 </head>
 
 <body>
-    <h1>Suppliers List</h1>
+    <h1>Suppliers Directory List</h1>
     <table>
         <thead>
             <tr>

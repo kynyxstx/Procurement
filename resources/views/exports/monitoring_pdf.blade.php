@@ -2,11 +2,14 @@
 <html>
 
 <head>
-    <title>Procurement Monitoring List PDF</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Procurement Monitoring Report</title>
     <style>
+        /* Basic styling for the PDF */
         body {
-            font-family: Arial, sans-serif;
-            font-size: 8px;
+            font-family: 'DejaVu Sans', sans-serif;
+            /* Use a font that supports a wider range of characters */
+            font-size: 10px;
         }
 
         table {
@@ -27,47 +30,43 @@
         }
 
         h1 {
-            text-align: center;
             font-size: 18px;
+            text-align: center;
             margin-bottom: 20px;
         }
     </style>
 </head>
 
 <body>
-    <h1>Procurement Monitoring List</h1>
+    <h1>Procurement Monitoring Report</h1>
     <table>
         <thead>
             <tr>
-                <th>Received Date</th>
+                <th>PR No</th>
+                <th>Title</th>
+                <th>Processor</th>
+                <th>Supplier</th>
                 <th>End User</th>
-                <th>PR No.</th>
-                <th>Particulars</th>
-                <th>Amount</th>
-                <th>Creditor</th>
-                <th>Remarks</th>
-                <th>Responsibility</th>
-                <th>Received By</th>
+                <th>Status</th>
+                <th>Date Endorsement</th>
+                <th>Created At</th>
+                <th>Updated At</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($monitorings as $monitoring)
+            @foreach ($data as $item)
                 <tr>
-                    <td>{{ $monitoring->received_date }}</td>
-                    <td>{{ $monitoring->end_user }}</td>
-                    <td>{{ $monitoring->pr_no }}</td>
-                    <td>{{ $monitoring->particulars }}</td>
-                    <td>{{ $monitoring->amount }}</td>
-                    <td>{{ $monitoring->creditor }}</td>
-                    <td>{{ $monitoring->remarks }}</td>
-                    <td>{{ $monitoring->responsibility }}</td>
-                    <td>{{ $monitoring->received_by }}</td>
+                    <td>{{ $item->pr_no }}</td>
+                    <td>{{ $item->title }}</td>
+                    <td>{{ $item->processor }}</td>
+                    <td>{{ $item->supplier }}</td>
+                    <td>{{ $item->end_user }}</td>
+                    <td>{{ $item->status }}</td>
+                    <td>{{ $item->date_endorsement }}</td>
+                    <td>{{ $item->created_at }}</td>
+                    <td>{{ $item->updated_at }}</td>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="8">No procurement monitoring available for this report.</td>
-                </tr>
-            @endforelse
+            @endforeach
         </tbody>
     </table>
 </body>

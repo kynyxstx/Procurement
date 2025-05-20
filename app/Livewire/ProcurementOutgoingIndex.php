@@ -5,6 +5,11 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\ProcurementOutgoing;
 use Livewire\WithPagination;
+use App\Exports\OutgoingExport; // Import your Excel export class
+use Maatwebsite\Excel\Facades\Excel; // Import the Excel facade
+use Dompdf\Dompdf;                    // Import Dompdf (if not globally configured)
+use Dompdf\Options;                   // Import Dompdf Options
+use Illuminate\Support\Facades\Log;   // Added for logging
 
 class ProcurementOutgoingIndex extends Component
 {
@@ -34,7 +39,7 @@ class ProcurementOutgoingIndex extends Component
     public $isAddModalOpen = false;
 
     public $showNotification = false;
-    public $notificationMessage = '';
+    public string $notificationMessage = '';
     public string $notificationType = 'success';
 
     protected $paginationTheme = 'tailwind';
@@ -55,7 +60,7 @@ class ProcurementOutgoingIndex extends Component
         ];
     }
 
-    protected $listeners = ['refreshProcurementMonitoring' => '$refresh'];
+    protected $listeners = ['refreshProcurementMonitoring' => '$refresh']; // Note: This listener name seems to be for Monitoring, not Outgoing. You might want to update it if you use dispatch on the outgoing side.
 
     public function mount(): void
     {
@@ -65,7 +70,7 @@ class ProcurementOutgoingIndex extends Component
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
-        if (in_array($propertyName, ['search', 'filterMonth'])) {
+        if (in_array($propertyName, ['search', 'filterMonth', 'filterEndUser', 'filterReceivedby'])) { // Added other filters to trigger resetPage
             $this->performSearch();
         }
     }
@@ -81,7 +86,6 @@ class ProcurementOutgoingIndex extends Component
         $this->notificationMessage = '';
         $this->notificationType = 'success';
     }
-
 
     // Close modals
     public function closeModal()
@@ -102,6 +106,7 @@ class ProcurementOutgoingIndex extends Component
             'editOutgoingId',
             'isEditModalOpen',
             'isDeleteModalOpen',
+            'deletingOutgoingId', // Added this to reset on close
         ]);
     }
 
@@ -118,8 +123,9 @@ class ProcurementOutgoingIndex extends Component
     public function addOutgoing()
     {
         try {
-            $amount = str_replace(',', '.', $this->amount);
-            $this->amount = $amount;
+            $amount = str_replace(',', '', $this->amount); // Use empty string to remove commas, not '.'
+            $this->amount = $amount; // Make sure 'amount' is float/decimal in DB if it's numeric
+
             $validatedData = $this->validate();
 
             ProcurementOutgoing::create($validatedData);
@@ -127,10 +133,12 @@ class ProcurementOutgoingIndex extends Component
             $this->closeModal();
             $this->resetFields();
             $this->dispatch('notify', message: 'Procurement record added successfully!');
+            $this->dispatch('refreshProcurementOutgoing'); // Added dispatch for refresh
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('notify', message: 'Validation error occurred.', type: 'error');
+            Log::error('Validation error adding outgoing record: ' . $e->getMessage());
         } catch (\Exception $e) {
-            \Log::error('Error adding procurement record: ' . $e->getMessage());
+            Log::error('Error adding procurement record: ' . $e->getMessage());
             $this->dispatch('notify', message: 'Error adding procurement record.', type: 'error');
         }
     }
@@ -158,14 +166,14 @@ class ProcurementOutgoingIndex extends Component
 
             $this->isEditModalOpen = true;
         } else {
-            session()->flash('error', 'Procurement record not found.');
+            $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
         }
     }
 
     public function updateOutgoing()
     {
         try {
-            $this->amount = str_replace(',', '.', $this->amount);
+            $this->amount = str_replace(',', '', $this->amount); // Use empty string to remove commas, not '.'
             $validatedData = $this->validate();
             $outgoing = ProcurementOutgoing::find($this->editOutgoingId);
 
@@ -174,23 +182,25 @@ class ProcurementOutgoingIndex extends Component
                 $this->resetFields();
                 $this->closeModal();
                 $this->dispatch('notify', message: 'Procurement record updated successfully!');
+                $this->dispatch('refreshProcurementOutgoing'); // Added dispatch for refresh
             } else {
                 $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('notify', message: 'Validation error occurred.', type: 'error');
+            Log::error('Validation error updating outgoing record: ' . $e->getMessage());
         } catch (\Exception $e) {
-            \Log::error('Error updating procurement record: ' . $e->getMessage());
+            Log::error('Error updating procurement record: ' . $e->getMessage());
             $this->dispatch('notify', message: 'Error updating procurement record.', type: 'error');
         }
     }
-
 
     public function openDeleteModal($outgoingId)
     {
         $this->deletingOutgoingId = $outgoingId;
         $this->isDeleteModalOpen = true;
     }
+
     public function deleteOutgoing()
     {
         try {
@@ -199,16 +209,36 @@ class ProcurementOutgoingIndex extends Component
                 $outgoing->delete();
                 $this->closeModal();
                 $this->dispatch('notify', message: 'Procurement record deleted successfully!');
+                $this->dispatch('refreshProcurementOutgoing'); // Added dispatch for refresh
             } else {
                 $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
             }
         } catch (\Exception $e) {
-            \Log::error('Error deleting procurement record: ' . $e->getMessage());
+            Log::error('Error deleting procurement record: ' . $e->getMessage());
             $this->dispatch('notify', message: 'Error deleting procurement record.', type: 'error');
         }
     }
 
-    public function render()
+    public function performSearch()
+    {
+        $this->resetPage(); // Reset pagination when searching
+    }
+
+    private function resetFields()
+    {
+        $this->received_date = '';
+        $this->end_user = '';
+        $this->pr_no = '';
+        $this->particulars = '';
+        $this->amount = '';
+        $this->creditor = '';
+        $this->remarks = '';
+        $this->responsibility = '';
+        $this->received_by = '';
+    }
+
+    // --- Helper method to build the base query with all filters ---
+    private function buildOutgoingQuery()
     {
         $query = ProcurementOutgoing::query()
             ->when($this->search, function ($query) {
@@ -223,9 +253,11 @@ class ProcurementOutgoingIndex extends Component
                     ->orWhere('received_by', 'like', '%' . $this->search . '%');
             })
             ->when($this->filterMonth, function ($query) {
+                // Assuming filterMonth is 'YYYY-MM' or 'MM' if it's a dropdown for month
+                // If it's just 'MM', you might need to infer the year.
+                // For safety, let's assume it's just the month number 'MM' (e.g., '05')
                 $query->whereMonth('received_date', date('m', strtotime($this->filterMonth)));
-            })
-            ->orderBy($this->sortBy, $this->sortDirection);
+            });
 
         if ($this->filterEndUser) {
             $endUserNames = explode(';', $this->filterEndUser);
@@ -245,28 +277,65 @@ class ProcurementOutgoingIndex extends Component
             });
         }
 
-        $outgoings = $query->paginate($this->perPage);
+        // Apply sorting based on sortBy and sortDirection
+        $query->orderBy($this->sortBy, $this->sortDirection);
+
+        return $query;
+    }
+
+    public function render()
+    {
+        $outgoings = $this->buildOutgoingQuery()->paginate($this->perPage);
 
         return view('livewire.procurement-outgoing-index', [
             'outgoings' => $outgoings,
         ])->layout('layouts.app');
     }
 
-    public function performSearch()
+    // --- EXCEL EXPORT ---
+    public function exportToExcel()
     {
-        $this->resetPage(); // Reset pagination when searching
+        // Get the filtered query
+        $exportQuery = $this->buildOutgoingQuery();
+
+        Log::info('Exporting ' . $exportQuery->count() . ' ProcurementOutgoing items to Excel.');
+
+        // Use the OutgoingExport class with the filtered query
+        // Ensure that Maatwebsite\Excel is correctly imported: use Maatwebsite\Excel\Facades\Excel;
+        return Excel::download(new OutgoingExport($exportQuery), 'procurement_outgoing.xlsx');
     }
 
-    private function resetFields()
+    // --- PDF EXPORT ---
+    public function exportToPDF()
     {
-        $this->received_date = '';
-        $this->end_user = '';
-        $this->pr_no = '';
-        $this->particulars = '';
-        $this->amount = '';
-        $this->creditor = '';
-        $this->remarks = '';
-        $this->responsibility = '';
-        $this->received_by = '';
+        // Get the filtered query and retrieve the data
+        $data = $this->buildOutgoingQuery()->get();
+
+        Log::info('Exporting ' . $data->count() . ' ProcurementOutgoing items to PDF.');
+
+        // Setup Dompdf options
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans'); // Recommended for better UTF-8 support
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true); // Enable loading remote assets (images, CSS)
+
+        $dompdf = new Dompdf($options);
+
+        // Load the view for the PDF content
+        // Make sure you create this Blade view: resources/views/exports/outgoing_pdf.blade.php
+        $html = view('exports.outgoing_pdf', compact('data'))->render();
+
+        $dompdf->loadHtml($html);
+
+        // (Optional) Set paper size and orientation
+        $dompdf->setPaper('A4', 'landscape'); // or 'portrait' - adjust as needed for many columns
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Stream the file to the browser
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, 'procurement_outgoing.pdf');
     }
 }
