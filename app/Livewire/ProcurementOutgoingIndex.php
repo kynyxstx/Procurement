@@ -47,7 +47,7 @@ class ProcurementOutgoingIndex extends Component
             'end_user' => 'required|string|max:255',
             'pr_no' => 'required|string|max:255',
             'particulars' => 'nullable|string|max:500',
-            'amount' => 'nullable|numeric',
+            'amount' => 'nullable|string',
             'creditor' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:500',
             'responsibility' => 'nullable|string|max:255',

@@ -73,11 +73,11 @@
                             <input type="text" wire:model.live="search" placeholder="Search monitoring..."
                                 class="p-2 border rounded-md shadow-md mr-2" style="min-width: 250px;" />
                             <button wire:click="exportToExcel"
-                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
                                 Export to Excel
                             </button>
                             <button wire:click="exportToPDF"
-                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700 ml-2">
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
                                 Export to PDF
                             </button>
                             <button wire:click="openAddModal"

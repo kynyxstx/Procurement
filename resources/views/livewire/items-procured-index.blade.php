@@ -71,11 +71,11 @@
                             <input type="text" wire:model.live="search" placeholder="Search suppliers..."
                                 style="min-width: 300px;" class="p-2 border rounded-md shadow-sm mr-2" />
                             <button wire:click="exportToExcel"
-                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring focus:border-green-300">
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 ml-2">
                                 Export to Excel
                             </button>
                             <button wire:click="exportToPDF"
-                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring focus:border-red-300 ml-2">
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 ml-2">
                                 Export to PDF
                             </button>
                             <button wire:click="openAddModal"

@@ -20,7 +20,7 @@ class ProcurementMonitoring extends Model
         'title',
         'processor',
         'supplier',
-        'end-user',
+        'end_user',
         'status',
         'date_endorsement'
     ];
