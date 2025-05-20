@@ -283,7 +283,7 @@ class SupplierDirectoryIndex extends Component
     {
         $query = SupplierDirectory::query();
         $this->applyFilters($query); // Apply the same filters used for the table
-        return Excel::download(new SuppliersExport($query), 'suppliers.xlsx'); // Pass the query
+        return Excel::download(new SuppliersExport($query->get()), 'suppliers.xlsx'); // Pass the collection
     }
 
     // For PDF
