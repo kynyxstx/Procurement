@@ -30,7 +30,6 @@ class SuppliersExport implements FromQuery, WithHeadings, ShouldAutoSize
      */
     public function headings(): array
     {
-        // Define your column headers here
         return [
             'ID',
             'Supplier Name',
