@@ -5,6 +5,9 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\SupplierDirectory;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SuppliersExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SupplierDirectoryIndex extends Component
 {
@@ -67,6 +70,39 @@ class SupplierDirectoryIndex extends Component
         if (request()->has('search')) {
             $this->search = request()->query('search');
         }
+    }
+
+    public function applyFilters($query)
+    {
+        \Log::info('applyFilters called');
+        \Log::info('Search: ' . $this->search);
+        \Log::info('Filter Supplier: ' . $this->filterSupplier);
+
+        if ($this->search) {
+            \Log::info('Search condition applied');
+            $query->where(function ($query) {
+                $query->where('supplier_name', 'like', '%' . $this->search . '%')
+                    ->orWhere('address', 'like', '%' . $this->search . '%')
+                    ->orWhere('items', 'like', '%' . $this->search . '%')
+                    ->orWhere('contact_person', 'like', '%' . $this->search . '%')
+                    ->orWhere('position', 'like', '%' . $this->search . '%')
+                    ->orWhere('mobile_no', 'like', '%' . $this->search . '%')
+                    ->orWhere('telephone_no', 'like', '%' . $this->search . '%')
+                    ->orWhere('email_address', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->filterSupplier) {
+            \Log::info('filterSupplier condition applied');
+            $supplierNames = explode(';', $this->filterSupplier);
+            $query->where(function ($query) use ($supplierNames) {
+                foreach ($supplierNames as $supplierName) {
+                    $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%');
+                }
+            });
+        }
+        \Log::info(get_class($query)); // Check the class of $query
+        return $query;
     }
 
     public function updated($propertyName)
@@ -222,18 +258,8 @@ class SupplierDirectoryIndex extends Component
     {
         $query = SupplierDirectory::query();
 
-        // Apply search if it's not empty
-        if (!empty($this->search)) {
-            $query->where(function ($query) {
-                $query->where('supplier_name', 'like', '%' . $this->search . '%')
-                    ->orWhere('address', 'like', '%' . $this->search . '%')
-                    ->orWhere('items', 'like', '%' . $this->search . '%')
-                    ->orWhere('contact_person', 'like', '%' . $this->search . '%')
-                    ->orWhere('mobile_no', 'like', '%' . $this->search . '%')
-                    ->orWhere('telephone_no', 'like', '%' . $this->search . '%')
-                    ->orWhere('email_address', 'like', '%' . $this->search . '%');
-            });
-        }
+        // Apply filters using the refactored method
+        $this->applyFilters($query);
 
         // Filter by supplier name
         if ($this->filterSupplier) {
@@ -247,12 +273,32 @@ class SupplierDirectoryIndex extends Component
 
         $suppliers = $query->paginate(20);
 
-
-
         return view('livewire.supplier-directory-index', [
             'suppliers' => $suppliers,
         ]);
     }
+
+    // For Excel
+    public function exportToExcel()
+    {
+        $query = SupplierDirectory::query();
+        $this->applyFilters($query); // Apply the same filters used for the table
+        return Excel::download(new SuppliersExport($query), 'suppliers.xlsx'); // Pass the query
+    }
+
+    // For PDF
+    public function exportToPDF()
+    {
+        $query = SupplierDirectory::query();
+        $this->applyFilters($query); // Apply the same filters
+        $suppliers = $query->get(); // Get the collection of filtered data
+
+        $pdf = Pdf::loadView('exports.suppliers_pdf', ['suppliers' => $suppliers]); // Corrected view path
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'suppliers.pdf');
+    }
+
     public function performSearch()
     {
         $this->resetPage(); // Reset pagination when searching
