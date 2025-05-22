@@ -157,9 +157,9 @@
                                     <div class="mb-2">
                                         <label for="item_project"
                                             class="block text-sm font-medium text-gray-900 dark:text-white">Item/Project</label>
-                                        <input wire:model="item_project" type="text" id="item_project"
+                                        <textarea wire:model="item_project" type="text" id="item_project"
                                             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                            placeholder="Enter Item/Project" required />
+                                            placeholder="Enter Item/Project" required></textarea>
                                         @error('item_project')
                                             <p class="text-red-500 text-sm">{{ $errors->first('item_project') }}</p>
                                         @enderror
@@ -253,9 +253,9 @@
                                     <div class="mb-2">
                                         <label for="edit_item_project"
                                             class="block text-sm font-medium text-gray-900 dark:text-white">Item/Project</label>
-                                        <input wire:model="item_project" type="text" id="edit_item_project"
+                                        <textarea wire:model="item_project" id="edit_item_project"
                                             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                            placeholder="Enter Item/Project" required />
+                                            placeholder="Enter Item/Project" required></textarea>
                                         @error('item_project')
                                             <p class="text-red-500 text-sm">{{ $errors->first('item_project') }}</p>
                                         @enderror

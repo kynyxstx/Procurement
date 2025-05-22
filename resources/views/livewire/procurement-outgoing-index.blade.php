@@ -189,9 +189,9 @@
                             <div class="mb-2">
                                 <label for="particulars"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Particulars</label>
-                                <input wire:model="particulars" type="text" id="particulars"
+                                <textarea wire:model="particulars" id="particulars"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Particulars" required />
+                                    placeholder="Enter Particulars" required></textarea>
                                 @error('particulars')
                                     <p class="text-red-500 text-sm">{{ $errors->first('particulars') }}</p>
                                 @enderror
@@ -219,9 +219,9 @@
                             <div class="mb-2">
                                 <label for="remarks"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remarks</label>
-                                <input wire:model="remarks" type="text" id="remarks"
+                                <textarea wire:model="remarks" id="remarks"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Remarks" />
+                                    placeholder="Enter Remarks" required></textarea>
                                 @error('remarks')
                                     <p class="text-red-500 text-sm">{{ $errors->first('remarks') }}</p>
                                 @enderror
@@ -318,9 +318,9 @@
                             <div class="mb-2">
                                 <label for="particulars"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Particulars</label>
-                                <input wire:model="particulars" type="text" id="particulars"
+                                <textarea wire:model="particulars" id="particulars"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Particulars" required />
+                                    placeholder="Enter Particulars" required></textarea>
                                 @error('particulars')
                                     <p class="text-red-500 text-sm">{{ $errors->first('particulars') }}</p>
                                 @enderror
@@ -348,9 +348,9 @@
                             <div class="mb-2">
                                 <label for="remarks"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remarks</label>
-                                <input wire:model="remarks" type="text" id="remarks"
+                                <textarea wire:model="remarks" id="remarks"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Remarks" />
+                                    placeholder="Enter Remarks" required></textarea>
                                 @error('remarks')
                                     <p class="text-red-500 text-sm">{{ $errors->first('remarks') }}</p>
                                 @enderror

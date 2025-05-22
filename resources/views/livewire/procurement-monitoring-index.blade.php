@@ -183,9 +183,9 @@
                             <div class="mb-2">
                                 <label for="processor"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Processor</label>
-                                <input wire:model="processor" type="text" id="processor"
+                                <textarea wire:model="processor" id="processor"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Processor" required />
+                                    placeholder="Enter Processor" required></textarea>
                                 @error('processor')
                                     <p class="text-red-500 text-sm">{{ $errors->first('processor') }}</p>
                                 @enderror
