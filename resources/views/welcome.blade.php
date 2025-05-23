@@ -1525,6 +1525,154 @@
                 inherits: false;
                 initial-value: ""
             }
+
+            body {
+                background-image: url('{{ asset('Images/1_bgwelcome.png') }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                /* Keeps the background fixed when scrolling */
+                min-height: 100vh;
+                /* Ensures body takes full viewport height */
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                /* Center items horizontally */
+                justify-content: flex-start;
+                /* Align content to the top initially */
+                color: #1b1b18;
+                /* Default text color, adjust if needed for contrast */
+                font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+                /* Ensure font is applied */
+            }
+
+            /* Overlay for readability on top of the background image */
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(255, 255, 255, 0.6);
+                /* White overlay with 60% opacity */
+                /* Adjust opacity (0.0-1.0) for desired brightness/darkness */
+                z-index: -1;
+                /* Puts the overlay behind the content but in front of the background image */
+            }
+
+            /* Specific styles for the header (login/register buttons) */
+            header {
+                width: 100%;
+                max-width: 1200px;
+                /* Adjust max-width as needed */
+                padding: 1rem;
+                margin-bottom: 2rem;
+                /* Space below header */
+                display: flex;
+                justify-content: flex-end;
+                /* Align buttons to the right */
+            }
+
+            nav a {
+                /* Your inline styles are more specific, so they will override these if present. */
+                /* These are general styles for better visibility: */
+                background: rgba(255, 255, 255, 0.92);
+                /* Matches your inline style */
+                backdrop-filter: blur(10px);
+                /* Matches your inline style */
+                color: #1b1b18;
+                /* Ensure text is visible */
+                border-color: rgba(25, 20, 0, 0.4);
+                /* Make border slightly more visible */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                /* Slightly more prominent shadow */
+                transition: all 0.2s ease-in-out;
+                /* Smooth transition */
+            }
+
+            nav a:hover {
+                background: rgba(255, 255, 255, 0.98);
+                /* Less transparent on hover */
+                border-color: rgba(25, 20, 0, 0.6);
+            }
+
+            /* Container for Vision, Mission, Quality Policy */
+            .welcome-container {
+                background-color: rgba(255, 255, 255, 0.9);
+                /* Opaque white background for readability */
+                border-radius: 15px;
+                /* Slightly more rounded corners */
+                padding: 3rem;
+                /* More padding inside */
+                max-width: 900px;
+                /* Adjust max-width as needed */
+                width: 100%;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                /* More pronounced shadow */
+                margin-top: auto;
+                /* Push container down if header is small */
+                margin-bottom: auto;
+                /* Center vertically if space allows */
+            }
+
+            .welcome-container h2 {
+                text-align: center;
+                margin-bottom: 1.5rem;
+                /* Space below titles */
+                font-size: 2rem;
+                /* Larger font for titles */
+                color: #333;
+                /* Darker color for titles */
+                text-transform: uppercase;
+            }
+
+            .vision-mission-container {
+                display: flex;
+                flex-direction: column;
+                /* Stack columns on smaller screens */
+                gap: 2.5rem;
+                /* Space between columns */
+                margin-bottom: 2.5rem;
+            }
+
+            @media (min-width: 768px) {
+
+                /* Apply 2-column layout on medium screens and up */
+                .vision-mission-container {
+                    flex-direction: row;
+                    /* Two columns side-by-side */
+                }
+            }
+
+            .vision,
+            .mission {
+                flex: 1;
+                /* Each takes equal space */
+                text-align: justify;
+                line-height: 1.8;
+                /* Improve readability */
+                font-size: 1.1rem;
+                /* Slightly larger text */
+                color: #555;
+            }
+
+            .quality-policy-title {
+                margin-top: 2.5rem;
+                /* Space above quality policy title */
+            }
+
+            .quality-policy-content p {
+                text-align: justify;
+                line-height: 1.8;
+                font-size: 1.1rem;
+                color: #555;
+                margin-bottom: 1rem;
+                /* Space between paragraphs */
+            }
         </style>
     @endif
 </head>
@@ -1568,35 +1716,6 @@
     @if (Route::has('login'))
         <div class="h-14.5 hidden lg:block"></div>
     @endif
-
-
-    <div class="welcome-container">
-        <h2>VISION</h2>
-        <div class="vision-mission-container">
-            <p class="vision">
-                SOLID, RESPONSIVE, AND WORLD-CLASS AUTHORITY ON QUALITY STATISTICS, EFFICIENT CIVIL REGISTRATION, AND
-                INCLUSIVE IDENTIFICATION SYSTEM.
-            </p>
-            <p class="mission">
-                DELIVER RELEVANT AND RELIABLE STATISTICS, EFFICIENT CIVIL REGISTRATION SERVICES AND INCLUSIVE
-                IDENTIFICATION SYSTEM FOR EQUITABLE DEVELOPMENT TOWARDS IMPROVED QUALITY OF LIFE FOR ALL.
-            </p>
-        </div>
-
-        <h2 class="quality-policy-title">QUALITY POLICY</h2>
-        <div class="quality-policy-content">
-            <p>WE, THE PHILLIPINE STATISTICS AUTHORITY. COMMIT TO DELIVER RELEVANT AND RELIABLE STATISTICS, EFFICIENT
-                CIVIL REGISTRATION SERVICES AND INCLUSIVE IDENTIFICATION SYSTEM TO OUR CLIENTS AND STAKEHOLDERS.</p>
-            <p>WE ADHERE TO THE UN FUNDAMENTAL PRINCIPLES OF OFFICIAL STATISTICS IN THE PRODUCTION OF QUALITY
-                GENERAL-PURPOSE STATISTICS.</p>
-            <p>WE COMMIT TO DELIVER EFFICIENT CIVIL REGISTRATION SERVICES AND INCLUSIVE IDENTIFICATION SYSTEM IN
-                ACCORDANCE WITH THE LAWS, RULES, AND REGULATIONS, AND OTHER STATUTORY REQUIREMENTS.</p>
-            <p>WE ENDEAVOR TO LIVE BY THE ESTABLISHED CORE VALUES OF THE PSA AND ADAPT THE APPROPRIATE TECHNOLOGY IN THE
-                DEVELOPMENT OF OUR PRODUCTS AND DELIVERY OF SERVICES TO ENSURE CUSTOMER SATISFACTION.</p>
-            <p>WE COMMIT TO CONTINUALLY IMPROVE THE EFFECTIVENESS OF OUR QUALITY MANAGEMENT SYSTEM TOWARDS EQUITABLE
-                DEVELOPMENT FOR IMPROVED QUALITY OF LIFE FOR ALL.</p>
-        </div>
-    </div>
 </body>
 
 </html>
