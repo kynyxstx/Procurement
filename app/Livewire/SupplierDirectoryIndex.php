@@ -32,6 +32,44 @@ class SupplierDirectoryIndex extends Component
 
     public $showNotification = false;
     public $notificationMessage = '';
+    public $sortFields = [
+        'supplier_name',
+        'address',
+        'items',
+        'contact_person',
+        'position',
+        'mobile_no',
+        'telephone_no',
+        'email_address',
+    ];
+    public $sortDirection = 'asc';
+    public $sortField = 'supplier_name';
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
+    /**
+     * Returns the sort icon for a given field.
+     *
+     * @param string $field
+     * @return string
+     */
+    public function getSortIcon($field)
+    {
+        if ($this->sortField === $field) {
+            // Return the sort icon as a string
+            return $this->sortDirection === 'asc' ? '▲' : '▼';
+        }
+        return '';
+    }
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
@@ -269,6 +307,11 @@ class SupplierDirectoryIndex extends Component
                     $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%');
                 }
             });
+        }
+
+        // Apply sorting
+        if (in_array($this->sortField, $this->sortFields)) {
+            $query->orderBy($this->sortField, $this->sortDirection);
         }
 
         $suppliers = $query->paginate(20);
