@@ -74,10 +74,7 @@
                                 class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 ml-2">
                                 Export to Excel
                             </button>
-                            <button wire:click="exportPdf"
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 ml-2">
-                                Export to PDF
-                            </button>
+
                             <button wire:click="openAddModal"
                                 class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 ml-2">
                                 Add Item
