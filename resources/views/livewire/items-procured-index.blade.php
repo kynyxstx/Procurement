@@ -90,11 +90,56 @@
                             <thead
                                 class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                 <tr>
-                                    <th class="px-6 py-3">Supplier</th>
-                                    <th class="px-6 py-3">Item / Project</th>
-                                    <th class="px-6 py-3">Unit Cost</th>
-                                    <th class="px-6 py-3">Year</th>
-                                    <th class="px-6 py-3">Month</th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('supplier')">
+                                        Supplier
+                                        @if($sortField === 'supplier')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('item_project')">
+                                        Item / Project
+                                        @if($sortField === 'item_project')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('unit_cost')">
+                                        Unit Cost
+                                        @if($sortField === 'unit_cost')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('year')">
+                                        Year
+                                        @if($sortField === 'year')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('month')">
+                                        Month
+                                        @if($sortField === 'month')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>

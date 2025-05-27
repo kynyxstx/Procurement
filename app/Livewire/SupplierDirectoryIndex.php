@@ -66,7 +66,7 @@ class SupplierDirectoryIndex extends Component
     {
         if ($this->sortField === $field) {
             // Return the sort icon as a string
-            return $this->sortDirection === 'asc' ? '▲' : '▼';
+            return $this->sortDirection === 'asc' ? '↑' : '↓';
         }
         return '';
     }

@@ -18,7 +18,6 @@ class ItemsProcuredIndex extends Component
     public $year = '';
     public $month = '';
 
-    // These are already declared, and are the correct ones to use for filters
     public $filterYear = '';
     public $filterMonth = '';
     public $search = '';
@@ -32,6 +31,19 @@ class ItemsProcuredIndex extends Component
     public $showNotification = false;
     public $notificationMessage = '';
 
+    public $sortField = 'supplier';
+    public $sortDirection = 'asc';
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
     protected $paginationTheme = 'tailwind';
     protected $perPage = 50;
 
@@ -262,6 +274,11 @@ class ItemsProcuredIndex extends Component
                     ->orWhereRaw('LOWER(month) LIKE ?', ['%' . strtolower($searchItem) . '%']);
             });
             \Log::info('Applying Search: ' . $this->search);
+        }
+
+        // Apply sorting
+        if ($this->sortField && in_array($this->sortField, ['supplier', 'item_project', 'unit_cost', 'year', 'month'])) {
+            $query->orderBy($this->sortField, $this->sortDirection);
         }
 
         \Log::info('SQL Query: ' . $query->toSql());
