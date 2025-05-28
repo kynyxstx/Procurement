@@ -248,7 +248,7 @@ class ProcurementMonitoringIndex extends Component
     }
 
     // --- Helper method to build the base query with all filters ---
-// --- Helper method to build the base query with all filters ---
+    // --- Helper method to build the base query with all filters ---
     private function buildMonitoringQuery()
     {
         $today = Carbon::now()->startOfDay();
