@@ -62,14 +62,6 @@ class SupplierDirectoryIndex extends Component
      * @param string $field
      * @return string
      */
-    public function getSortIcon($field)
-    {
-        if ($this->sortField === $field) {
-            // Return the sort icon as a string
-            return $this->sortDirection === 'asc' ? '↑' : '↓';
-        }
-        return '';
-    }
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
