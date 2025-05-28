@@ -87,100 +87,84 @@
                         </div>
                     </div>
                     <div class="p-10 w-full overflow-x-auto">
-                        <h1 style="font-size: 2em;">Procurement Outgoing</h1><br>
+                        <h1 style="font-size: 2em;">Procurement Outgoing List</h1><br>
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
                             style="table-layout: fixed;">
                             <thead
                                 class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                 <tr>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('received_date')">
+                                    <th class="px-6 py-3 cursor-pointer select-none"
+                                        wire:click="sortBy('received_date')">
                                         Date Received
                                         @if($sortBy === 'received_date')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('end_user')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('end_user')">
                                         End-User
                                         @if($sortBy === 'end_user')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('pr_no')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('pr_no')">
                                         PR-Number
                                         @if($sortBy === 'pr_no')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('particulars')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('particulars')">
                                         Particulars
                                         @if($sortBy === 'particulars')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('amount')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('amount')">
                                         Amount
                                         @if($sortBy === 'amount')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('creditor')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('creditor')">
                                         Creditor
                                         @if($sortBy === 'creditor')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('remarks')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('remarks')">
                                         Remarks
                                         @if($sortBy === 'remarks')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('responsibility')">
+                                    <th class="px-6 py-3 cursor-pointer select-none"
+                                        wire:click="sortBy('responsibility')">
                                         Responsibility
                                         @if($sortBy === 'responsibility')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('received_by')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('received_by')">
                                         Received by
                                         @if($sortBy === 'received_by')
-                                            @if($sortDirection === 'asc')
-                                                <span>&uarr;</span>
-                                            @else
-                                                <span>&darr;</span>
-                                            @endif
+                                            <span>
+                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                            </span>
                                         @endif
                                     </th>
                                     <th class="px-6 py-3">Actions</th>

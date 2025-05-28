@@ -78,7 +78,7 @@
                         </div>
                     </div>
                     <div class="p-10 w-full overflow-x-auto">
-                        <h1 style="font-size: 2em;">Procurement Monitoring</h1><br>
+                        <h1 style="font-size: 2em;">Procurement Monitoring List</h1><br>
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
                             style="table-layout: fixed;">
                             <thead

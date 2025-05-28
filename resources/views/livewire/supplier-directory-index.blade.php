@@ -444,8 +444,6 @@
 
 <script>
     document.addEventListener('livewire:load', function () {
-        // You can remove or modify the existing livewire.on listeners
-        // as the notification is now handled by the $showNotification property.
     });
 </script>
 </div>

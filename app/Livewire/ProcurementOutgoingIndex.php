@@ -43,7 +43,7 @@ class ProcurementOutgoingIndex extends Component
     public $sortBy = 'received_date';
     public $sortDirection = 'asc';
 
-    public function setSort($sortField)
+    public function sortBy($sortField)
     {
         if ($this->sortBy === $sortField) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -53,6 +53,7 @@ class ProcurementOutgoingIndex extends Component
         }
         $this->resetPage();
     }
+
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 10;
