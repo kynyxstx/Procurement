@@ -93,15 +93,96 @@
                             <thead
                                 class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                 <tr>
-                                    <th class="px-6 py-3">Date Received</th>
-                                    <th class="px-6 py-3">End-User</th>
-                                    <th class="px-6 py-3">PR-Number</th>
-                                    <th class="px-6 py-3">Particulars</th>
-                                    <th class="px-6 py-3">Amount</th>
-                                    <th class="px-6 py-3">Creditor</th>
-                                    <th class="px-6 py-3">Remarks</th>
-                                    <th class="px-6 py-3">Responsibility</th>
-                                    <th class="px-6 py-3">Received by</th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('received_date')">
+                                        Date Received
+                                        @if($sortBy === 'received_date')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('end_user')">
+                                        End-User
+                                        @if($sortBy === 'end_user')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('pr_no')">
+                                        PR-Number
+                                        @if($sortBy === 'pr_no')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('particulars')">
+                                        Particulars
+                                        @if($sortBy === 'particulars')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('amount')">
+                                        Amount
+                                        @if($sortBy === 'amount')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('creditor')">
+                                        Creditor
+                                        @if($sortBy === 'creditor')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('remarks')">
+                                        Remarks
+                                        @if($sortBy === 'remarks')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('responsibility')">
+                                        Responsibility
+                                        @if($sortBy === 'responsibility')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('received_by')">
+                                        Received by
+                                        @if($sortBy === 'received_by')
+                                            @if($sortDirection === 'asc')
+                                                <span>&uarr;</span>
+                                            @else
+                                                <span>&darr;</span>
+                                            @endif
+                                        @endif
+                                    </th>
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
@@ -112,7 +193,9 @@
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->end_user }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->pr_no }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->particulars }}</td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->amount }}</td>
+                                        <td class="py-2 px-4 border break-words">
+                                            {{ number_format((float) $outgoing->amount, 2) }}
+                                        </td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->creditor }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->remarks }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->responsibility }}</td>

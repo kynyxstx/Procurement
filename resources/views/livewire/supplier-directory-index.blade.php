@@ -94,9 +94,9 @@
                         Supplier Name
                         @if($sortField === 'supplier_name')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>
@@ -104,9 +104,9 @@
                         Address
                         @if($sortField === 'address')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>
@@ -114,9 +114,9 @@
                         Items
                         @if($sortField === 'items')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>
@@ -124,9 +124,9 @@
                         Contact Person
                         @if($sortField === 'contact_person')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>
@@ -134,9 +134,9 @@
                         Position
                         @if($sortField === 'position')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>
@@ -144,9 +144,9 @@
                         Mobile No.
                         @if($sortField === 'mobile_no')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>
@@ -154,9 +154,9 @@
                         Telephone No.
                         @if($sortField === 'telephone_no')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>
@@ -164,9 +164,9 @@
                         Email Address
                         @if($sortField === 'email_address')
                             @if($sortDirection === 'asc')
-                                &#9650;
+                                &uarr;
                             @else
-                                &#9660;
+                                &darr;
                             @endif
                         @endif
                     </th>

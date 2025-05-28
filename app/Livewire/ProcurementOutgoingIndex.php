@@ -29,8 +29,6 @@ class ProcurementOutgoingIndex extends Component
     public $filterMonth = '';
     public $filterEndUser = '';
     public $filterReceivedby = '';
-    public $sortBy = 'received_date';
-    public $sortDirection = 'desc';
 
     public $isEditModalOpen = false;
     public $editOutgoingId;
@@ -41,6 +39,21 @@ class ProcurementOutgoingIndex extends Component
     public $showNotification = false;
     public string $notificationMessage = '';
     public string $notificationType = 'success';
+
+    public $sortBy = 'received_date';
+    public $sortDirection = 'asc';
+
+    // Function to handle sorting
+    public function sortBy($sortField)
+    {
+        if ($this->sortBy === $sortField) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $sortField;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 10;
@@ -67,7 +80,7 @@ class ProcurementOutgoingIndex extends Component
         $this->resetPage();
     }
 
-    public function updated($propertyName)
+    public function updated(string $propertyName)
     {
         $this->validateOnly($propertyName);
         if (in_array($propertyName, ['search', 'filterMonth', 'filterEndUser', 'filterReceivedby'])) { // Added other filters to trigger resetPage
@@ -158,7 +171,8 @@ class ProcurementOutgoingIndex extends Component
             $this->end_user = $outgoing->end_user;
             $this->pr_no = $outgoing->pr_no;
             $this->particulars = $outgoing->particulars;
-            $this->amount = $outgoing->amount;
+            // Format amount with commas for display in the input
+            $this->amount = is_numeric($outgoing->amount) ? number_format($outgoing->amount, 2) : $outgoing->amount;
             $this->creditor = $outgoing->creditor;
             $this->remarks = $outgoing->remarks;
             $this->responsibility = $outgoing->responsibility;
@@ -173,7 +187,8 @@ class ProcurementOutgoingIndex extends Component
     public function updateOutgoing()
     {
         try {
-            $this->amount = str_replace(',', '', $this->amount); // Use empty string to remove commas, not '.'
+            // Remove commas before saving to DB
+            $this->amount = str_replace(',', '', $this->amount);
             $validatedData = $this->validate();
             $outgoing = ProcurementOutgoing::find($this->editOutgoingId);
 
@@ -182,7 +197,7 @@ class ProcurementOutgoingIndex extends Component
                 $this->resetFields();
                 $this->closeModal();
                 $this->dispatch('notify', message: 'Procurement record updated successfully!');
-                $this->dispatch('refreshProcurementOutgoing'); // Added dispatch for refresh
+                $this->dispatch('refreshProcurementOutgoing');
             } else {
                 $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
             }
