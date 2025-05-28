@@ -84,13 +84,76 @@
                             <thead
                                 class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                 <tr>
-                                    <th class="px-6 py-3">PR No.</th>
-                                    <th class="px-6 py-3">Title</th>
-                                    <th class="px-6 py-3">Processor</th>
-                                    <th class="px-6 py-3">Supplier</th>
-                                    <th class="px-6 py-3">End_User</th>
-                                    <th class="px-6 py-3">Status</th>
-                                    <th class="px-6 py-3">Date of Endorsement</th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('pr_no')">
+                                        PR No.
+                                        @if($sortField === 'pr_no')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('title')">
+                                        Title
+                                        @if($sortField === 'title')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('processor')">
+                                        Processor
+                                        @if($sortField === 'processor')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('supplier')">
+                                        Supplier
+                                        @if($sortField === 'supplier')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('end_user')">
+                                        End User
+                                        @if($sortField === 'end_user')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('status')">
+                                        Status
+                                        @if($sortField === 'status')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('date_endorsement')">
+                                        Date of Endorsement
+                                        @if($sortField === 'date_endorsement')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>

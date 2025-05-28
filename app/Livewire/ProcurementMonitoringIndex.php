@@ -40,6 +40,20 @@ class ProcurementMonitoringIndex extends Component
     public $selectedYear;
     public $selectedMonth;
 
+    public $sortField = 'pr_no';
+    public $sortDirection = 'asc';
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
     protected $paginationTheme = 'tailwind';
     protected $perPage = 10;
 
@@ -286,6 +300,11 @@ class ProcurementMonitoringIndex extends Component
         }
         if ($this->selectedMonth && $this->selectedMonth !== 'all') { // Assuming 'all' could be an option in your UI
             $query->whereMonth('date_endorsement', $this->selectedMonth);
+        }
+
+        // Apply sorting
+        if ($this->sortField && $this->sortDirection) {
+            $query->orderBy($this->sortField, $this->sortDirection);
         }
 
         return $query;
