@@ -125,14 +125,13 @@
                                 <div class="border-t border-gray-200"></div>
 
                                 <!-- Authentication -->
-                                <form method="POST" action="{{ route('logout') }}" x-data>
-                                    @csrf
-
-                                    <x-dropdown-link href="{{ route('logout') }}"
-                                            @click.prevent="$root.submit();">
-                                        {{ __('Log Out') }}
-                                    </x-dropdown-link>
-                                </form>
+                                <form id="auto-logout-form" method="POST" action="{{ route('logout') }}" x-data>
+        @csrf
+        <x-dropdown-link href="{{ route('logout') }}"
+                @click.prevent="$root.submit();">
+            {{ __('Log Out') }}
+        </x-dropdown-link>
+    </form>
                             </x-slot>
                         </x-dropdown>
                     </div>
@@ -186,13 +185,12 @@
                     @endif
 
                     <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}" x-data>
-                        @csrf
-
-                        <x-responsive-nav-link href="{{ route('logout') }}"
-                                    @click.prevent="$root.submit();">
-                            {{ __('Log Out') }}
-                        </x-responsive-nav-link>
+                    <form id="auto-logout-form" method="POST" action="{{ route('logout') }}" x-data>
+                    @csrf
+                    <x-dropdown-link href="{{ route('logout') }}"
+                        @click.prevent="$root.submit();">
+                        {{ __('Log Out') }}
+                    </x-dropdown-link>
                     </form>
 
                     <!-- Team Management -->
