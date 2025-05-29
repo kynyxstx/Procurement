@@ -11,26 +11,31 @@
                     </div>
 
                     <!-- Navigation Links -->
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                            {{ __('Supplier Directory') }}
-                        </x-nav-link>
-                    </div>
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link href="{{ route('Summary_Items_Procured') }}" :active="request()->routeIs('Summary_Items_Procured')">
-                            {{ __('Items Procured') }}
-                        </x-nav-link>
-                    </div>
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                        {{ __('Home') }} 
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link href="{{ route('Supplier_Directory') }}" :active="request()->routeIs('Supplier_Directory')">
+                        {{ __('Supplier Directory') }} 
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link href="{{ route('Summary_Items_Procured') }}" :active="request()->routeIs('Summary_Items_Procured')">
+                        {{ __('Items Procured') }}
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link href="{{ route('Procurement_Monitoring') }}" :active="request()->routeIs('Procurement_Monitoring')">
-                            {{ __('Procurement Monitoring') }}
-                        </x-nav-link>
-                    </div>
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link href="{{ route('Procurement-Outgoing') }}" :active="request()->routeIs('Procurement-Outgoing')">
-                            {{ __('Procurement Outgoing') }}
-                        </x-nav-link>
-                    </div>
+                        {{ __('Procurement Monitoring') }}
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link href="{{ route('Procurement-Outgoing') }}" :active="request()->routeIs('Procurement-Outgoing')">
+                        {{ __('Procurement Outgoing') }}
+                    </x-nav-link>
+                </div>
                 </div>
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
                     <!-- Teams Dropdown -->

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\SupplierDirectoryIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\ItemsProcuredIndex;
 use App\Livewire\ProcurementMonitoringIndex;
@@ -14,10 +15,13 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+    // This route will lead to your general dashboard page
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
+    // This route will lead to your dedicated Supplier Directory page
+    Route::get('/Supplier_Directory', SupplierDirectoryIndex::class)->name('Supplier_Directory');
     Route::get('/Summary_Items_Procured', ItemsProcuredIndex::class)->name('Summary_Items_Procured');
     Route::get('/Procurement_Monitoring', ProcurementMonitoringIndex::class)->name('Procurement_Monitoring');
     Route::get('/Procurement-Outgoing', ProcurementOutgoingIndex::class)->name('Procurement-Outgoing');
