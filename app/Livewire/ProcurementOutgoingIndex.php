@@ -43,9 +43,10 @@ class ProcurementOutgoingIndex extends Component
     public $sortBy = 'received_date';
     public $sortDirection = 'asc';
 
-    public function sortBy($sortField)
+    public function setSortBy($sortField)
     {
-        if ($this->sortBy === $sortField) {
+        $allowedFields = ['received_date', 'end_user', 'pr_no', 'particulars', 'amount', 'creditor', 'remarks', 'responsibility', 'received_by'];
+        if (in_array($sortField, $allowedFields) && $this->sortBy === $sortField) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
             $this->sortBy = $sortField;

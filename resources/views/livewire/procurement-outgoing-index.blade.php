@@ -94,7 +94,7 @@
                                 class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                 <tr>
                                     <th class="px-6 py-3 cursor-pointer select-none"
-                                        wire:click="sortBy('received_date')">
+                                        wire:click="setSortBy('received_date')">
                                         Date Received
                                         @if($sortBy === 'received_date')
                                             <span>
@@ -102,7 +102,7 @@
                                             </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('end_user')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('end_user')">
                                         End-User
                                         @if($sortBy === 'end_user')
                                             <span>
@@ -110,7 +110,7 @@
                                             </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('pr_no')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('pr_no')">
                                         PR-Number
                                         @if($sortBy === 'pr_no')
                                             <span>
@@ -118,7 +118,8 @@
                                             </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('particulars')">
+                                    <th class="px-6 py-3 cursor-pointer select-none"
+                                        wire:click="setSortBy('particulars')">
                                         Particulars
                                         @if($sortBy === 'particulars')
                                             <span>
@@ -126,7 +127,7 @@
                                             </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('amount')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('amount')">
                                         Amount
                                         @if($sortBy === 'amount')
                                             <span>
@@ -134,7 +135,7 @@
                                             </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('creditor')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('creditor')">
                                         Creditor
                                         @if($sortBy === 'creditor')
                                             <span>
@@ -142,7 +143,7 @@
                                             </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('remarks')">
+                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('remarks')">
                                         Remarks
                                         @if($sortBy === 'remarks')
                                             <span>
@@ -151,7 +152,7 @@
                                         @endif
                                     </th>
                                     <th class="px-6 py-3 cursor-pointer select-none"
-                                        wire:click="sortBy('responsibility')">
+                                        wire:click="setSortBy('responsibility')">
                                         Responsibility
                                         @if($sortBy === 'responsibility')
                                             <span>
@@ -159,7 +160,8 @@
                                             </span>
                                         @endif
                                     </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="sortBy('received_by')">
+                                    <th class="px-6 py-3 cursor-pointer select-none"
+                                        wire:click="setSortBy('received_by')">
                                         Received by
                                         @if($sortBy === 'received_by')
                                             <span>
