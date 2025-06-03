@@ -42,7 +42,7 @@
                         <div class="flex items-center space-x-2">
                         </div>
                         <div class="flex items-center space-x-4 mt-20">
-                            <select wire:model.live="filterYear" class="p-2 border rounded-md shadow-sm"
+                            <select wire:model.live="filterSupplier" class="p-2 border rounded-md shadow-sm"
                                 style="min-width: 120px;">
                                 <option value="" style="color: #ffffff; font-weight: bold; background-color: #636363;">
                                     All Supplier
