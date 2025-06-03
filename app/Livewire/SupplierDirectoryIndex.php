@@ -310,7 +310,7 @@ class SupplierDirectoryIndex extends Component
 
         return view('livewire.supplier-directory-index', [
             'suppliers' => $suppliers,
-        ]);
+        ])->layout('layouts.app');
     }
 
     // For Excel
