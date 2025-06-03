@@ -388,6 +388,8 @@
                 </div>
             </div>
         </div>
+        <footer class="mt-4 border-t pt-4 text-center text-gray-600 text-sm" style="min-height: 0.7in;">
+            <span class="font-semibold">Procurement Management Section 2025</span>
+        </footer>
     </div>
-</div>
 </div>

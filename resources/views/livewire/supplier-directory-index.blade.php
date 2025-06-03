@@ -488,3 +488,6 @@
                     });
                 </script>
             </div>
+            <footer class="mt-12 border-t pt-6 text-center text-gray-600 text-sm">
+                <span class="font-semibold">Procurement Management Section 2025</span>
+            </footer>
