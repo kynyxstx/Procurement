@@ -44,13 +44,13 @@
                         <div class="flex items-center space-x-4 mt-20">
                             <select wire:model.live="filterYear" class="p-2 border rounded-md shadow-sm"
                                 style="min-width: 120px;">
-                                <option value="">Year</option>
+                                <option value="">All Year</option>
                                 <option value="2024" @if($filterYear === '2024') selected @endif>2024</option>
                                 <option value="2025" @if($filterYear === '2025') selected @endif>2025</option>
                             </select>
                             <select wire:model.live="filterMonth" class="p-2 border rounded-md shadow-sm"
                                 style="min-width: 150px;">
-                                <option value="">Month</option>
+                                <option value="">All Month</option>
                                 <option value="January" @if($filterMonth === 'January') selected @endif>January</option>
                                 <option value="February" @if($filterMonth === 'February') selected @endif>February
                                 </option>

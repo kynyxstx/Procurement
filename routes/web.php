@@ -22,8 +22,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         return view('dashboard');
     })->name('dashboard');
 
-
-
     Route::get('/Supplier_Directory', SupplierDirectoryIndex::class)->name('Supplier_Directory');
     Route::get('/Summary_Items_Procured', ItemsProcuredIndex::class)->name('Summary_Items_Procured');
     Route::get('/Procurement_Monitoring', ProcurementMonitoringIndex::class)->name('Procurement_Monitoring');
