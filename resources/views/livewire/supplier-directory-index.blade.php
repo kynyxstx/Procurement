@@ -109,6 +109,7 @@
                         </div>
                     </div>
 
+
                     <div class="p-10 w-full overflow-x-auto">
                         <h1 style="font-size: 2em;">Suppliers List</h1><br>
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
@@ -238,6 +239,26 @@
                     </div>
                 </div>
 
+                <!-- Back to Top Button -->
+                <button id="backToTopBtn"
+                    class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
+                    style="transition: opacity 0.3s;" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
+                    ↑ Back to Top
+                </button>
+                <script>
+                    // Show/hide Back to Top button on scroll
+                    window.addEventListener('scroll', function () {
+                        const btn = document.getElementById('backToTopBtn');
+                        if (window.scrollY > 200) {
+                            btn.style.opacity = '1';
+                            btn.style.pointerEvents = 'auto';
+                        } else {
+                            btn.style.opacity = '0';
+                            btn.style.pointerEvents = 'none';
+                        }
+                    });
+                </script>
+
                 @if ($isAddModalOpen)
                     <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
                         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full">
@@ -311,12 +332,13 @@
                                             No.</label>
                                         <input wire:model="mobile_no" type="text" id="mobile_no"
                                             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                            placeholder="Enter Mobile No." pattern="[0-9]*" inputmode="numeric" />
+                                            placeholder="Enter Mobile No." pattern="[0-9]*" inputmode="numeric"
+                                            maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                         @error('mobile_no')
                                             <p class="text-red-500 text-sm">{{ $errors->first('mobile_no') }}</p>
                                         @enderror
-                                        @if(preg_match('/[a-zA-Z]/', $mobile_no ?? ''))
-                                            <p class="text-red-500 text-sm">Mobile number should only contain numbers.</p>
+                                        @if(!empty($mobile_no) && strlen($mobile_no) != 11)
+                                            <span class="text-red-500 text-sm">Mobile number must be exactly 11 digits.</span>
                                         @endif
                                     </div>
                                     <div class="mb-2">
@@ -325,12 +347,10 @@
                                             No.</label>
                                         <input wire:model="telephone_no" type="text" id="telephone_no"
                                             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                            placeholder="Enter Telephone No." pattern="[0-9]*" inputmode="numeric"
-                                            maxlength="11" />
-                                        @if(preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
-                                            <p class="text-red-500 text-sm">Telephone number should only contain numbers.</p>
-                                        @elseif(strlen($telephone_no ?? '') > 0 && strlen($telephone_no ?? '') != 11)
-                                            <p class="text-red-500 text-sm">Telephone number must be exactly 11 digits.</p>
+                                            placeholder="Enter Telephone No." />
+                                        @if(!empty($telephone_no) && preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
+                                            <span class="text-red-500 text-sm">Telephone number should only contain
+                                                numbers.</span>
                                         @endif
                                     </div>
                                     <div class="mb-2">
@@ -449,8 +469,7 @@
                                             No.</label>
                                         <input wire:model="telephone_no" id="editTelephoneNo" type="text"
                                             placeholder="Enter Telephone No."
-                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                            pattern="[0-9]*" inputmode="numeric" maxlength="11" />
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
                                         @if(preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
                                             <span class="text-red-500 text-sm">Telephone number should only contain
                                                 numbers.</span>
@@ -487,15 +506,17 @@
                 @endif
 
                 @if ($isDeleteModalOpen)
-                    <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full text-center">
-                            <h3 class="text-xl font-semibold mb-4">Confirm Deletion</h3>
-                            <p>Are you sure you want to delete this supplier? This action cannot be undone.</p>
+                    <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full text-center">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion</h3>
+                            <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this
+                                supplier?
+                            </p>
                             <div class="mt-6 flex justify-center space-x-4">
                                 <button wire:click="closeModal"
-                                    class="px-4 py-2 bg-gray-600 text-white rounded-lg">Cancel</button>
-                                <button wire:click="deleteSupplier"
-                                    class="px-4 py-2 bg-red-600 text-white rounded-lg">Delete</button>
+                                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</button>
+                                <button wire:click="deleteOutgoing"
+                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
                             </div>
                         </div>
                     </div>

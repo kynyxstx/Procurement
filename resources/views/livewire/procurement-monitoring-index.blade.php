@@ -196,6 +196,27 @@
             </div>
         </div>
 
+        <!-- Back to Top Button -->
+        <button id="backToTopBtn"
+            class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
+            style="transition: opacity 0.3s;" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
+            ↑ Back to Top
+        </button>
+        <script>
+            // Show/hide Back to Top button on scroll
+            window.addEventListener('scroll', function () {
+                const btn = document.getElementById('backToTopBtn');
+                if (window.scrollY > 200) {
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                } else {
+                    btn.style.opacity = '0';
+                    btn.style.pointerEvents = 'none';
+                }
+            });
+        </script>
+
+
         @if ($showNotification)
             <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
                 role="alert">
@@ -410,7 +431,7 @@
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full text-center">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion</h3>
                     <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this
-                        Monitoring Procurement?
+                        Monitoring Procurement Data?
                     </p>
                     <div class="mt-6 flex justify-center space-x-4">
                         <button wire:click="closeModal"

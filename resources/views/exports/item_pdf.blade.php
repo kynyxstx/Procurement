@@ -35,7 +35,6 @@
 </head>
 
 <body>
-    <h1>Summary of Item Procurement List</h1>
     <table>
         <thead>
             <tr>

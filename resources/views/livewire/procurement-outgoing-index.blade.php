@@ -31,7 +31,7 @@
                         <div class="flex items-center space-x-4 mt-20">
                             <select wire:model="filterMonth" wire:change="performSearch"
                                 class="p-2 border rounded-md shadow-md" style="min-width: 150px;">
-                                <option value="">Month</option>
+                                <option value="">All Month</option>
                                 <option value="January">January</option>
                                 <option value="February">February</option>
                                 <option value="March">March</option>
@@ -75,10 +75,6 @@
                             <button wire:click="exportToExcel"
                                 class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
                                 Export to Excel
-                            </button>
-                            <button wire:click="exportToPDF"
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
-                                Export to PDF
                             </button>
                             <button wire:click="openAddModal"
                                 class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
@@ -175,7 +171,9 @@
                             <tbody>
                                 @foreach ($outgoings as $outgoing)
                                     <tr class="hover:bg-gray-100">
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->received_date }}</td>
+                                        <td class="py-2 px-4 border break-words">
+                                            {{ \Carbon\Carbon::parse($outgoing->received_date)->format('m/d/Y h:i A') }}
+                                        </td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->end_user }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->pr_no }}</td>
                                         <td class="py-2 px-4 border break-words">{{ $outgoing->particulars }}</td>
@@ -213,6 +211,27 @@
             </div>
         </div>
 
+        <!-- Back to Top Button -->
+        <button id="backToTopBtn"
+            class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
+            style="transition: opacity 0.3s;" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
+            ↑ Back to Top
+        </button>
+        <script>
+            // Show/hide Back to Top button on scroll
+            window.addEventListener('scroll', function () {
+                const btn = document.getElementById('backToTopBtn');
+                if (window.scrollY > 200) {
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                } else {
+                    btn.style.opacity = '0';
+                    btn.style.pointerEvents = 'none';
+                }
+            });
+        </script>
+
+
         @if ($isAddModalOpen)
             <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full">
@@ -228,8 +247,8 @@
                         <form wire:submit.prevent="saveOutgoing" novalidate>
                             <div class="mb-2">
                                 <label for="received_date"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
-                                <input wire:model="received_date" type="date" id="received_date"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date & Time</label>
+                                <input wire:model="received_date" type="datetime-local" id="received_date"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" required />
                                 @error('received_date')
                                     <p class="text-red-500 text-sm">{{ $errors->first('received_date') }}</p>
@@ -270,10 +289,14 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount</label>
                                 <input wire:model="amount" type="text" id="amount"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Amount" required />
+                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                                 @error('amount')
                                     <p class="text-red-500 text-sm">{{ $errors->first('amount') }}</p>
                                 @enderror
+                                @if (!is_numeric($amount) && $amount !== null && $amount !== '')
+                                    <p class="text-red-500 text-sm">Amount must be a number only.</p>
+                                @endif
                             </div>
                             <div class="mb-2">
                                 <label for="creditor"
@@ -357,8 +380,8 @@
                         <form wire:submit.prevent="updateOutgoing" novalidate>
                             <div class="mb-2">
                                 <label for="received_date"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
-                                <input wire:model="received_date" type="date" id="received_date"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date & Time</label>
+                                <input wire:model="received_date" type="datetime-local" id="received_date"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" required />
                                 @error('received_date')
                                     <p class="text-red-500 text-sm">{{ $errors->first('received_date') }}</p>
@@ -399,7 +422,8 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount</label>
                                 <input wire:model="amount" type="text" id="amount"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Amount" required />
+                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                                 @error('amount')
                                     <p class="text-red-500 text-sm">{{ $errors->first('amount') }}</p>
                                 @enderror
@@ -462,7 +486,8 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full text-center">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion</h3>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this item?
+                    <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this Outgoing
+                        Procurement Data?
                     </p>
                     <div class="mt-6 flex justify-center space-x-4">
                         <button wire:click="closeModal"

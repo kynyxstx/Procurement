@@ -175,6 +175,27 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Back to Top Button -->
+                    <button id="backToTopBtn"
+                        class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
+                        style="transition: opacity 0.3s;" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
+                        ↑ Back to Top
+                    </button>
+                    <script>
+                        // Show/hide Back to Top button on scroll
+                        window.addEventListener('scroll', function () {
+                            const btn = document.getElementById('backToTopBtn');
+                            if (window.scrollY > 200) {
+                                btn.style.opacity = '1';
+                                btn.style.pointerEvents = 'auto';
+                            } else {
+                                btn.style.opacity = '0';
+                                btn.style.pointerEvents = 'none';
+                            }
+                        });
+                    </script>
+
                     @if ($isAddModalOpen)
                         <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
                             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full">
@@ -373,8 +394,7 @@
                                 <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion
                                 </h3>
                                 <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete
-                                    this
-                                    item?
+                                    this Summary Item Procurement Data?
                                 </p>
                                 <div class="mt-6 flex justify-center space-x-4">
                                     <button wire:click="closeModal"

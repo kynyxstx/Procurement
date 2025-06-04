@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel; // Import the Excel facade
 use Dompdf\Dompdf;                    // Import Dompdf (if not globally configured)
 use Dompdf\Options;                   // Import Dompdf Options
 use Illuminate\Support\Facades\Log;   // Added for logging
+use Carbon\Carbon;
 
 class ProcurementOutgoingIndex extends Component
 {
@@ -137,8 +138,14 @@ class ProcurementOutgoingIndex extends Component
     public function addOutgoing()
     {
         try {
-            $amount = str_replace(',', '', $this->amount); // Use empty string to remove commas, not '.'
-            $this->amount = $amount; // Make sure 'amount' is float/decimal in DB if it's numeric
+            $amount = str_replace(',', '', $this->amount);
+            $this->amount = $amount;
+
+            // Always parse and format the received_date for consistency
+            // The datetime-local input sends YYYY-MM-DDTHH:MM, Carbon::parse handles 'T'
+            if (!empty($this->received_date)) {
+                $this->received_date = Carbon::parse($this->received_date)->format('Y-m-d H:i:s'); // Added seconds for full precision
+            }
 
             $validatedData = $this->validate();
 
@@ -147,7 +154,7 @@ class ProcurementOutgoingIndex extends Component
             $this->closeModal();
             $this->resetFields();
             $this->dispatch('notify', message: 'Procurement record added successfully!');
-            $this->dispatch('refreshProcurementOutgoing'); // Added dispatch for refresh
+            $this->dispatch('refreshProcurementOutgoing');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('notify', message: 'Validation error occurred.', type: 'error');
             Log::error('Validation error adding outgoing record: ' . $e->getMessage());
@@ -165,14 +172,14 @@ class ProcurementOutgoingIndex extends Component
     public function openEditModal($outgoingId)
     {
         $outgoing = ProcurementOutgoing::find($outgoingId);
-
         if ($outgoing) {
             $this->editOutgoingId = $outgoingId;
-            $this->received_date = $outgoing->received_date ? $outgoing->received_date->format('Y-m-d') : null;
+            $this->received_date = $outgoing->received_date
+                ? (Carbon::parse($outgoing->received_date))->format('Y-m-d\TH:i')
+                : null;
             $this->end_user = $outgoing->end_user;
             $this->pr_no = $outgoing->pr_no;
             $this->particulars = $outgoing->particulars;
-            // Format amount with commas for display in the input
             $this->amount = is_numeric($outgoing->amount) ? number_format($outgoing->amount, 2) : $outgoing->amount;
             $this->creditor = $outgoing->creditor;
             $this->remarks = $outgoing->remarks;
@@ -185,9 +192,14 @@ class ProcurementOutgoingIndex extends Component
         }
     }
 
+    // Update Outgoing (Edit)
     public function updateOutgoing()
     {
         try {
+            if (!empty($this->received_date)) {
+                $this->received_date = Carbon::parse($this->received_date)->format('Y-m-d H:i:s');
+            }
+
             // Remove commas before saving to DB
             $this->amount = str_replace(',', '', $this->amount);
             $validatedData = $this->validate();
@@ -269,9 +281,6 @@ class ProcurementOutgoingIndex extends Component
                     ->orWhere('received_by', 'like', '%' . $this->search . '%');
             })
             ->when($this->filterMonth, function ($query) {
-                // Assuming filterMonth is 'YYYY-MM' or 'MM' if it's a dropdown for month
-                // If it's just 'MM', you might need to infer the year.
-                // For safety, let's assume it's just the month number 'MM' (e.g., '05')
                 $query->whereMonth('received_date', date('m', strtotime($this->filterMonth)));
             });
 
@@ -331,7 +340,7 @@ class ProcurementOutgoingIndex extends Component
 
         // Setup Dompdf options
         $options = new Options();
-        $options->set('defaultFont', 'DejaVu Sans'); // Recommended for better UTF-8 support
+        $options->set('defaultFont', 'DejaVu Sans');
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', true); // Enable loading remote assets (images, CSS)
 

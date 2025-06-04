@@ -30,7 +30,7 @@ class MonitoringExport implements FromQuery, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
-            'PR No', // Changed for better readability in Excel
+            'PR No',
             'Title',
             'Processor',
             'Supplier',

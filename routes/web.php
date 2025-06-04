@@ -7,9 +7,7 @@ use App\Livewire\ItemsProcuredIndex;
 use App\Livewire\ProcurementMonitoringIndex;
 use App\Livewire\ProcurementOutgoingIndex;
 
-Route::get('/test-pagination', function () {
-    return dd(view()->exists('pagination.tailwind'));
-});
+Route::get('/test-pagination', fn() => dd(view()->exists('pagination.tailwind')));
 
 Route::get('/', function () {
     return view('welcome');

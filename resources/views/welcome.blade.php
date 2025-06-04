@@ -1684,21 +1684,27 @@
             <nav class="flex items-center justify-end gap-4">
                 @auth
                     <a href="{{ url('/dashboard') }}"
-                        class="inline-block px-6 py-2 border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] rounded-full text-base font-medium shadow-[0_2px_8px_0_rgba(0,0,0,0.06)] transition-all"
-                        style="background: rgba(255,255,255,0.92); backdrop-filter: blur(10px);">
+                        class="inline-block px-6 py-2 border-[#19140035] border text-[#1b1b18] rounded-sm text-base font-medium shadow-[0_2px_8px_0_rgba(0,0,0,0.06)] transition-all"
+                        style="background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-color: #19140035;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.98)';this.style.borderColor='#1915014a';"
+                        onmouseout="this.style.background='rgba(255,255,255,0.92)';this.style.borderColor='#19140035';">
                         Dashboard
                     </a>
                 @else
                     <a href="{{ route('login') }}"
-                        class="inline-block px-6 py-2 text-[#1b1b18] border border-transparent hover:border-[#19140035] rounded-full text-base font-medium shadow-[0_2px_8px_0_rgba(0,0,0,0.06)] transition-all"
-                        style="background: rgba(255,255,255,0.92); backdrop-filter: blur(10px);">
+                        class="inline-block px-6 py-2 text-[#1b1b18] border border-transparent rounded-sm text-base font-medium shadow-[0_2px_8px_0_rgba(0,0,0,0.06)] transition-all"
+                        style="background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-color: transparent;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.98)';this.style.borderColor='#19140035';"
+                        onmouseout="this.style.background='rgba(255,255,255,0.92)';this.style.borderColor='transparent';">
                         Log in
                     </a>
 
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}"
-                            class="inline-block px-6 py-2 border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] rounded-full text-base font-medium shadow-[0_2px_8px_0_rgba(0,0,0,0.06)] transition-all"
-                            style="background: rgba(255,255,255,0.92); backdrop-filter: blur(10px);">
+                            class="inline-block px-6 py-2 border-[#19140035] border text-[#1b1b18] rounded-sm text-base font-medium shadow-[0_2px_8px_0_rgba(0,0,0,0.06)] transition-all"
+                            style="background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-color: #19140035;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.98)';this.style.borderColor='#1915014a';"
+                            onmouseout="this.style.background='rgba(255,255,255,0.92)';this.style.borderColor='#19140035';">
                             Register
                         </a>
                     @endif
