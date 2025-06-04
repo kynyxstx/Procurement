@@ -10,7 +10,7 @@ use App\Exports\MonitoringExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Illuminate\Support\Facades\Log; // Added for logging
+use Illuminate\Support\Facades\Log;
 
 class ProcurementMonitoringIndex extends Component
 {

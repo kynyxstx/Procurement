@@ -311,10 +311,13 @@
                                             No.</label>
                                         <input wire:model="mobile_no" type="text" id="mobile_no"
                                             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                            placeholder="Enter Mobile No." />
+                                            placeholder="Enter Mobile No." pattern="[0-9]*" inputmode="numeric" />
                                         @error('mobile_no')
                                             <p class="text-red-500 text-sm">{{ $errors->first('mobile_no') }}</p>
                                         @enderror
+                                        @if(preg_match('/[a-zA-Z]/', $mobile_no ?? ''))
+                                            <p class="text-red-500 text-sm">Mobile number should only contain numbers.</p>
+                                        @endif
                                     </div>
                                     <div class="mb-2">
                                         <label for="telephone_no"
@@ -322,7 +325,13 @@
                                             No.</label>
                                         <input wire:model="telephone_no" type="text" id="telephone_no"
                                             class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                            placeholder="Enter Telephone No." />
+                                            placeholder="Enter Telephone No." pattern="[0-9]*" inputmode="numeric"
+                                            maxlength="11" />
+                                        @if(preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
+                                            <p class="text-red-500 text-sm">Telephone number should only contain numbers.</p>
+                                        @elseif(strlen($telephone_no ?? '') > 0 && strlen($telephone_no ?? '') != 11)
+                                            <p class="text-red-500 text-sm">Telephone number must be exactly 11 digits.</p>
+                                        @endif
                                     </div>
                                     <div class="mb-2">
                                         <label for="email_address"
@@ -424,10 +433,14 @@
                                             No.</label>
                                         <input wire:model="mobile_no" id="editMobileNo" type="text"
                                             placeholder="Enter Mobile No."
-                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                                        @error('mobile_no') <span
-                                            class="text-red-500 text-sm">{{ $errors->first('mobile_no') }}</span>
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                            pattern="[0-9]*" inputmode="numeric" />
+                                        @error('mobile_no')
+                                            <span class="text-red-500 text-sm">{{ $errors->first('mobile_no') }}</span>
                                         @enderror
+                                        @if(preg_match('/[a-zA-Z]/', $mobile_no ?? ''))
+                                            <span class="text-red-500 text-sm">Mobile number should only contain numbers.</span>
+                                        @endif
                                     </div>
 
                                     <div class="mb-4">
@@ -436,9 +449,14 @@
                                             No.</label>
                                         <input wire:model="telephone_no" id="editTelephoneNo" type="text"
                                             placeholder="Enter Telephone No."
-                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" />
-                                        @error('telephone_no') <span
-                                            class="text-red-500 text-sm">{{ $errors->first('telephone_no') }}</span>
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                            pattern="[0-9]*" inputmode="numeric" maxlength="11" />
+                                        @if(preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
+                                            <span class="text-red-500 text-sm">Telephone number should only contain
+                                                numbers.</span>
+                                        @endif
+                                        @error('telephone_no')
+                                            <span class="text-red-500 text-sm">{{ $errors->first('telephone_no') }}</span>
                                         @enderror
                                     </div>
 
