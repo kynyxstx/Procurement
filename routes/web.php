@@ -15,7 +15,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
 
-    // This route will lead to your general dashboard page
+    //Straight after logging in, redirect to the dashboard
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
