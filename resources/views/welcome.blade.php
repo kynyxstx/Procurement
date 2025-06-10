@@ -1696,7 +1696,7 @@
                         style="background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-color: transparent;"
                         onmouseover="this.style.background='rgba(255,255,255,0.98)';this.style.borderColor='#19140035';"
                         onmouseout="this.style.background='rgba(255,255,255,0.92)';this.style.borderColor='transparent';">
-                        Log in
+                        Log In
                     </a>
 
                     @if (Route::has('register'))
