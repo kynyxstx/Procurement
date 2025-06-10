@@ -154,6 +154,16 @@
                                             @endif
                                         @endif
                                     </th>
+                                    <th class="px-6 py-3 cursor-pointer" wire:click="sortBy('specific_notes')">
+                                        Specific Notes
+                                        @if($sortField === 'specific_notes')
+                                            @if($sortDirection === 'asc')
+                                                &uarr;
+                                            @else
+                                                &darr;
+                                            @endif
+                                        @endif
+                                    </th>
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
@@ -168,6 +178,7 @@
                                             <td class="py-2 px-4 border break-words">{{ $monitoring->end_user }}</td>
                                             <td class="py-2 px-4 border break-words">{{ $monitoring->status }}</td>
                                             <td class="py-2 px-4 border break-words">{{ $monitoring->date_endorsement }}</td>
+                                            <td class="py-2 px-4 border break-words">{{ $monitoring->specific_notes }}</td>
                                             <td class="py-2 px-4 border text-center">
                                                 <div class="flex justify-center space-x-2">
                                                     <button wire:click="openEditModal({{ $monitoring->id }})"
@@ -279,7 +290,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Supplier</label>
                                 <input wire:model="supplier" type="text" id="supplier"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Supplier" required />
+                                    placeholder="Enter Supplier" />
                                 @error('supplier')
                                     <p class="text-red-500 text-sm">{{ $errors->first('supplier') }}</p>
                                 @enderror
@@ -289,7 +300,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">End_User</label>
                                 <input wire:model="end_user" type="text" id="end_user"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter End_User" required />
+                                    placeholder="Enter End_User" />
                                 @error('end_user')
                                     <p class="text-red-500 text-sm">{{ $errors->first('end_user') }}</p>
                                 @enderror
@@ -299,7 +310,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
                                 <input wire:model="status" type="text" id="status"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Status" required />
+                                    placeholder="Enter Status" />
                                 @error('status')
                                     <p class="text-red-500 text-sm">{{ $errors->first('status') }}</p>
                                 @enderror
@@ -310,9 +321,20 @@
                                     of
                                     Endorsement</label>
                                 <input wire:model="date_endorsement" type="date" id="date_endorsement"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" required />
+                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" />
                                 @error('date_endorsement')
                                     <p class="text-red-500 text-sm">{{ $errors->first('date_endorsement') }}</p>
+                                @enderror
+                            </div>
+                            <div class="mb-2">
+                                <label for="specific_notes"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Specific
+                                    Notes</label>
+                                <textarea wire:model="specific_notes" id="specific_notes"
+                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                    placeholder="Enter Specific Notes"></textarea>
+                                @error('specific_notes')
+                                    <p class="text-red-500 text-sm">{{ $errors->first('specific_notes') }}</p>
                                 @enderror
                             </div>
                             <div class="flex justify-end space-x-2">
@@ -377,7 +399,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Supplier</label>
                                 <input wire:model="supplier" type="text" id="supplier"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Supplier" required />
+                                    placeholder="Enter Supplier" />
                                 @error('supplier')
                                     <p class="text-red-500 text-sm">{{ $errors->first('supplier') }}</p>
                                 @enderror
@@ -387,7 +409,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">End_User</label>
                                 <input wire:model="end_user" type="text" id="end_user"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter End_User" required />
+                                    placeholder="Enter End_User" />
                                 @error('end_user')
                                     <p class="text-red-500 text-sm">{{ $errors->first('end_user') }}</p>
                                 @enderror
@@ -397,7 +419,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
                                 <input wire:model="status" type="text" id="status"
                                     class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Status" required />
+                                    placeholder="Enter Status" />
                                 @error('status')
                                     <p class="text-red-500 text-sm">{{ $errors->first('status') }}</p>
                                 @enderror
@@ -408,9 +430,20 @@
                                     of
                                     Endorsement</label>
                                 <input wire:model="date_endorsement" type="date" id="date_endorsement"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" required />
+                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" />
                                 @error('date_endorsement')
                                     <p class="text-red-500 text-sm">{{ $errors->first('date_endorsement') }}</p>
+                                @enderror
+                            </div>
+                            <div class="mb-2">
+                                <label for="specific_notes"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Specific
+                                    Notes</label>
+                                <input wire:model="specific_notes" type="text" id="specific_notes"
+                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                    placeholder="Enter Specific Notes" />
+                                @error('specific_notes')
+                                    <p class="text-red-500 text-sm">{{ $errors->first('specific_notes') }}</p>
                                 @enderror
                             </div>
                             <div class="flex justify-end space-x-2">

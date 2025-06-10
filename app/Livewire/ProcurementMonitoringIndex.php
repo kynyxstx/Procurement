@@ -23,6 +23,7 @@ class ProcurementMonitoringIndex extends Component
     public $end_user = '';
     public $status = '';
     public $date_endorsement = '';
+    public $specific_notes = '';
 
     public $monitoringId;
     public $search = '';
@@ -73,6 +74,7 @@ class ProcurementMonitoringIndex extends Component
             'end_user' => 'nullable|string|max:255',
             'status' => 'nullable|string|max:255',
             'date_endorsement' => 'nullable|date',
+            'specific_notes' => 'nullable|string|max:1000',
         ];
     }
 
@@ -92,7 +94,7 @@ class ProcurementMonitoringIndex extends Component
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
-        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'editMonitoringId', 'isEditModalOpen', 'isDeleteModalOpen', 'deletingMonitoringId']); // Added deletingMonitoringId to reset
+        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes', 'editMonitoringId', 'isEditModalOpen', 'isDeleteModalOpen', 'deletingMonitoringId']);
     }
 
     public function saveMonitoring()
@@ -106,12 +108,12 @@ class ProcurementMonitoringIndex extends Component
 
     public function loadMonitoring()
     {
-        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement']);
+        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes']);
     }
 
     public function addMonitoring()
     {
-        Log::info('Attempting to add monitoring: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement'])));
+        Log::info('Attempting to add monitoring: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes'])));
         try {
             $this->validate();
 
@@ -123,6 +125,7 @@ class ProcurementMonitoringIndex extends Component
                 'end_user' => $this->end_user,
                 'status' => $this->status,
                 'date_endorsement' => $this->date_endorsement,
+                'specific_notes' => $this->specific_notes,
             ]);
 
             $this->closeModal();
@@ -139,7 +142,7 @@ class ProcurementMonitoringIndex extends Component
     }
     public function updateMonitoring()
     {
-        Log::info('Attempting to update monitoring ID ' . $this->editMonitoringId . ' with data: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement'])));
+        Log::info('Attempting to update monitoring ID ' . $this->editMonitoringId . ' with data: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes'])));
         try {
             $validatedData = $this->validate();
             Log::info('Validated data for update: ' . json_encode($validatedData));
@@ -200,6 +203,7 @@ class ProcurementMonitoringIndex extends Component
         $this->end_user = $monitoring->end_user;
         $this->status = $monitoring->status;
         $this->date_endorsement = $monitoring->date_endorsement ? $monitoring->date_endorsement->format('Y-m-d') : null;
+        $this->specific_notes = $monitoring->specific_notes;
         $this->isEditModalOpen = true;
     }
 
@@ -215,6 +219,7 @@ class ProcurementMonitoringIndex extends Component
         $this->end_user = $monitoring->end_user;
         $this->status = $monitoring->status;
         $this->date_endorsement = $monitoring->date_endorsement ? $monitoring->date_endorsement->format('Y-m-d') : null;
+        $this->specific_notes = $monitoring->specific_notes;
         $this->isEditModalOpen = true;
     }
 
@@ -245,6 +250,7 @@ class ProcurementMonitoringIndex extends Component
         $this->end_user = '';
         $this->status = '';
         $this->date_endorsement = '';
+        $this->specific_notes = '';
     }
 
     // --- Helper method to build the base query with all filters ---
@@ -263,7 +269,9 @@ class ProcurementMonitoringIndex extends Component
                     ->orWhere('processor', 'like', "%{$searchMonitoring}%")
                     ->orWhere('supplier', 'like', "%{$searchMonitoring}%")
                     ->orWhere('end_user', 'like', "%{$searchMonitoring}%")
-                    ->orWhere('status', 'like', "%{$searchMonitoring}%");
+                    ->orWhere('status', 'like', "%{$searchMonitoring}%")
+                    ->orWhereDate('date_endorsement', 'like', "%{$searchMonitoring}%")
+                    ->orWhere('specific_notes', 'like', "%{$searchMonitoring}%");
             });
         }
 

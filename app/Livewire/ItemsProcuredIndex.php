@@ -79,6 +79,10 @@ class ItemsProcuredIndex extends Component
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
+
+        if ($propertyName === 'search') {
+            $this->resetPage();
+        }
     }
 
     protected $messages = [
@@ -251,17 +255,17 @@ class ItemsProcuredIndex extends Component
     {
         $query = ItemsProcured::query();
 
-        \Log::info('Filter Year: ' . $this->filterYear);
-        \Log::info('Filter Month: ' . $this->filterMonth);
+        \Log::info("Filter Year: {$this->filterYear}");
+        \Log::info("Filter Month: {$this->filterMonth}");
 
         if ($this->filterYear) {
             $query->where('year', $this->filterYear);
-            \Log::info('Applying Year Filter: ' . $this->filterYear);
+            \Log::info("Applying Year Filter: {$this->filterYear}");
         }
 
         if ($this->filterMonth) {
-            $query->whereRaw('LOWER(month) = ?', [strtolower($this->filterMonth)]);
-            \Log::info('Applying Month Filter: ' . $this->filterMonth);
+            $query->whereRaw('LOWER(TRIM(month)) = ?', [strtolower(trim($this->filterMonth))]);
+            \Log::info("Applying Month Filter: {$this->filterMonth}");
         }
 
         if ($this->search) {
@@ -273,6 +277,7 @@ class ItemsProcuredIndex extends Component
                     ->orWhere('year', 'like', "%{$searchItem}%")
                     ->orWhereRaw('LOWER(month) LIKE ?', ['%' . strtolower($searchItem) . '%']);
             });
+            \Log::info("Applying Search: {$this->search}");
             \Log::info('Applying Search: ' . $this->search);
         }
 

@@ -117,9 +117,7 @@
                 </div>
             </div>
         </div>
-        <footer class="mt-4 border-t pt-4 text-center text-gray-600 text-sm w-full"
-            style="min-height: 0.5in; border-top-width: 2px; border-top-style: solid; border-top-color: #e5e7eb; width: 100vw; margin-left: calc(-50vw + 50%);">
-            <span class="font-semibold block text-center">Procurement Management Section 2025</span>
+        <footer class="mt-4 border-t pt-4 text-center text-gray-600 text-sm" style="min-height: 0.7in;">
+            <span class="font-semibold">Procurement Management Section 2025</span>
         </footer>
-        <br>
 </x-app-layout>
