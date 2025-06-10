@@ -110,9 +110,29 @@
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-8">
                     <h2 class="text-2xl font-semibold text-gray-800 mb-4">Contact for Procurement</h2>
                     <ul class="list-disc list-inside mt-2">
-                        <li>Email: <a href="mailto:gsdprocurement.psa@gmail.com"
-                                class="text-blue-600 hover:underline">GSD -
-                                Procurement</a></li>
+                        <li class="mb-4">
+                            <strong>Email:</strong>
+                            <ul class="list-disc list-inside ml-6">
+                                <p>
+                                    <a href="mailto:gsdprocurement.psa@gmail.com" class="text-blue-600 hover:underline">
+                                        gsdprocurement.psa@gmail.com
+                                    </a>
+                                </p>
+                                <p>
+                                    <a href="mailto:gsd.staff@psa.gov.ph" class="text-blue-600 hover:underline">
+                                        gsd.staff@psa.gov.ph
+                                    </a>
+                                </p>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Telephone Numbers:</strong>
+                            <ul class="list-disc list-inside ml-6">
+                                <p>(02) 8374-8262</p>
+                                <p>(02) 8374-8263</p>
+                                <p>(02) 8374-8270</p>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
