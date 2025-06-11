@@ -213,15 +213,36 @@
 
         <!-- Back to Top Button -->
         <button id="backToTopBtn"
-            class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
+            class="fixed bottom-24 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
             style="transition: opacity 0.3s;" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
-            ↑ Back to Top
+            ↑
         </button>
         <script>
             // Show/hide Back to Top button on scroll
             window.addEventListener('scroll', function () {
                 const btn = document.getElementById('backToTopBtn');
                 if (window.scrollY > 200) {
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                } else {
+                    btn.style.opacity = '0';
+                    btn.style.pointerEvents = 'none';
+                }
+            });
+        </script>
+
+        <!-- Tap to Down Button -->
+        <button id="tapToDownBtn"
+            class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
+            style="transition: opacity 0.3s;"
+            onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});">
+            ↓
+        </button>
+        <script>
+            // Show/hide Tap to Down button on scroll (show when not at bottom)
+            window.addEventListener('scroll', function () {
+                const btn = document.getElementById('tapToDownBtn');
+                if (window.innerHeight + window.scrollY < document.body.offsetHeight - 200) {
                     btn.style.opacity = '1';
                     btn.style.pointerEvents = 'auto';
                 } else {
