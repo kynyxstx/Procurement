@@ -21,7 +21,7 @@
             @csrf
 
             <div class="mb-4">
-                <label for="email" class="sr-only">{{ __('Email ID') }}</label>
+                <label for="email" class="sr-only">{{ __('Email') }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
@@ -33,7 +33,7 @@
                     <input id="email"
                         class="block w-full pl-10 p-2.5 text-gray-900 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                         type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
-                        placeholder="Email ID" />
+                        placeholder="Email" />
                 </div>
             </div>
 
@@ -57,12 +57,17 @@
 
             {{-- Remember Me & Forgot Password Links --}}
             <div class="flex items-center justify-between mb-6 text-sm">
-                <label for="remember_me" class="flex items-center">
+                {{--<label for="remember_me" class="flex items-center">
                     <input id="remember_me" type="checkbox"
                         class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
                     <span class="ml-2 text-gray-600">{{ __('Remember me') }}</span>
-                </label>
-
+                </label>--}}
+                <span class="ml-auto flex items-center"></span>
+                {{ __("Don't have an account?") }}
+                <a href="{{ route('register') }}" class="text-indigo-600 hover:text-indigo-900 ml-1">
+                    {{ __('Register') }}
+                </a>
+                </span>
                 {{--@if (Route::has('password.request'))
                 <a class="text-indigo-600 hover:text-indigo-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     href="{{ route('password.request') }}">
