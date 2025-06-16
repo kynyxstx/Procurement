@@ -13,6 +13,7 @@ class SupplierDirectoryIndex extends Component
 {
     use WithPagination;
 
+    // Public properties that are bound to the form fields
     public $supplier_name = '';
     public $address = '';
     public $items = '';
@@ -22,16 +23,23 @@ class SupplierDirectoryIndex extends Component
     public $telephone_no = '';
     public $email_address = '';
 
+    // Search and filter properties
     public $search = '';
     public $filterSupplier = '';
+
+    // Modal state properties
     public $isEditModalOpen = false;
     public $editSupplierId;
     public $isDeleteModalOpen = false;
     public $deletingSupplierId;
     public $isAddModalOpen = false;
 
+    // Notification properties
+    public $no_changes; // This will hold the "no changes" message
     public $showNotification = false;
     public $notificationMessage = '';
+
+    // Sorting properties
     public $sortFields = [
         'supplier_name',
         'address',
@@ -45,35 +53,16 @@ class SupplierDirectoryIndex extends Component
     public $sortDirection = 'asc';
     public $sortField = 'supplier_name';
 
-    public function sortBy($field)
-    {
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortField = $field;
-            $this->sortDirection = 'asc';
-        }
-        $this->resetPage();
-    }
-
-    /**
-     * Returns the sort icon for a given field.
-     *
-     * @param string $field
-     * @return string
-     */
+    // Property to store original data for comparison during edit
+    protected $originalSupplierData = [];
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 5;
 
-    /**
-     * The properties that should be included in the query string.
-     *
-     * @var array
-     */
-
     protected $queryString = [
         'search',
+        'sortField', // Add sort field to query string
+        'sortDirection', // Add sort direction to query string
     ];
 
     public function rules()
@@ -90,26 +79,55 @@ class SupplierDirectoryIndex extends Component
         ];
     }
 
+    protected $messages = [
+        'supplier_name.required' => 'Supplier name is required.',
+        'address.required' => 'Address is required.',
+        'items.required' => 'Please specify the items.',
+        'contact_person.required' => 'Contact person is required.',
+        'position.required' => 'Position is required.',
+        'mobile_no.digits' => 'Mobile number must be 11 digits.',
+        'email_address.email' => 'Enter a valid email address.',
+    ];
+
+    // Listeners for events (if you have them)
     protected $listeners = ['refreshSupplier' => '$refresh'];
 
     public function mount(): void
     {
         $this->resetPage();
 
-        // Check if 'search' exists in the query string and update the property
+        // Initialize search from query string if present
         if (request()->has('search')) {
             $this->search = request()->query('search');
         }
+        // Initialize sort field and direction from query string if present
+        if (request()->has('sortField') && in_array(request()->query('sortField'), $this->sortFields)) {
+            $this->sortField = request()->query('sortField');
+        }
+        if (request()->has('sortDirection') && in_array(request()->query('sortDirection'), ['asc', 'desc'])) {
+            $this->sortDirection = request()->query('sortDirection');
+        }
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
     }
 
     public function applyFilters($query)
     {
-        \Log::info('applyFilters called');
-        \Log::info('Search: ' . $this->search);
-        \Log::info('Filter Supplier: ' . $this->filterSupplier);
-
         if ($this->search) {
-            \Log::info('Search condition applied');
             $query->where(function ($query) {
                 $query->where('supplier_name', 'like', '%' . $this->search . '%')
                     ->orWhere('address', 'like', '%' . $this->search . '%')
@@ -123,7 +141,6 @@ class SupplierDirectoryIndex extends Component
         }
 
         if ($this->filterSupplier) {
-            \Log::info('filterSupplier condition applied');
             $supplierNames = explode(';', $this->filterSupplier);
             $query->where(function ($query) use ($supplierNames) {
                 foreach ($supplierNames as $supplierName) {
@@ -131,32 +148,20 @@ class SupplierDirectoryIndex extends Component
                 }
             });
         }
-        \Log::info(get_class($query)); // Check the class of $query
         return $query;
     }
 
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName);
-    }
-
-    protected $messages = [
-        'supplier_name.required' => 'Supplier name is required.',
-        'address.required' => 'Address is required.',
-        'items.required' => 'Please specify the items.',
-        'contact_person.required' => 'Contact person is required.',
-        'position.required' => 'Position is required.',
-        'mobile_no.digits' => 'Mobile number must be 11 digits.',
-        'email_address.email' => 'Enter a valid email address.',
-    ];
-
-    // Close modals
+    // Close modals and reset form fields
     public function closeModal()
     {
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
-        $this->reset(['supplier_name', 'address', 'items', 'contact_person', 'position', 'mobile_no', 'telephone_no', 'email_address', 'editSupplierId', 'isEditModalOpen', 'isDeleteModalOpen']);
+        $this->resetFields(); // Reset all form-related properties
+        $this->resetValidation(); // Clear validation errors
+        $this->no_changes = null; // Clear the "no changes" message
+        $this->showNotification = false; // Hide success/error notifications
+        $this->notificationMessage = ''; // Clear notification message
     }
 
     // Save supplier (Create or Update)
@@ -188,16 +193,20 @@ class SupplierDirectoryIndex extends Component
             $this->closeModal();
             $this->notificationMessage = 'Supplier added successfully!';
             $this->showNotification = true;
-            $this->resetFields();
             $this->dispatch('supplierAdded');
         } catch (\Exception $e) {
-            session()->flash('error', 'Error adding Supplier.');
+            $this->notificationMessage = 'Error adding Supplier: ' . $e->getMessage();
+            $this->showNotification = true;
             \Log::error('Error adding Supplier: ' . $e->getMessage());
             $this->dispatch('supplierAddFailed');
         }
     }
+
     public function openAddModal()
     {
+        $this->resetFields(); // Clear fields when opening add modal
+        $this->resetValidation(); // Clear any previous validation errors
+        $this->no_changes = null; // Clear "no changes" message
         $this->isAddModalOpen = true;
     }
 
@@ -216,9 +225,15 @@ class SupplierDirectoryIndex extends Component
             $this->telephone_no = $supplier->telephone_no;
             $this->email_address = $supplier->email_address;
 
+            // Store the original data for comparison later
+            $this->originalSupplierData = $supplier->toArray();
+
             $this->isEditModalOpen = true;
+            $this->resetValidation(); // Clear validation errors when opening the modal
+            $this->no_changes = null; // Clear any previous 'no changes' message
         } else {
-            session()->flash('error', 'Supplier not found.');
+            $this->notificationMessage = 'Supplier not found.';
+            $this->showNotification = true;
         }
     }
 
@@ -228,19 +243,61 @@ class SupplierDirectoryIndex extends Component
             $validatedData = $this->validate();
 
             $supplier = SupplierDirectory::find($this->editSupplierId);
-            if ($supplier) {
-                $supplier->update($validatedData);
-                $this->resetFields();
-                $this->closeModal();
-                $this->notificationMessage = 'Supplier updated successfully!';
+
+            if (!$supplier) {
+                $this->notificationMessage = 'Supplier not found.';
                 $this->showNotification = true;
-                $this->dispatch('supplierUpdated');
-            } else {
-                session()->flash('error', 'Supplier not found.');
                 $this->dispatch('supplierUpdateFailed');
+                return;
             }
+
+            // Prepare current data from Livewire properties
+            $currentData = [
+                'supplier_name' => $this->supplier_name,
+                'address' => $this->address,
+                'items' => $this->items,
+                'contact_person' => $this->contact_person,
+                'position' => $this->position,
+                'mobile_no' => $this->mobile_no,
+                'telephone_no' => $this->telephone_no,
+                'email_address' => $this->email_address,
+            ];
+
+            // Compare current data with original data
+            $changesMade = false;
+            foreach ($currentData as $key => $value) {
+                // Important: Cast to string for comparison to handle null vs empty string consistently
+                // and ensure all values are comparable types.
+                $originalValue = (string) ($this->originalSupplierData[$key] ?? ''); // Use empty string if key doesn't exist
+                $currentValue = (string) ($value ?? '');
+
+                if ($originalValue !== $currentValue) {
+                    $changesMade = true;
+                    break;
+                }
+            }
+
+            if (!$changesMade) {
+                $this->no_changes = 'No changes were made to the supplier information.';
+                // You can also emit an event for a toast message here if you use them
+                // $this->dispatch('show-toast', ['message' => 'No changes were made.', 'type' => 'info']);
+                return; // Stop execution if no changes
+            }
+
+            // Only update if changes were detected
+            $supplier->update($validatedData);
+
+            $this->resetFields();
+            $this->closeModal();
+            $this->notificationMessage = 'Supplier updated successfully!';
+            $this->showNotification = true;
+            $this->dispatch('supplierUpdated');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw the validation exception so Livewire handles it
+            throw $e;
         } catch (\Exception $e) {
-            session()->flash('error', 'Error updating Supplier.');
+            $this->notificationMessage = 'Error updating Supplier: ' . $e->getMessage();
+            $this->showNotification = true;
             \Log::error('Error updating Supplier: ' . $e->getMessage());
             $this->dispatch('supplierUpdateFailed');
         }
@@ -264,11 +321,13 @@ class SupplierDirectoryIndex extends Component
                 $this->showNotification = true;
                 $this->dispatch('supplierDeleted');
             } else {
-                session()->flash('error', 'Supplier not found.');
+                $this->notificationMessage = 'Supplier not found.';
+                $this->showNotification = true;
                 $this->dispatch('supplierDeleteFailed');
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Error deleting supplier.');
+            $this->notificationMessage = 'Error deleting supplier: ' . $e->getMessage();
+            $this->showNotification = true;
             \Log::error('Error deleting supplier: ' . $e->getMessage());
             $this->dispatch('supplierDeleteFailed');
         }
@@ -284,6 +343,7 @@ class SupplierDirectoryIndex extends Component
     {
         $this->resetPage();
     }
+
     public function render()
     {
         $query = SupplierDirectory::query();
@@ -291,22 +351,12 @@ class SupplierDirectoryIndex extends Component
         // Apply filters using the refactored method
         $this->applyFilters($query);
 
-        // Filter by supplier name
-        if ($this->filterSupplier) {
-            $supplierNames = explode(';', $this->filterSupplier);
-            $query->where(function ($query) use ($supplierNames) {
-                foreach ($supplierNames as $supplierName) {
-                    $query->orWhere('supplier_name', 'like', '%' . trim($supplierName) . '%');
-                }
-            });
-        }
-
         // Apply sorting
         if (in_array($this->sortField, $this->sortFields)) {
             $query->orderBy($this->sortField, $this->sortDirection);
         }
 
-        $suppliers = $query->paginate(20);
+        $suppliers = $query->paginate($this->perPage);
 
         return view('livewire.supplier-directory-index', [
             'suppliers' => $suppliers,
@@ -328,7 +378,7 @@ class SupplierDirectoryIndex extends Component
     {
         $query = SupplierDirectory::query();
         $this->applyFilters($query); // Apply the same filters
-        $suppliers = $query->get(); // Get the collection of filtered data
+        $suppliers = $query->get();  // Get the collection of filtered data
 
         $pdf = Pdf::loadView('exports.suppliers_pdf', ['suppliers' => $suppliers]);
         return response()->streamDownload(function () use ($pdf) {
@@ -341,6 +391,7 @@ class SupplierDirectoryIndex extends Component
         $this->resetPage(); // Reset pagination when searching
     }
 
+    // Resets all form-related public properties
     private function resetFields()
     {
         $this->supplier_name = '';
@@ -351,5 +402,7 @@ class SupplierDirectoryIndex extends Component
         $this->mobile_no = '';
         $this->telephone_no = '';
         $this->email_address = '';
+        $this->editSupplierId = null; // Also reset the ID for good measure
+        $this->originalSupplierData = []; // Clear original data
     }
 }
