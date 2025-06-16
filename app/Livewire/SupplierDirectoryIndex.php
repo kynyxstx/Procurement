@@ -57,12 +57,12 @@ class SupplierDirectoryIndex extends Component
     protected $originalSupplierData = [];
 
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 5;
+    protected $perPage = 20;
 
     protected $queryString = [
         'search',
-        'sortField', // Add sort field to query string
-        'sortDirection', // Add sort direction to query string
+        'sortField',
+        'sortDirection',
     ];
 
     public function rules()
@@ -225,12 +225,11 @@ class SupplierDirectoryIndex extends Component
             $this->telephone_no = $supplier->telephone_no;
             $this->email_address = $supplier->email_address;
 
-            // Store the original data for comparison later
             $this->originalSupplierData = $supplier->toArray();
 
             $this->isEditModalOpen = true;
-            $this->resetValidation(); // Clear validation errors when opening the modal
-            $this->no_changes = null; // Clear any previous 'no changes' message
+            $this->resetValidation();
+            $this->no_changes = null;
         } else {
             $this->notificationMessage = 'Supplier not found.';
             $this->showNotification = true;
@@ -388,10 +387,9 @@ class SupplierDirectoryIndex extends Component
 
     public function performSearch()
     {
-        $this->resetPage(); // Reset pagination when searching
+        $this->resetPage();
     }
 
-    // Resets all form-related public properties
     private function resetFields()
     {
         $this->supplier_name = '';
@@ -402,7 +400,7 @@ class SupplierDirectoryIndex extends Component
         $this->mobile_no = '';
         $this->telephone_no = '';
         $this->email_address = '';
-        $this->editSupplierId = null; // Also reset the ID for good measure
-        $this->originalSupplierData = []; // Clear original data
+        $this->editSupplierId = null;
+        $this->originalSupplierData = [];
     }
 }

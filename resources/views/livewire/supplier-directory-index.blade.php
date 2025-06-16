@@ -55,7 +55,7 @@
                         <div
                             class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0 mt-6 sm:mt-20">
                             <select wire:model.live="filterSupplier"
-                                class="p-2 border rounded-md shadow-sm min-w-[120px]">
+                                class="p-2 border rounded-md shadow-sm min-w-[120px] w-full sm:w-[300px]">
                                 <option value="" style="color: #ffffff; font-weight: bold; background-color: #636363;">
                                     All Supplier
                                 </option>
@@ -123,13 +123,14 @@
 
                     <div class="p-10 w-full">
                         <h1 style="font-size: 2em;">Suppliers List</h1><br>
-                        <div class="overflow-x-auto"> {{-- Only this div should control horizontal scroll --}}
+                        <div class="overflow-x-auto">
                             <table
                                 class="min-w-[900px] w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
                                 style="table-layout: auto;">
                                 <thead
                                     class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                     <tr>
+                                        <th class="px-6 py-3 whitespace-nowrap">Actions</th>
                                         <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
                                             wire:click="sortBy('supplier_name')">
                                             Supplier Name
@@ -218,46 +219,54 @@
                                                 @endif
                                             @endif
                                         </th>
-                                        <th class="px-6 py-3 whitespace-nowrap">Actions</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     @foreach ($suppliers as $supplier)
-                                        <tr class="hover:bg-gray-100">
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->supplier_name }}
-                                            </td>
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->address }}
-                                            </td>
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->items }}
-                                            </td>
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->contact_person }}
-                                            </td>
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->position }}
-                                            </td>
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->mobile_no }}
-                                            </td>
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->telephone_no }}
-                                            </td>
-                                            <td class="py-2 px-4 border break-words">
-                                                {{ $supplier->email_address }}
-                                            </td>
-                                            <td class="py-2 px-4 border text-center whitespace-nowrap">
+                                        <tr class="hover:bg-gray-100 text-base">
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
                                                 <div class="flex justify-center space-x-2">
                                                     <button wire:click="openEditModal({{ $supplier->id }})"
-                                                        class="text-blue-600 hover:underline">Edit
+                                                        class="text-blue-600 hover:underline">View/Edit
                                                     </button>
                                                     <button wire:click="openDeleteModal({{ $supplier->id }})"
                                                         class="text-red-600 hover:underline">Delete
                                                     </button>
                                                 </div>
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->supplier_name }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->address }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->items }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->contact_person }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->position }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->mobile_no }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->telephone_no }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $supplier->email_address }}
                                             </td>
                                         </tr>
                                     @endforeach
