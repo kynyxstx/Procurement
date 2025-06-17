@@ -36,12 +36,13 @@
         </div>
 
         <div class="py-8">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 overflow-x-visible">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <div class="pl-4 pr-4 sm:pl-10 sm:pr-10 mb-4">
                         <div
-                            class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0 mt-6 sm:mt-20 w-full">
-                            <div class="flex flex-col sm:flex-row sm:items-center w-full gap-2 sm:gap-4">
+                            class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0 mt-10 md:mt-20">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0 w-full">
                                 <select wire:model.live="filterYear"
                                     class="p-2 border rounded-md shadow-sm min-w-[120px] w-full sm:w-auto">
                                     <option value="">All Year</option>
@@ -72,7 +73,7 @@
                                 </select>
                                 <input type="text" wire:model.live="search" placeholder="Search suppliers..."
                                     class="p-2 border rounded-md shadow-md min-w-[180px] sm:min-w-[300px]" />
-                                <button wire:click="exportToExcel"
+                                <button wire:click="exportExcel"
                                     class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 w-full sm:w-auto">
                                     Export to Excel
                                 </button>
@@ -328,9 +329,9 @@
                                 <form wire:submit.prevent="saveItem">
                                     <div class="mb-2">
                                         <label for="supplier"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Supplier</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Supplier</label>
                                         <input wire:model="supplier" type="text" id="supplier"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             placeholder="Enter Supplier Name" required />
                                         @error('supplier')
                                             <p class="text-red-500 text-sm">{{ $errors->first('supplier') }}</p>
@@ -338,9 +339,9 @@
                                     </div>
                                     <div class="mb-2">
                                         <label for="item_project"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Item/Project</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item/Project</label>
                                         <textarea wire:model="item_project" id="item_project"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             placeholder="Enter Item/Project" required></textarea>
                                         @error('item_project')
                                             <p class="text-red-500 text-sm">{{ $errors->first('item_project') }}</p>
@@ -348,10 +349,10 @@
                                     </div>
                                     <div class="mb-2">
                                         <label for="unit_cost"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Unit
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit
                                             Cost</label>
                                         <input wire:model="unit_cost" type="text" id="unit_cost"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             placeholder="Enter Unit Cost" required />
                                         @error('unit_cost')
                                             <p class="text-red-500 text-sm">{{ $errors->first('unit_cost') }}</p>
@@ -360,9 +361,9 @@
 
                                     <div class="mb-2">
                                         <label for="year"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Year</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Year</label>
                                         <select wire:model="year" id="year"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             required>
                                             <option value="">Select Year</option>
                                             <option value="2024">2024</option>
@@ -374,9 +375,9 @@
                                     </div>
                                     <div class="mb-2">
                                         <label for="month"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Month</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Month</label>
                                         <select wire:model="month" id="month"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             required>
                                             <option value="">Select Month</option>
                                             <option value="January">January</option>
@@ -427,9 +428,9 @@
                                 <form wire:submit.prevent="updateItem">
                                     <div class="mb-2">
                                         <label for="edit_supplier"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Supplier</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Supplier</label>
                                         <input wire:model="supplier" type="text" id="edit_supplier"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             placeholder="Enter Supplier Name" required />
                                         @error('supplier')
                                             <p class="text-red-500 text-sm">{{ $errors->first('supplier') }}</p>
@@ -437,9 +438,9 @@
                                     </div>
                                     <div class="mb-2">
                                         <label for="edit_item_project"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Item/Project</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item/Project</label>
                                         <textarea wire:model="item_project" id="edit_item_project"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             placeholder="Enter Item/Project" required></textarea>
                                         @error('item_project')
                                             <p class="text-red-500 text-sm">{{ $errors->first('item_project') }}</p>
@@ -447,10 +448,10 @@
                                     </div>
                                     <div class="mb-2">
                                         <label for="edit_unit_cost"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Unit
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit
                                             Cost</label>
                                         <input wire:model="unit_cost" type="text" id="edit_unit_cost"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             placeholder="Enter Unit Cost" required />
                                         @error('unit_cost')
                                             <p class="text-red-500 text-sm">{{ $errors->first('unit_cost') }}</p>
@@ -459,9 +460,9 @@
 
                                     <div class="mb-2">
                                         <label for="edit_year"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Year</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Year</label>
                                         <select wire:model="year" id="edit_year"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             required>
                                             <option value="">Select Year</option>
                                             <option value="2024">2024</option>
@@ -474,9 +475,9 @@
 
                                     <div class="mb-2">
                                         <label for="edit_month"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white">Month</label>
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Month</label>
                                         <select wire:model="month" id="edit_month"
-                                            class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
+                                            class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                             required>
                                             <option value="">Select Month</option>
                                             <option value="January">January</option>

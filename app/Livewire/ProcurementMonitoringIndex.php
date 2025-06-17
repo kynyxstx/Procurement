@@ -56,7 +56,7 @@ class ProcurementMonitoringIndex extends Component
     }
 
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 10;
+    protected $perPage = 50;
 
     protected $listeners = ['refreshProcurementMonitoring' => '$refresh'];
 

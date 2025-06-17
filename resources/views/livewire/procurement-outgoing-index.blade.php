@@ -1,12 +1,25 @@
 <div>
     @if ($showNotification)
-        <div class="fixed top-4 right-4 bg-{{ $notificationType === 'error' ? 'red' : 'green' }}-100 border border-{{ $notificationType === 'error' ? 'red' : 'green' }}-400 text-{{ $notificationType === 'error' ? 'red' : 'green' }}-700 px-4 py-3 rounded shadow-md z-50"
+        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
             role="alert">
-            <strong class="font-bold">{{ $notificationType === 'error' ? 'Error!' : 'Success!' }}</strong>
+            <strong class="font-bold">Success!</strong>
             <span class="block sm:inline">{{ $notificationMessage }}</span>
             <div class="mt-2 flex justify-end">
                 <button wire:click="dismissNotification"
-                    class="bg-{{ $notificationType === 'error' ? 'red' : 'green' }}-500 hover:bg-{{ $notificationType === 'error' ? 'red' : 'green' }}-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    OK
+                </button>
+            </div>
+        </div>
+    @endif
+    @if (session()->has('error'))
+        <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-md z-50"
+            role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+            <div class="mt-2 flex justify-end">
+                <button onclick="this.parentNode.parentNode.remove();"
+                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     OK
                 </button>
             </div>
@@ -25,509 +38,739 @@
         <div class="py-8">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="pl-10 mb-4">
-                        <div class="flex items-center space-x-2">
-                        </div>
-                        <div class="flex items-center space-x-4 mt-20">
-                            <select wire:model="filterMonth" wire:change="performSearch"
-                                class="p-2 border rounded-md shadow-md" style="min-width: 150px;">
-                                <option value="">All Month</option>
-                                <option value="January">January</option>
-                                <option value="February">February</option>
-                                <option value="March">March</option>
-                                <option value="April">April</option>
-                                <option value="May">May</option>
-                                <option value="June">June</option>
-                                <option value="July">July</option>
-                                <option value="August">August</option>
-                                <option value="September">September</option>
-                                <option value="October">October</option>
-                                <option value="November">November</option>
-                                <option value="December">December</option>
-                            </select>
-                            <select wire:model="filterEndUser" wire:change="performSearch"
-                                class="p-2 border rounded-md shadow-md" style="min-width: 180px;">
-                                <option value="">All End-User</option>
-                                <option value="ONS-PMS">ONS-PMS</option>
-                                <option value="ESSS-SSD">ESSS-SSD</option>
-                                <option value="ITDS-KMCD">ITDS-KMCD</option>
-                                <option value="ITDS-RDMD">ITDS-RDMD</option>
-                                <option value="NCS-PHCD">NCS-PHCD</option>
-                                <option value="ONS-ICU">ONS-ICU</option>
-                                <option value="SS-SSD">SS-SSD</option>
-                                <option value="SSSS-LSSD">SSSS-LSSD</option>
-                                <option value="ONS-LS">ONS-LS</option>
-                                <option value="CRS-CRMD">CRS-CRMD</option>
-                                <option value="FAS-GSD">FAS-GSD</option>
-                                <option value="PRO-ISMD">PRO-ISMD</option>
-                                <option value="MAS-SAD">MAS-SAD</option>
-                                <option value="CTCO-CBSS">CTCO-CBSS</option>
-                                <option value="FAS-HRD">FAS-HRD</option>
-                                <option value="ONS-PMS">ONS-PMS</option>
-                                <option value="SSSS-LDRSSD">SSSS-LDRSSD</option>
-                                <option value="ESSS-LPSD">ESSS-LPSD</option>
-                                <option value="ESSS-CSD">ESSS-CSD</option>
-                                <option value="GSD-EMS">GSD-EMS</option>
-                                <option value="FAS-OANS">FAS-OANS</option>
-                            </select>
-                            <input type="text" wire:model.live="search" placeholder="Search monitoring..."
-                                class="p-2 border rounded-md shadow-md mr-2" style="min-width: 250px;" />
-                            <button wire:click="exportToExcel"
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
-                                Export to Excel
-                            </button>
-                            <button wire:click="openAddModal"
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
-                                Add Outgoing
-                            </button>
+                    <div class="pl-4 pr-4 sm:pl-10 sm:pr-10 mb-4">
+                        <div
+                            class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0 mt-10 md:mt-20">
+                            <div
+                                class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0 w-full">
+                                <select wire:model="filterMonth" wire:change="performSearch"
+                                    class="p-2 border rounded-md shadow-sm min-w-[120px] w-full sm:w-[300px]">
+                                    <option value="">All Month</option>
+                                    <option value="January">January</option>
+                                    <option value="February">February</option>
+                                    <option value="March">March</option>
+                                    <option value="April">April</option>
+                                    <option value="May">May</option>
+                                    <option value="June">June</option>
+                                    <option value="July">July</option>
+                                    <option value="August">August</option>
+                                    <option value="September">September</option>
+                                    <option value="October">October</option>
+                                    <option value="November">November</option>
+                                    <option value="December">December</option>
+                                </select>
+                                <select wire:model="filterEndUser" wire:change="performSearch"
+                                    class="p-2 border rounded-md shadow-md" style="min-width: 180px;">
+                                    <option value="">All End-User</option>
+                                    <option value="ONS-PMS">ONS-PMS</option>
+                                    <option value="ESSS-SSD">ESSS-SSD</option>
+                                    <option value="ITDS-KMCD">ITDS-KMCD</option>
+                                    <option value="ITDS-RDMD">ITDS-RDMD</option>
+                                    <option value="NCS-PHCD">NCS-PHCD</option>
+                                    <option value="ONS-ICU">ONS-ICU</option>
+                                    <option value="SS-SSD">SS-SSD</option>
+                                    <option value="SSSS-LSSD">SSSS-LSSD</option>
+                                    <option value="ONS-LS">ONS-LS</option>
+                                    <option value="CRS-CRMD">CRS-CRMD</option>
+                                    <option value="FAS-GSD">FAS-GSD</option>
+                                    <option value="PRO-ISMD">PRO-ISMD</option>
+                                    <option value="MAS-SAD">MAS-SAD</option>
+                                    <option value="CTCO-CBSS">CTCO-CBSS</option>
+                                    <option value="FAS-HRD">FAS-HRD</option>
+                                    <option value="ONS-PMS">ONS-PMS</option>
+                                    <option value="SSSS-LDRSSD">SSSS-LDRSSD</option>
+                                    <option value="ESSS-LPSD">ESSS-LPSD</option>
+                                    <option value="ESSS-CSD">ESSS-CSD</option>
+                                    <option value="GSD-EMS">GSD-EMS</option>
+                                    <option value="FAS-OANS">FAS-OANS</option>
+                                </select>
+                                <input type="text" wire:model.live="search" placeholder="Search monitoring..."
+                                    class="p-2 border rounded-md shadow-md mr-2" style="min-width: 250px;" />
+                                <button wire:click="exportToExcel"
+                                    class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
+                                    Export to Excel
+                                </button>
+                                <button wire:click="openAddModal"
+                                    class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 ml-2">
+                                    Add Outgoing
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="p-10 w-full overflow-x-auto">
+
+                    <div class="p-10 w-full">
                         <h1 style="font-size: 2em;">Procurement Outgoing List</h1><br>
-                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
-                            style="table-layout: fixed;">
-                            <thead
-                                class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
-                                <tr>
-                                    <th class="px-6 py-3 cursor-pointer select-none"
-                                        wire:click="setSortBy('received_date')">
-                                        Date Received
-                                        @if($sortBy === 'received_date')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('end_user')">
-                                        End-User
-                                        @if($sortBy === 'end_user')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('pr_no')">
-                                        PR-Number
-                                        @if($sortBy === 'pr_no')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none"
-                                        wire:click="setSortBy('particulars')">
-                                        Particulars
-                                        @if($sortBy === 'particulars')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('amount')">
-                                        Amount
-                                        @if($sortBy === 'amount')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('creditor')">
-                                        Creditor
-                                        @if($sortBy === 'creditor')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none" wire:click="setSortBy('remarks')">
-                                        Remarks
-                                        @if($sortBy === 'remarks')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none"
-                                        wire:click="setSortBy('responsibility')">
-                                        Responsibility
-                                        @if($sortBy === 'responsibility')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3 cursor-pointer select-none"
-                                        wire:click="setSortBy('received_by')">
-                                        Received by
-                                        @if($sortBy === 'received_by')
-                                            <span>
-                                                {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
-                                            </span>
-                                        @endif
-                                    </th>
-                                    <th class="px-6 py-3">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($outgoings as $outgoing)
-                                    <tr class="hover:bg-gray-100">
-                                        <td class="py-2 px-4 border break-words">
-                                            {{ \Carbon\Carbon::parse($outgoing->received_date)->format('m/d/Y h:i A') }}
-                                        </td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->end_user }}</td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->pr_no }}</td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->particulars }}</td>
-                                        <td class="py-2 px-4 border break-words">
-                                            {{ number_format((float) $outgoing->amount, 2) }}
-                                        </td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->creditor }}</td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->remarks }}</td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->responsibility }}</td>
-                                        <td class="py-2 px-4 border break-words">{{ $outgoing->received_by }}</td>
-                                        <td class="py-2 px-4 border text-center">
-                                            <div class="flex justify-center space-x-2">
-                                                <button wire:click="openEditModal({{ $outgoing->id }})"
-                                                    class="text-blue-600 hover:underline">Edit</button>
-                                                <button wire:click="openDeleteModal({{ $outgoing->id }})"
-                                                    class="text-red-600 hover:underline">Delete</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                @if ($outgoings->isEmpty())
+                        <div class="overflow-x-auto">
+                            <table
+                                class="min-w-[900px] w-full text-sm text-left text-gray-500 dark:text-gray-600 border-collapse"
+                                style="table-layout: auto;">
+                                <thead
+                                    class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
                                     <tr>
-                                        <td colspan="10" class="text-center py-4">No outgoing procurement found.</td>
+                                        <th class="px-6 py-3 text-lg font-semibold">Actions</th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('received_date')">
+                                            <span class="text-lg font-semibold">Date Received</span>
+                                            @if($sortBy === 'received_date')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('end_user')">
+                                            <span class="text-lg font-semibold">End-User</span>
+                                            @if($sortBy === 'end_user')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('pr_no')">
+                                            <span class="text-lg font-semibold">PR-Number</span>
+                                            @if($sortBy === 'pr_no')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('particulars')">
+                                            <span class="text-lg font-semibold">Particulars</span>
+                                            @if($sortBy === 'particulars')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('amount')">
+                                            <span class="text-lg font-semibold">Amount</span>
+                                            @if($sortBy === 'amount')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('creditor')">
+                                            <span class="text-lg font-semibold">Creditor</span>
+                                            @if($sortBy === 'creditor')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('remarks')">
+                                            <span class="text-lg font-semibold">Remarks</span>
+                                            @if($sortBy === 'remarks')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('responsibility')">
+                                            <span class="text-lg font-semibold">Responsibility</span>
+                                            @if($sortBy === 'responsibility')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
+                                        <th class="px-6 py-3 cursor-pointer whitespace-nowrap"
+                                            wire:click="setSortBy('received_by')">
+                                            <span class="text-lg font-semibold">Received by</span>
+                                            @if($sortBy === 'received_by')
+                                                <span>
+                                                    {!! $sortDirection === 'asc' ? '&#8593;' : '&#8595;' !!}
+                                                </span>
+                                            @endif
+                                        </th>
                                     </tr>
-                                @endif
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach ($outgoings as $outgoing)
+                                        <tr class="hover:bg-gray-100 text-base">
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                <div class="flex justify-center space-x-2">
+                                                    <button wire:click="openEditModal({{ $outgoing->id }})"
+                                                        class="text-blue-600 hover:underline">View/Edit</button>
+                                                    <button wire:click="openDeleteModal({{ $outgoing->id }})"
+                                                        class="text-red-600 hover:underline">Delete</button>
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ \Carbon\Carbon::parse($outgoing->received_date)->format('m/d/Y h:i A') }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $outgoing->end_user }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $outgoing->pr_no }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $outgoing->particulars }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ number_format((float) $outgoing->amount, 2) }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $outgoing->creditor }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $outgoing->remarks }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $outgoing->responsibility }}
+                                            </td>
+                                            <td
+                                                class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
+                                                {{ $outgoing->received_by }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    @if ($outgoings->isEmpty())
+                                        <tr>
+                                            <td colspan="9" class="text-center py-4">No suppliers found.</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                        <style>
+                            .max-w-7xl.mx-auto.sm\:px-6.lg\:px-8,
+                            .bg-white.overflow-hidden.shadow-xl.sm\:rounded-lg,
+                            .p-10.w-full {
+                                overflow-x: visible !important;
+                            }
+
+                            body,
+                            html {
+                                overflow-x: hidden;
+                            }
+                        </style>
                         <div class="mt-4 flex-wrap items-center">
                             <div>
                                 {{ $outgoings->links() }}
                             </div>
                         </div>
                     </div>
+
+                    <style>
+                        @media (max-width: 640px) {
+                            table.min-w-\[700px\] {
+                                min-width: 0 !important;
+                            }
+
+                            table th,
+                            table td {
+                                font-size: 0.85rem !important;
+                                padding-left: 0.5rem !important;
+                                padding-right: 0.5rem !important;
+                            }
+
+                            .sm\:px-6 {
+                                padding-left: 0.5rem !important;
+                                padding-right: 0.5rem !important;
+                            }
+
+                            .sm\:p-10 {
+                                padding: 0.5rem !important;
+                            }
+
+                            .sm\:mt-20 {
+                                margin-top: 1rem !important;
+                            }
+
+                            .sm\:pl-10,
+                            .sm\:pr-10 {
+                                padding-left: 1rem !important;
+                                padding-right: 1rem !important;
+                            }
+                        }
+                    </style>
+
+                    <!-- Back to Top Button -->
+                    <button id="backToTopBtn" class="fixed bottom-24 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none
+                                                            sm:bottom-24 sm:right-8
+                                                            bottom-16 right-4
+                                                            text-base sm:text-lg" style="transition: opacity 0.3s;"
+                        onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
+                        ↑
+                    </button>
+                    <!-- Tap to Down Button -->
+                    <button id="tapToDownBtn" class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none
+                                                            sm:bottom-8 sm:right-8
+                                                            bottom-4 right-4
+                                                            text-base sm:text-lg" style="transition: opacity 0.3s;"
+                        onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});">
+                        ↓
+                    </button>
+                    <script>
+                        // Responsive show/hide for Back to Top and Tap to Down buttons
+                        function handleScrollBtns() {
+                            const backBtn = document.getElementById('backToTopBtn');
+                            const downBtn = document.getElementById('tapToDownBtn');
+                            // Show Back to Top if scrolled down
+                            if (window.scrollY > 200) {
+                                backBtn.style.opacity = '1';
+                                backBtn.style.pointerEvents = 'auto';
+                            } else {
+                                backBtn.style.opacity = '0';
+                                backBtn.style.pointerEvents = 'none';
+                            }
+                            // Show Tap to Down if not at bottom
+                            if (window.innerHeight + window.scrollY < document.body.offsetHeight - 200) {
+                                downBtn.style.opacity = '1';
+                                downBtn.style.pointerEvents = 'auto';
+                            } else {
+                                downBtn.style.opacity = '0';
+                                downBtn.style.pointerEvents = 'none';
+                            }
+                        }
+                        window.addEventListener('scroll', handleScrollBtns);
+                        window.addEventListener('resize', handleScrollBtns);
+                        document.addEventListener('DOMContentLoaded', handleScrollBtns);
+                    </script>
+                    <style>
+                        @media (max-width: 640px) {
+
+                            #backToTopBtn,
+                            #tapToDownBtn {
+                                right: 1rem !important;
+                                padding: 0.5rem 0.75rem !important;
+                                font-size: 1rem !important;
+                            }
+
+                            #backToTopBtn {
+                                bottom: 4rem !important;
+                            }
+
+                            #tapToDownBtn {
+                                bottom: 1rem !important;
+                            }
+                        }
+                    </style>
+
+
+                    @if ($isAddModalOpen)
+                        <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0"
+                            wire:ignore>
+                            <div
+                                class="bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto max-h-[95vh] overflow-y-auto">
+                                <div class="flex justify-between items-center mb-2 sm:mb-4">
+                                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
+                                        Add Outgoing
+                                    </h3>
+                                    <button wire:click="closeModal"
+                                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 text-xl">
+                                        &#x2715;
+                                    </button>
+                                </div>
+                                <div>
+                                    <form wire:submit.prevent="saveOutgoing" novalidate>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                                            <div>
+                                                <label for="received_date"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date
+                                                    & Time</label>
+                                                <input wire:model="received_date" type="datetime-local" id="received_date"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    required />
+                                                @error('received_date')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('received_date') }}
+                                                    </p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="end_user"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">End-User</label>
+                                                <input wire:model="end_user" type="text" id="end_user"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter End-User" required />
+                                                @error('end_user')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('end_user') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="pr_no"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">PR
+                                                    Number</label>
+                                                <input wire:model="pr_no" type="text" id="pr_no"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter PR Number" required />
+                                                @error('pr_no')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('pr_no') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="creditor"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Creditor</label>
+                                                <input wire:model="creditor" type="text" id="creditor"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Creditor" required />
+                                                @error('creditor')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('creditor') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="amount"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
+                                                <input wire:model="amount" type="text" id="amount"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
+                                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
+                                                @error('amount')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('amount') }}</p>
+                                                @enderror
+                                                @if (!is_numeric($amount) && $amount !== null && $amount !== '')
+                                                    <p class="text-red-500 text-xs">Amount must be a number only.</p>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label for="responsibility"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Responsibility</label>
+                                                <input wire:model="responsibility" type="text" id="responsibility"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Responsibility" required />
+                                                @error('responsibility')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('responsibility') }}
+                                                    </p>
+                                                @enderror
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label for="particulars"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Particulars</label>
+                                                <textarea wire:model="particulars" id="particulars"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Particulars" required rows="2"></textarea>
+                                                @error('particulars')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('particulars') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label for="remarks"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
+                                                <textarea wire:model="remarks" id="remarks"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Remarks" required rows="2"></textarea>
+                                                @error('remarks')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('remarks') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label for="received_by"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Received
+                                                    By</label>
+                                                <input wire:model="received_by" type="text" id="received_by"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Received By" required />
+                                                @error('received_by')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('received_by') }}</p>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
+                                            <button type="button" wire:click="closeModal"
+                                                class="px-6 py-3 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-base font-semibold">Cancel</button>
+                                            <button type="submit"
+                                                class="px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 w-full sm:w-auto text-base font-semibold">
+                                                Add Outgoing
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            @media (max-width: 640px) {
+                                .max-w-lg {
+                                    max-width: 99vw !important;
+                                }
+
+                                .p-2,
+                                .sm\:p-4 {
+                                    padding: 0.5rem !important;
+                                }
+
+                                .text-base,
+                                .sm\:text-lg {
+                                    font-size: 1rem !important;
+                                }
+
+                                .text-lg,
+                                .sm\:text-xl {
+                                    font-size: 1.1rem !important;
+                                }
+
+                                input,
+                                textarea {
+                                    font-size: 1rem !important;
+                                }
+
+                                label {
+                                    font-size: 0.95rem !important;
+                                }
+
+                                .rounded-lg {
+                                    border-radius: 0.75rem !important;
+                                }
+                            }
+                        </style>
+                    @endif
+
+                    <script>
+                        document.addEventListener('livewire:load', function () {
+                            const amountInput = document.getElementById('amount');
+
+                            if (amountInput) {
+                                amountInput.addEventListener('blur', function () {
+                                    this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+                                    @this.set('amount', this.value);
+                                });
+                            }
+                        });
+                    </script>
+
+                    @if ($isEditModalOpen)
+                        <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0"
+                            wire:ignore>
+                            <div
+                                class="bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto max-h-[95vh] overflow-y-auto">
+                                <div class="flex justify-between items-center mb-2 sm:mb-4">
+                                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                        Edit Outgoing
+                                    </h3>
+                                    <button wire:click="closeModal"
+                                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 text-xl">
+                                        &#x2715;
+                                    </button>
+                                </div>
+                                <div>
+                                    <form wire:submit.prevent="updateOutgoing" novalidate>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                                            <div>
+                                                <label for="received_date"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date
+                                                    & Time</label>
+                                                <input wire:model="received_date" type="datetime-local" id="received_date"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    required />
+                                                @error('received_date')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('received_date') }}
+                                                    </p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="end_user"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">End-User</label>
+                                                <input wire:model="end_user" type="text" id="end_user"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter End-User" required />
+                                                @error('end_user')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('end_user') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="pr_no"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">PR
+                                                    Number</label>
+                                                <input wire:model="pr_no" type="text" id="pr_no"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter PR Number" required />
+                                                @error('pr_no')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('pr_no') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="creditor"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Creditor</label>
+                                                <input wire:model="creditor" type="text" id="creditor"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Creditor" required />
+                                                @error('creditor')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('creditor') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div>
+                                                <label for="amount"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
+                                                <input wire:model="amount" type="text" id="amount"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
+                                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
+                                                @error('amount')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('amount') }}</p>
+                                                @enderror
+                                                @if (!is_numeric($amount) && $amount !== null && $amount !== '')
+                                                    <p class="text-red-500 text-xs">Amount must be a number only.</p>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <label for="responsibility"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Responsibility</label>
+                                                <input wire:model="responsibility" type="text" id="responsibility"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Responsibility" required />
+                                                @error('responsibility')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('responsibility') }}
+                                                    </p>
+                                                @enderror
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label for="particulars"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Particulars</label>
+                                                <textarea wire:model="particulars" id="particulars"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Particulars" required rows="2"></textarea>
+                                                @error('particulars')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('particulars') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label for="remarks"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
+                                                <textarea wire:model="remarks" id="remarks"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Remarks" required rows="2"></textarea>
+                                                @error('remarks')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('remarks') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label for="received_by"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Received
+                                                    By</label>
+                                                <input wire:model="received_by" type="text" id="received_by"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Received By" required />
+                                                @error('received_by')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('received_by') }}</p>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
+                                            <button type="button" wire:click="closeModal"
+                                                class="px-6 py-3 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-base font-semibold">Cancel</button>
+                                            <button type="submit"
+                                                class="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 w-full sm:w-auto text-base font-semibold">
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            @media (max-width: 640px) {
+                                .max-w-lg {
+                                    max-width: 99vw !important;
+                                }
+
+                                .p-2,
+                                .sm\:p-4 {
+                                    padding: 0.5rem !important;
+                                }
+
+                                .text-base,
+                                .sm\:text-lg {
+                                    font-size: 1rem !important;
+                                }
+
+                                .text-lg,
+                                .sm\:text-xl {
+                                    font-size: 1.1rem !important;
+                                }
+
+                                input,
+                                textarea {
+                                    font-size: 1rem !important;
+                                }
+
+                                label {
+                                    font-size: 0.95rem !important;
+                                }
+
+                                .rounded-lg {
+                                    border-radius: 0.75rem !important;
+                                }
+                            }
+                        </style>
+                    @endif
+
+                    @if ($isDeleteModalOpen)
+                        <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0"
+                            wire:ignore>
+                            <div
+                                class="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-lg shadow-lg max-w-lg w-full text-center mx-auto">
+                                <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm
+                                    Deletion</h3>
+                                <p class="mt-2 text-gray-600 dark:text-gray-300 text-base sm:text-lg">
+                                    Are you sure you want to delete this Outgoing Procurement Data?
+                                </p>
+                                <div
+                                    class="mt-6 flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+                                    <button wire:click="closeModal"
+                                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 w-full sm:w-auto">Cancel</button>
+                                    <button wire:click="deleteOutgoing"
+                                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 w-full sm:w-auto">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            @media (max-width: 640px) {
+                                .max-w-lg {
+                                    max-width: 99vw !important;
+                                }
+
+                                .p-3,
+                                .sm\:p-6 {
+                                    padding: 0.75rem !important;
+                                }
+
+                                .text-base,
+                                .sm\:text-lg {
+                                    font-size: 1rem !important;
+                                }
+
+                                .text-lg,
+                                .sm\:text-xl {
+                                    font-size: 1.1rem !important;
+                                }
+
+                                .rounded-lg {
+                                    border-radius: 0.75rem !important;
+                                }
+                            }
+                        </style>
+                    @endif
                 </div>
             </div>
         </div>
-
-        <!-- Back to Top Button -->
-        <button id="backToTopBtn"
-            class="fixed bottom-24 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
-            style="transition: opacity 0.3s;" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">
-            ↑
-        </button>
-        <script>
-            // Show/hide Back to Top button on scroll
-            window.addEventListener('scroll', function () {
-                const btn = document.getElementById('backToTopBtn');
-                if (window.scrollY > 200) {
-                    btn.style.opacity = '1';
-                    btn.style.pointerEvents = 'auto';
-                } else {
-                    btn.style.opacity = '0';
-                    btn.style.pointerEvents = 'none';
-                }
-            });
-        </script>
-
-        <!-- Tap to Down Button -->
-        <button id="tapToDownBtn"
-            class="fixed bottom-8 right-8 z-50 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition-opacity opacity-0 pointer-events-none"
-            style="transition: opacity 0.3s;"
-            onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});">
-            ↓
-        </button>
-        <script>
-            // Show/hide Tap to Down button on scroll (show when not at bottom)
-            window.addEventListener('scroll', function () {
-                const btn = document.getElementById('tapToDownBtn');
-                if (window.innerHeight + window.scrollY < document.body.offsetHeight - 200) {
-                    btn.style.opacity = '1';
-                    btn.style.pointerEvents = 'auto';
-                } else {
-                    btn.style.opacity = '0';
-                    btn.style.pointerEvents = 'none';
-                }
-            });
-        </script>
-
-
-        @if ($isAddModalOpen)
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                            Add Outgoing
-                        </h3>
-                        <button wire:click="closeModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
-                            &#x2715;
-                        </button>
-                    </div>
-                    <div>
-                        <form wire:submit.prevent="saveOutgoing" novalidate>
-                            <div class="mb-2">
-                                <label for="received_date"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date & Time</label>
-                                <input wire:model="received_date" type="datetime-local" id="received_date"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" required />
-                                @error('received_date')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('received_date') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="end_user"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">End-User</label>
-                                <input wire:model="end_user" type="text" id="end_user"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter End-User" required />
-                                @error('end_user')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('end_user') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="pr_no" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">PR
-                                    Number</label>
-                                <input wire:model="pr_no" type="text" id="pr_no"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter PR Number" required />
-                                @error('pr_no')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('pr_no') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="particulars"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Particulars</label>
-                                <textarea wire:model="particulars" id="particulars"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Particulars" required></textarea>
-                                @error('particulars')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('particulars') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="amount"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount</label>
-                                <input wire:model="amount" type="text" id="amount"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
-                                @error('amount')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('amount') }}</p>
-                                @enderror
-                                @if (!is_numeric($amount) && $amount !== null && $amount !== '')
-                                    <p class="text-red-500 text-sm">Amount must be a number only.</p>
-                                @endif
-                            </div>
-                            <div class="mb-2">
-                                <label for="creditor"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Creditor</label>
-                                <input wire:model="creditor" type="text" id="creditor"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Creditor" required />
-                                @error('creditor')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('creditor') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="remarks"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remarks</label>
-                                <textarea wire:model="remarks" id="remarks"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Remarks" required></textarea>
-                                @error('remarks')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('remarks') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="responsibility"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsibility</label>
-                                <input wire:model="responsibility" type="text" id="responsibility"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Responsibility" required />
-                                @error('responsibility')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('responsibility') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="received_by"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Received
-                                    By</label>
-                                <input wire:model="received_by" type="text" id="received_by"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Received By" required />
-                                @error('received_by')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('received_by') }}</p>
-                                @enderror
-                            </div>
-                            <div class="flex justify-end space-x-2">
-                                <button type="button" wire:click="closeModal"
-                                    class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700">Cancel</button>
-                                <button type="submit"
-                                    class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400">
-                                    Add Outgoing
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        @endif
-        <script>
-            document.addEventListener('livewire:load', function () {
-                const amountInput = document.getElementById('amount');
-
-                if (amountInput) {
-                    amountInput.addEventListener('blur', function () {
-                        this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
-                        @this.set('amount', this.value);
-                    });
-                }
-            });
-        </script>
-
-        @if ($isEditModalOpen)
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                            Edit Outgoing
-                        </h3>
-                        <button wire:click="closeModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
-                            &#x2715;
-                        </button>
-                    </div>
-                    <div>
-                        <form wire:submit.prevent="updateOutgoing" novalidate>
-                            <div class="mb-2">
-                                <label for="received_date"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date & Time</label>
-                                <input wire:model="received_date" type="datetime-local" id="received_date"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200" required />
-                                @error('received_date')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('received_date') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="end_user"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">End-User</label>
-                                <input wire:model="end_user" type="text" id="end_user"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter End-User" required />
-                                @error('end_user')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('end_user') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="pr_no" class="block mb-2 text-sm font-medium text -gray-900 dark:text-white">PR
-                                    Number</label>
-                                <input wire:model="pr_no" type="text" id="pr_no"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter PR Number" required />
-                                @error('pr_no')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('pr_no') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="particulars"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Particulars</label>
-                                <textarea wire:model="particulars" id="particulars"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Particulars" required></textarea>
-                                @error('particulars')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('particulars') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="amount"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount</label>
-                                <input wire:model="amount" type="text" id="amount"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
-                                @error('amount')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('amount') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="creditor"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Creditor</label>
-                                <input wire:model="creditor" type="text" id="creditor"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Creditor" required />
-                                @error('creditor')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('creditor') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="remarks"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remarks</label>
-                                <textarea wire:model="remarks" id="remarks"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Remarks" required></textarea>
-                                @error('remarks')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('remarks') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="responsibility"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Responsibility</label>
-                                <input wire:model="responsibility" type="text" id="responsibility"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Responsibility" required />
-                                @error('responsibility')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('responsibility') }}</p>
-                                @enderror
-                            </div>
-                            <div class="mb-2">
-                                <label for="received_by"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Received
-                                    By</label>
-                                <input wire:model="received_by" type="text" id="received_by"
-                                    class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200"
-                                    placeholder="Enter Received By" required />
-                                @error('received_by')
-                                    <p class="text-red-500 text-sm">{{ $errors->first('received_by') }}</p>
-                                @enderror
-                            </div>
-                            <div class="flex justify-end space-x-2">
-                                <button type="button" wire:click="closeModal"
-                                    class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700">Cancel</button>
-                                <button type="submit"
-                                    class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400">
-                                    Save Changes
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if ($isDeleteModalOpen)
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full text-center">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion</h3>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this Outgoing
-                        Procurement Data?
-                    </p>
-                    <div class="mt-6 flex justify-center space-x-4">
-                        <button wire:click="closeModal"
-                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</button>
-                        <button wire:click="deleteOutgoing"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
-                    </div>
-                </div>
-            </div>
-        @endif
         <footer class="mt-4 border-t pt-4 text-center text-gray-600 text-sm" style="min-height: 0.7in;">
             <span class="font-semibold">Procurement Management Section 2025</span>
         </footer>
     </div>
+</div>
 
-    <script>
-        window.addEventListener('notify', event => {
-            @this.set('showNotification', true);
-            @this.set('notificationMessage', event.detail.message);
-            @this.set('notificationType', event.detail.type || 'success'); // Default to 'success'
-        });
-    </script>
+<script>
+    window.addEventListener('notify', event => {
+        @this.set('showNotification', true);
+        @this.set('notificationMessage', event.detail.message);
+        @this.set('notificationType', event.detail.type || 'success');
+    });
+</script>

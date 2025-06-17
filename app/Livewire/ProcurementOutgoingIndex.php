@@ -5,11 +5,11 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\ProcurementOutgoing;
 use Livewire\WithPagination;
-use App\Exports\OutgoingExport; // Import your Excel export class
-use Maatwebsite\Excel\Facades\Excel; // Import the Excel facade
-use Dompdf\Dompdf;                    // Import Dompdf (if not globally configured)
-use Dompdf\Options;                   // Import Dompdf Options
-use Illuminate\Support\Facades\Log;   // Added for logging
+use App\Exports\OutgoingExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ProcurementOutgoingIndex extends Component
@@ -58,7 +58,7 @@ class ProcurementOutgoingIndex extends Component
 
 
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 10;
+    protected $perPage = 100;
 
     public function rules()
     {

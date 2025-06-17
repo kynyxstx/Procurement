@@ -45,7 +45,7 @@ class ItemsProcuredIndex extends Component
         $this->resetPage();
     }
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 50;
+    protected $perPage = 100;
 
     /**
      * The properties that should be included in the query string.
@@ -221,11 +221,10 @@ class ItemsProcuredIndex extends Component
         }
     }
 
-    // Corrected export method name as per previous error
-    public function exportExcel() // Renamed from exportToExcel to match common usage, can be exportToExcel if you prefer
+    public function exportExcel()
     {
-        // Use $this->filterYear and $this->filterMonth instead of undeclared $this->selectedYear/$selectedMonth
-        $filename = 'Item Procurement.xlsx'; // Shortened filename, < 31 chars
+
+        $filename = 'Item Procurement.xlsx';
 
         try {
             return Excel::download(new ItemsProcuredExport($this->filterYear, $this->filterMonth, $this->search), $filename);
@@ -236,11 +235,9 @@ class ItemsProcuredIndex extends Component
         }
     }
 
-    // New exportPdf method, as per previous error
     public function exportPdf()
     {
-        // Use $this->filterYear and $this->filterMonth instead of undeclared $this->selectedYear/$selectedMonth
-        $filename = 'Item Procurement.pdf'; // Shortened filename, < 31 chars
+        $filename = 'Item Procurement.pdf';
 
         try {
             return Excel::download(new ItemsProcuredExport($this->filterYear, $this->filterMonth, $this->search), $filename, \Maatwebsite\Excel\Excel::DOMPDF);
@@ -281,7 +278,6 @@ class ItemsProcuredIndex extends Component
             \Log::info('Applying Search: ' . $this->search);
         }
 
-        // Apply sorting
         if ($this->sortField && in_array($this->sortField, ['supplier', 'item_project', 'unit_cost', 'year', 'month'])) {
             $query->orderBy($this->sortField, $this->sortDirection);
         }
