@@ -615,9 +615,6 @@
                                                 @error('amount')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('amount') }}</p>
                                                 @enderror
-                                                @if (!is_numeric($amount) && $amount !== null && $amount !== '')
-                                                    <p class="text-red-500 text-xs">Amount must be a number only.</p>
-                                                @endif
                                             </div>
                                             <div>
                                                 <label for="responsibility"
