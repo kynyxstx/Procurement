@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SuppliersExport;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Validation\ValidationException; // IMPORTANT: Add this import
 
 class SupplierDirectoryIndex extends Component
 {
@@ -38,6 +39,7 @@ class SupplierDirectoryIndex extends Component
     public $no_changes; // This will hold the "no changes" message
     public $showNotification = false;
     public $notificationMessage = '';
+    public $notificationType = 'success'; // Add this property: 'success' or 'error'
 
     // Sorting properties
     public $sortFields = [
@@ -73,7 +75,7 @@ class SupplierDirectoryIndex extends Component
             'items' => 'required|string|max:500',
             'contact_person' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            'mobile_no' => 'nullable|digits:11',
+            'mobile_no' => 'nullable|digits:11', // This rule is correct
             'telephone_no' => 'nullable|string|max:15',
             'email_address' => 'nullable|email',
         ];
@@ -85,7 +87,7 @@ class SupplierDirectoryIndex extends Component
         'items.required' => 'Please specify the items.',
         'contact_person.required' => 'Contact person is required.',
         'position.required' => 'Position is required.',
-        'mobile_no.digits' => 'Mobile number must be 11 digits.',
+        'mobile_no.digits' => 'Mobile number must be 11 digits.', // This message is crucial
         'email_address.email' => 'Enter a valid email address.',
     ];
 
@@ -162,6 +164,7 @@ class SupplierDirectoryIndex extends Component
         $this->no_changes = null; // Clear the "no changes" message
         $this->showNotification = false; // Hide success/error notifications
         $this->notificationMessage = ''; // Clear notification message
+        $this->notificationType = 'success'; // Reset notification type to default
     }
 
     // Save supplier (Create or Update)
@@ -191,10 +194,18 @@ class SupplierDirectoryIndex extends Component
             ]);
 
             $this->closeModal();
+            $this->notificationType = 'success'; // Set notification type
             $this->notificationMessage = 'Supplier added successfully!';
             $this->showNotification = true;
             $this->dispatch('supplierAdded');
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) { // Catch validation exceptions specifically
+            $this->notificationType = 'error'; // Set notification type
+            $this->notificationMessage = $e->validator->errors()->first('mobile_no') ?? 'Validation failed. Please check the form for errors.';
+            $this->showNotification = true;
+            \Log::error('Validation error adding Supplier: ' . json_encode($e->errors()));
+            throw $e; // Re-throw to make Livewire display errors next to fields
+        } catch (\Exception $e) { // Catch other general exceptions
+            $this->notificationType = 'error'; // Set notification type
             $this->notificationMessage = 'Error adding Supplier: ' . $e->getMessage();
             $this->showNotification = true;
             \Log::error('Error adding Supplier: ' . $e->getMessage());
@@ -207,6 +218,9 @@ class SupplierDirectoryIndex extends Component
         $this->resetFields(); // Clear fields when opening add modal
         $this->resetValidation(); // Clear any previous validation errors
         $this->no_changes = null; // Clear "no changes" message
+        $this->showNotification = false; // Ensure notification is hidden
+        $this->notificationMessage = ''; // Clear notification message
+        $this->notificationType = 'success'; // Reset notification type
         $this->isAddModalOpen = true;
     }
 
@@ -225,12 +239,17 @@ class SupplierDirectoryIndex extends Component
             $this->telephone_no = $supplier->telephone_no;
             $this->email_address = $supplier->email_address;
 
+            // Store original data for comparison
             $this->originalSupplierData = $supplier->toArray();
 
             $this->isEditModalOpen = true;
             $this->resetValidation();
             $this->no_changes = null;
+            $this->showNotification = false; // Ensure notification is hidden
+            $this->notificationMessage = ''; // Clear notification message
+            $this->notificationType = 'success'; // Reset notification type
         } else {
+            $this->notificationType = 'error'; // Set notification type
             $this->notificationMessage = 'Supplier not found.';
             $this->showNotification = true;
         }
@@ -244,6 +263,7 @@ class SupplierDirectoryIndex extends Component
             $supplier = SupplierDirectory::find($this->editSupplierId);
 
             if (!$supplier) {
+                $this->notificationType = 'error'; // Set notification type
                 $this->notificationMessage = 'Supplier not found.';
                 $this->showNotification = true;
                 $this->dispatch('supplierUpdateFailed');
@@ -277,9 +297,10 @@ class SupplierDirectoryIndex extends Component
             }
 
             if (!$changesMade) {
-                $this->no_changes = 'No changes were made to the supplier information.';
-                // You can also emit an event for a toast message here if you use them
-                // $this->dispatch('show-toast', ['message' => 'No changes were made.', 'type' => 'info']);
+                $this->no_changes = 'No changes were made to the supplier information.'; // This will be displayed if you have a specific element for it
+                $this->notificationType = 'info'; // You might want an 'info' type for no changes
+                $this->notificationMessage = 'No changes were made to the supplier information.';
+                $this->showNotification = true;
                 return; // Stop execution if no changes
             }
 
@@ -288,13 +309,18 @@ class SupplierDirectoryIndex extends Component
 
             $this->resetFields();
             $this->closeModal();
+            $this->notificationType = 'success'; // Set notification type
             $this->notificationMessage = 'Supplier updated successfully!';
             $this->showNotification = true;
             $this->dispatch('supplierUpdated');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Re-throw the validation exception so Livewire handles it
-            throw $e;
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) { // Catch validation exceptions specifically
+            $this->notificationType = 'error'; // Set notification type
+            $this->notificationMessage = $e->validator->errors()->first('mobile_no') ?? 'Validation failed. Please check the form for errors.';
+            $this->showNotification = true;
+            \Log::error('Validation error updating Supplier: ' . json_encode($e->errors()));
+            throw $e; // Re-throw to make Livewire display errors next to fields
+        } catch (\Exception $e) { // Catch other general exceptions
+            $this->notificationType = 'error'; // Set notification type
             $this->notificationMessage = 'Error updating Supplier: ' . $e->getMessage();
             $this->showNotification = true;
             \Log::error('Error updating Supplier: ' . $e->getMessage());
@@ -316,15 +342,18 @@ class SupplierDirectoryIndex extends Component
             if ($supplier) {
                 $supplier->delete();
                 $this->closeModal();
+                $this->notificationType = 'success'; // Set notification type
                 $this->notificationMessage = 'Supplier deleted successfully!';
                 $this->showNotification = true;
                 $this->dispatch('supplierDeleted');
             } else {
+                $this->notificationType = 'error'; // Set notification type
                 $this->notificationMessage = 'Supplier not found.';
                 $this->showNotification = true;
                 $this->dispatch('supplierDeleteFailed');
             }
         } catch (\Exception $e) {
+            $this->notificationType = 'error'; // Set notification type
             $this->notificationMessage = 'Error deleting supplier: ' . $e->getMessage();
             $this->showNotification = true;
             \Log::error('Error deleting supplier: ' . $e->getMessage());
@@ -336,6 +365,7 @@ class SupplierDirectoryIndex extends Component
     {
         $this->showNotification = false;
         $this->notificationMessage = '';
+        $this->notificationType = 'success'; // Reset notification type when dismissed
     }
 
     public function updatedSearch()

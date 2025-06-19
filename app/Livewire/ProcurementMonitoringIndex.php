@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException; // Import ValidationException
 
 class ProcurementMonitoringIndex extends Component
 {
@@ -22,7 +23,7 @@ class ProcurementMonitoringIndex extends Component
     public $supplier = '';
     public $end_user = '';
     public $status = '';
-    public $date_endorsement = '';
+    public $date_endorsement = ''; // Keep as empty string for HTML input type="date"
     public $specific_notes = '';
 
     public $monitoringId;
@@ -37,6 +38,7 @@ class ProcurementMonitoringIndex extends Component
     public $isAddModalOpen = false;
     public $showNotification = false;
     public $notificationMessage = '';
+    public $notificationType = 'success'; // Add this property for message box styling
 
     public $selectedYear;
     public $selectedMonth;
@@ -64,16 +66,17 @@ class ProcurementMonitoringIndex extends Component
     {
         $this->resetPage();
     }
+
     public function rules()
     {
         return [
             'pr_no' => 'required|string|max:255',
             'title' => 'required|string|max:500',
-            'processor' => 'nullable|string|max:255',
+            'processor' => 'required|string|max:255',
             'supplier' => 'nullable|string|max:255',
             'end_user' => 'nullable|string|max:255',
             'status' => 'nullable|string|max:255',
-            'date_endorsement' => 'nullable|date',
+            'date_endorsement' => 'nullable|date', // This rule is correct and sufficient with the mutator
             'specific_notes' => 'nullable|string|max:1000',
         ];
     }
@@ -86,15 +89,29 @@ class ProcurementMonitoringIndex extends Component
     protected $messages = [
         'pr_no.required' => 'PR No is required.',
         'title.required' => 'Title is required.',
+        'processor.required' => 'Processor is required.',
     ];
 
-    // Close modals
+    // Close modals and reset notification state
     public function closeModal()
     {
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
-        $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes', 'editMonitoringId', 'isEditModalOpen', 'isDeleteModalOpen', 'deletingMonitoringId']);
+        $this->reset([
+            'pr_no',
+            'title',
+            'processor',
+            'supplier',
+            'end_user',
+            'status',
+            'date_endorsement',
+            'specific_notes',
+            'editMonitoringId',
+            'deletingMonitoringId'
+        ]);
+        $this->resetValidation(); // Clear validation errors
+        $this->dismissNotification(); // Clear and hide notification
     }
 
     public function saveMonitoring()
@@ -106,6 +123,8 @@ class ProcurementMonitoringIndex extends Component
         }
     }
 
+    // loadMonitoring method seems redundant if closeModal resets fields.
+    // Keeping it here for now but consider removing if not used elsewhere.
     public function loadMonitoring()
     {
         $this->reset(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes']);
@@ -115,31 +134,34 @@ class ProcurementMonitoringIndex extends Component
     {
         Log::info('Attempting to add monitoring: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes'])));
         try {
-            $this->validate();
+            $validatedData = $this->validate();
 
-            ProcurementMonitoring::create([
-                'pr_no' => $this->pr_no,
-                'title' => $this->title,
-                'processor' => $this->processor,
-                'supplier' => $this->supplier,
-                'end_user' => $this->end_user,
-                'status' => $this->status,
-                'date_endorsement' => $this->date_endorsement,
-                'specific_notes' => $this->specific_notes,
-            ]);
+            // The model mutator will handle the empty string to null conversion for date_endorsement
+            ProcurementMonitoring::create($validatedData);
 
             $this->closeModal();
+            $this->notificationType = 'success'; // Set type for success
             $this->notificationMessage = 'Procurement Monitoring Added Successfully!';
             $this->showNotification = true;
-            $this->resetFields();
-            $this->dispatch('refreshProcurementMonitoring'); // Use $this->dispatch()
+            // No need for resetFields() here, closeModal() already calls reset on properties
+            $this->dispatch('refreshProcurementMonitoring');
             $this->dispatch('monitoringAdded');
+        } catch (ValidationException $e) {
+            Log::error('Validation error adding procurement record: ' . json_encode($e->errors()));
+            $this->notificationType = 'error'; // Set type for error
+            $this->notificationMessage = 'Validation failed: Please check the form for errors.';
+            $this->showNotification = true;
+            // Do not dispatch 'monitoringAddFailed' if it's a validation error, Livewire handles validation message display.
+            throw $e; // Re-throw to make Livewire display errors next to fields
         } catch (\Exception $e) {
             Log::error('Error adding procurement record: ' . $e->getMessage());
-            session()->flash('error', 'Error adding procurement record.');
+            $this->notificationType = 'error'; // Set type for error
+            $this->notificationMessage = 'Error adding procurement record: ' . $e->getMessage();
+            $this->showNotification = true;
             $this->dispatch('monitoringAddFailed');
         }
     }
+
     public function updateMonitoring()
     {
         Log::info('Attempting to update monitoring ID ' . $this->editMonitoringId . ' with data: ' . json_encode($this->only(['pr_no', 'title', 'processor', 'supplier', 'end_user', 'status', 'date_endorsement', 'specific_notes'])));
@@ -148,62 +170,79 @@ class ProcurementMonitoringIndex extends Component
             Log::info('Validated data for update: ' . json_encode($validatedData));
 
             $monitoring = ProcurementMonitoring::findOrFail($this->editMonitoringId);
+            // The model mutator will handle the empty string to null conversion for date_endorsement
             $monitoring->update($validatedData);
 
-            $this->resetFields();
+            $this->resetFields(); // This clears fields, ensure it's desired after update and before closing modal
             $this->closeModal();
+            $this->notificationType = 'success'; // Set type for success
             $this->notificationMessage = 'Procurement Monitoring Updated Successfully!';
             $this->showNotification = true;
             $this->dispatch('refreshProcurementMonitoring');
             $this->dispatch('monitoringUpdated');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation error during update: ' . $e->getMessage());
-            session()->flash('error', 'Validation error during update.');
-            $this->dispatch('monitoringUpdateFailed');
-            throw $e;
+        } catch (ValidationException $e) {
+            Log::error('Validation error during update: ' . json_encode($e->errors()));
+            $this->notificationType = 'error'; // Set type for error
+            $this->notificationMessage = 'Validation failed: Please check the form for errors.';
+            $this->showNotification = true;
+            // Do not dispatch 'monitoringUpdateFailed' if it's a validation error, Livewire handles validation message display.
+            throw $e; // Re-throw to make Livewire display errors next to fields
         } catch (\Exception $e) {
             Log::error('Error updating procurement record: ' . $e->getMessage());
-            session()->flash('error', 'Error updating procurement record.');
+            $this->notificationType = 'error'; // Set type for error
+            $this->notificationMessage = 'Error updating procurement record: ' . $e->getMessage();
+            $this->showNotification = true;
             $this->dispatch('monitoringUpdateFailed');
         }
     }
+
     public function deleteMonitoring()
     {
         Log::info('Attempting to delete monitoring ID: ' . $this->deletingMonitoringId);
         try {
-            $monitoring = ProcurementMonitoring::findOrFail($this->deletingMonitoringId); // Use findOrFail
+            $monitoring = ProcurementMonitoring::findOrFail($this->deletingMonitoringId);
             $monitoring->delete();
 
             $this->closeModal();
+            $this->notificationType = 'success'; // Set type for success
             $this->notificationMessage = 'Procurement Monitoring Deleted Successfully!';
             $this->showNotification = true;
-            $this->emitSelf('$refresh'); // Consider replacing emitSelf with dispatch for Livewire 3
-            $this->forceRender(); // This might not be necessary with refresh, test without first
+            $this->dispatch('refreshProcurementMonitoring');
             $this->dispatch('monitoringDeleted');
         } catch (\Exception $e) {
             Log::error('Error deleting procurement record: ' . $e->getMessage());
-            session()->flash('error', 'Error deleting procurement record.');
+            $this->notificationType = 'error'; // Set type for error
+            $this->notificationMessage = 'Error deleting procurement record: ' . $e->getMessage();
+            $this->showNotification = true;
             $this->dispatch('monitoringDeleteFailed');
         }
     }
+
     public function openAddModal()
     {
+        $this->resetFields();
+        $this->resetValidation();
+        $this->dismissNotification(); // Clear and hide notification
         $this->isAddModalOpen = true;
     }
 
-
+    // This method seems redundant if openEditModal is the one being used for opening the modal.
+    // It's effectively duplicated by openEditModal. Consider removing this if not called elsewhere.
     public function editMonitoring($id)
     {
         $monitoring = ProcurementMonitoring::findOrFail($id);
-        $this->monitoringId = $monitoring->id;
+        $this->monitoringId = $monitoring->id; // This property is not used for edit, editMonitoringId is.
         $this->pr_no = $monitoring->pr_no;
         $this->title = $monitoring->title;
         $this->processor = $monitoring->processor;
         $this->supplier = $monitoring->supplier;
         $this->end_user = $monitoring->end_user;
         $this->status = $monitoring->status;
-        $this->date_endorsement = $monitoring->date_endorsement ? $monitoring->date_endorsement->format('Y-m-d') : null;
+        // Format date for display: empty string if null, formatted date string otherwise
+        $this->date_endorsement = $monitoring->date_endorsement ? Carbon::parse($monitoring->date_endorsement)->format('Y-m-d') : '';
         $this->specific_notes = $monitoring->specific_notes;
+        $this->resetValidation();
+        $this->dismissNotification(); // Clear and hide notification
         $this->isEditModalOpen = true;
     }
 
@@ -218,8 +257,11 @@ class ProcurementMonitoringIndex extends Component
         $this->supplier = $monitoring->supplier;
         $this->end_user = $monitoring->end_user;
         $this->status = $monitoring->status;
-        $this->date_endorsement = $monitoring->date_endorsement ? $monitoring->date_endorsement->format('Y-m-d') : null;
+        // Format date for display: empty string if null, formatted date string otherwise
+        $this->date_endorsement = $monitoring->date_endorsement ? Carbon::parse($monitoring->date_endorsement)->format('Y-m-d') : '';
         $this->specific_notes = $monitoring->specific_notes;
+        $this->resetValidation();
+        $this->dismissNotification(); // Clear and hide notification
         $this->isEditModalOpen = true;
     }
 
@@ -228,17 +270,19 @@ class ProcurementMonitoringIndex extends Component
         Log::info('Opening delete modal for ID: ' . $monitoringId);
         $this->deletingMonitoringId = $monitoringId;
         $this->isDeleteModalOpen = true;
+        $this->dismissNotification(); // Clear and hide notification
     }
 
     public function dismissNotification()
     {
         $this->showNotification = false;
         $this->notificationMessage = '';
+        $this->notificationType = 'success'; // Reset to default success type
     }
 
     public function performSearch()
     {
-        $this->resetPage(); // Reset pagination when searching
+        $this->resetPage();
     }
 
     private function resetFields()
@@ -249,17 +293,14 @@ class ProcurementMonitoringIndex extends Component
         $this->supplier = '';
         $this->end_user = '';
         $this->status = '';
-        $this->date_endorsement = '';
+        $this->date_endorsement = ''; // Always reset to empty string for HTML input type="date"
         $this->specific_notes = '';
     }
 
-    // --- Helper method to build the base query with all filters ---
-    // --- Helper method to build the base query with all filters ---
     private function buildMonitoringQuery()
     {
         $today = Carbon::now()->startOfDay();
         $query = ProcurementMonitoring::query();
-
 
         if ($this->search) {
             $searchMonitoring = $this->search;
@@ -270,8 +311,13 @@ class ProcurementMonitoringIndex extends Component
                     ->orWhere('supplier', 'like', "%{$searchMonitoring}%")
                     ->orWhere('end_user', 'like', "%{$searchMonitoring}%")
                     ->orWhere('status', 'like', "%{$searchMonitoring}%")
-                    ->orWhereDate('date_endorsement', 'like', "%{$searchMonitoring}%")
                     ->orWhere('specific_notes', 'like', "%{$searchMonitoring}%");
+
+                // Special handling for date_endorsement search:
+                // If search input looks like a date, try to match it directly
+                if (strtotime($searchMonitoring) !== false) {
+                    $query->orWhereDate('date_endorsement', 'like', "%{$searchMonitoring}%");
+                }
             });
         }
 
@@ -284,7 +330,6 @@ class ProcurementMonitoringIndex extends Component
             });
         }
 
-        // New filtering logic based on endorsement days
         if ($this->filterDays === 'within_3_days') {
             $query->where('date_endorsement', '>=', $today->copy()->subDays(2)->toDateString())
                 ->where('date_endorsement', '<=', Carbon::now()->toDateString());
@@ -295,22 +340,13 @@ class ProcurementMonitoringIndex extends Component
             $query->where('date_endorsement', '<', $today->copy()->subDays(7)->toDateString());
         }
 
-        // IMPORTANT: Only apply year/month filters if they are actually selected AND valid.
-        // If 'date_endorsement' can be null or empty, these might filter out valid data.
-        // I've removed the default 'date('Y')' and 'date('m')' from mount() if you don't use these filters in your UI.
-        // Let's make sure they are only applied if the properties are explicitly set by user interaction.
-
-        // Re-added the checks for selectedYear and selectedMonth, but ensure they are ONLY
-        // applied if the property is not null and has a meaningful value from UI input.
-        // If your UI doesn't explicitly set these, data might disappear.
-        if ($this->selectedYear && $this->selectedYear !== 'all') { // Assuming 'all' could be an option in your UI
+        if ($this->selectedYear && $this->selectedYear !== 'all') {
             $query->whereYear('date_endorsement', $this->selectedYear);
         }
-        if ($this->selectedMonth && $this->selectedMonth !== 'all') { // Assuming 'all' could be an option in your UI
+        if ($this->selectedMonth && $this->selectedMonth !== 'all') {
             $query->whereMonth('date_endorsement', $this->selectedMonth);
         }
 
-        // Apply sorting
         if ($this->sortField && $this->sortDirection) {
             $query->orderBy($this->sortField, $this->sortDirection);
         }
@@ -327,50 +363,48 @@ class ProcurementMonitoringIndex extends Component
         ])->layout('layouts.app');
     }
 
-    // --- EXCEL EXPORT ---
     public function exportToExcel()
     {
-        // Get the filtered query
-        $exportQuery = $this->buildMonitoringQuery();
-
-        Log::info('Exporting ' . $exportQuery->count() . ' ProcurementMonitoring items to Excel.');
-
-        // Use the MonitoringExport class with the filtered query
-        return Excel::download(new MonitoringExport($exportQuery), 'procurement_monitoring.xlsx');
+        try {
+            $exportQuery = $this->buildMonitoringQuery();
+            Log::info('Exporting ' . $exportQuery->count() . ' ProcurementMonitoring items to Excel.');
+            return Excel::download(new MonitoringExport($exportQuery), 'procurement_monitoring.xlsx');
+        } catch (\Exception $e) {
+            Log::error('Error exporting items to Excel: ' . $e->getMessage());
+            $this->notificationType = 'error';
+            $this->notificationMessage = 'Failed to export to Excel: ' . $e->getMessage();
+            $this->showNotification = true;
+        }
     }
 
-    // --- PDF EXPORT ---
     public function exportToPDF()
     {
-        // Get the filtered query and retrieve the data
-        $data = $this->buildMonitoringQuery()->get();
+        try {
+            $data = $this->buildMonitoringQuery()->get();
+            Log::info('Exporting ' . $data->count() . ' ProcurementMonitoring items to PDF.');
 
-        Log::info('Exporting ' . $data->count() . ' ProcurementMonitoring items to PDF.');
+            $options = new Options();
+            $options->set('defaultFont', 'DejaVu Sans');
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isRemoteEnabled', true);
 
-        // Setup Dompdf options
-        $options = new Options();
-        $options->set('defaultFont', 'DejaVu Sans'); // Recommended for better UTF-8 support
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true); // Enable loading remote assets (images, CSS)
+            $dompdf = new Dompdf($options);
 
-        $dompdf = new Dompdf($options);
+            // Make sure the 'exports.monitoring_pdf' view exists and is correctly structured for PDF
+            $html = view('exports.monitoring_pdf', compact('data'))->render();
 
-        // Load the view for the PDF content
-        // Make sure you create this Blade view: resources/views/exports/procurement_monitoring_pdf.blade.php
-        $html = view('exports.monitoring_pdf', compact('data'))->render();
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'landscape');
+            $dompdf->render();
 
-        $dompdf->loadHtml($html);
-
-        // (Optional) Set paper size and orientation
-        $dompdf->setPaper('A4', 'landscape'); // or 'portrait'
-
-        // Render the HTML as PDF
-        $dompdf->render();
-
-        // Stream the file to the browser
-        return response()->streamDownload(function () use ($dompdf) {
-            echo $dompdf->output();
-        }, 'procurement_monitoring.pdf');
+            return response()->streamDownload(function () use ($dompdf) {
+                echo $dompdf->output();
+            }, 'procurement_monitoring.pdf');
+        } catch (\Exception $e) {
+            Log::error('Error exporting items to PDF: ' . $e->getMessage());
+            $this->notificationType = 'error';
+            $this->notificationMessage = 'Failed to export to PDF: ' . $e->getMessage();
+            $this->showNotification = true;
+        }
     }
 }
-

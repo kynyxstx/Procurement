@@ -1,30 +1,29 @@
 <div>
     @if ($showNotification)
-        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Success!</strong>
-            <span class="block sm:inline">{{ $notificationMessage }}</span>
-            <div class="mt-2 flex justify-end">
-                <button wire:click="dismissNotification"
-                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
+        <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
+                @if($notificationType === 'success') bg-green-500 text-white
+                @elseif($notificationType === 'error') bg-red-500 text-white
+                @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }" x-show="open"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-2" @click.away="open = false"
+            x-init="setTimeout(() => { open = false; }, 5000);">
+            <div class="flex items-center justify-between">
+                <span>{{ $notificationMessage }}</span>
+                <button @click="open = false" class="ml-4 text-white hover:text-gray-200 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
         </div>
     @endif
-    @if (session()->has('error'))
-        <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Error!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-            <div class="mt-2 flex justify-end">
-                <button onclick="this.parentNode.parentNode.remove();"
-                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
-                </button>
-            </div>
-        </div>
-    @endif
+
 
     <div>
         <div>
@@ -177,7 +176,15 @@
                                             </td>
                                             <td
                                                 class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
-                                                {{ number_format((float) preg_replace('/[^\d.]/', '', $item->unit_cost), 2) }}
+                                                @php
+                                                    preg_match('/([\d,.]+)/', $item->unit_cost, $matches);
+                                                    $number = isset($matches[1]) ? str_replace(',', '', $matches[1]) : null;
+                                                    $formatted = $number !== null ? number_format((float) $number, 2) : '';
+                                                    $display = $number !== null
+                                                        ? preg_replace('/([\d,.]+)/', $formatted, $item->unit_cost, 1)
+                                                        : $item->unit_cost;
+                                                @endphp
+                                                {{ $display }}
                                             </td>
                                             <td
                                                 class="py-2 px-4 border text-left align-top whitespace-nowrap break-words text-base">
@@ -191,7 +198,7 @@
                                     @endforeach
                                     @if ($items->isEmpty())
                                         <tr>
-                                            <td colspan="9" class="text-center py-4">No suppliers found.</td>
+                                            <td colspan="9" class="text-center py-4">No Item Procurement found.</td>
                                         </tr>
                                     @endif
                                 </tbody>

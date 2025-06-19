@@ -1,39 +1,25 @@
 <div>
     @if ($showNotification)
-        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Success!</strong>
-            <span class="block sm:inline">{{ $notificationMessage }}</span>
-            <div class="mt-2 flex justify-end">
-                <button wire:click="dismissNotification"
-                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
-                </button>
-            </div>
-        </div>
-    @endif
-    @if (session()->has('error'))
-        <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Error!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-            <div class="mt-2 flex justify-end">
-                <button onclick="this.parentNode.parentNode.remove();"
-                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
-                </button>
-            </div>
-        </div>
-    @endif
-    @if ($no_changes)
-        <div class="fixed top-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">No Changes!</strong>
-            <span class="block sm:inline">{{ $no_changes }}</span>
-            <div class="mt-2 flex justify-end">
-                <button wire:click="$set('no_changes', null)"
-                    class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
+        <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
+                            @if($notificationType === 'success') bg-green-500 text-white
+                            @elseif($notificationType === 'error') bg-red-500 text-white
+                            @else bg-blue-500 text-white @endif" 
+            x-data="{ open: @entangle('showNotification') }" x-show="open"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-2" @click.away="open = false" 
+            x-init="setTimeout(() => { open = false; }, 5000);">
+            <div class="flex items-center justify-between">
+                <span>{{ $notificationMessage }}</span>
+                <button @click="open = false" class="ml-4 text-white hover:text-gray-200 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -411,7 +397,7 @@
                                     </button>
                                 </div>
                                 <div>
-                                    <form wire:submit.prevent="saveSupplier" novalidate>
+                                    <form wire:submit.prevent="saveSupplier">
                                         <div class="mb-3">
                                             <label for="supplier_name"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Supplier
@@ -476,43 +462,43 @@
                                             @error('mobile_no')
                                                 <p class="text-red-500 text-xs">{{ $errors->first('mobile_no') }}</p>
                                             @enderror
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="telephone_no"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telephone
-                                                No.</label>
-                                            <input wire:model="telephone_no" type="text" id="telephone_no"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                placeholder="Enter Telephone No." />
-                                            @if(!empty($telephone_no) && preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
-                                                <span class="text-red-500 text-xs">Telephone number should only contain
-                                                    numbers.</span>
-                                            @endif
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="email_address"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email
-                                                Address</label>
-                                            <input wire:model="email_address" type="email" id="email_address"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                placeholder="Enter Email Address" />
-                                            @error('email_address')
-                                                <p class="text-red-500 text-xs">{{ $errors->first('email_address') }}</p>
-                                            @enderror
-                                        </div>
-                                        <div
-                                            class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
-                                            <button type="button" wire:click="closeModal"
-                                                class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-sm">Cancel</button>
-                                            <button type="submit"
-                                                class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 w-full sm:w-auto text-sm">
-                                                Add Supplier
-                                            </button>
-                                        </div>
-                                    </form>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="telephone_no"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telephone
+                                                    No.</label>
+                                                <input wire:model="telephone_no" type="text" id="telephone_no"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Telephone No." />
+                                                @if(!empty($telephone_no) && preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
+                                                    <span class="text-red-500 text-xs">Telephone number should only contain
+                                                        numbers.</span>
+                                                @endif
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="email_address"
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email
+                                                    Address</label>
+                                                <input wire:model="email_address" type="email" id="email_address"
+                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                    placeholder="Enter Email Address" />
+                                                @error('email_address')
+                                                    <p class="text-red-500 text-xs">{{ $errors->first('email_address') }}</p>
+                                                @enderror
+                                            </div>
+                                            <div
+                                                class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
+                                                <button type="button" wire:click="closeModal"
+                                                    class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-sm">Cancel</button>
+                                                <button type="submit"
+                                                    class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 w-full sm:w-auto text-sm">
+                                                    Add Supplier
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                     @endif
 
                     @if ($isEditModalOpen)

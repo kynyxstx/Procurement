@@ -11,6 +11,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException; // Import ValidationException
 
 class ProcurementOutgoingIndex extends Component
 {
@@ -39,7 +40,7 @@ class ProcurementOutgoingIndex extends Component
 
     public $showNotification = false;
     public string $notificationMessage = '';
-    public string $notificationType = 'success';
+    public string $notificationType = 'success'; // Already present, which is great!
 
     public $sortBy = 'received_date';
     public $sortDirection = 'asc';
@@ -67,7 +68,7 @@ class ProcurementOutgoingIndex extends Component
             'end_user' => 'required|string|max:255',
             'pr_no' => 'required|string|max:255',
             'particulars' => 'nullable|string|max:500',
-            'amount' => 'nullable|string',
+            'amount' => 'nullable|string', // Keeping as string due to possibility of non-numeric values or commas
             'creditor' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:500',
             'responsibility' => 'nullable|string|max:255',
@@ -75,7 +76,12 @@ class ProcurementOutgoingIndex extends Component
         ];
     }
 
-    protected $listeners = ['refreshProcurementMonitoring' => '$refresh']; // Note: This listener name seems to be for Monitoring, not Outgoing. You might want to update it if you use dispatch on the outgoing side.
+    protected $listeners = [
+        'refreshProcurementOutgoing' => '$refresh', // Changed listener name for consistency
+        // If you were dispatching 'notify' from other components and want it to trigger this Livewire component's notification,
+        // you would add a method like public function notify($message, $type = 'success') and listen to 'notify' here.
+        // For now, we're making this component self-contained for its notifications.
+    ];
 
     public function mount(): void
     {
@@ -85,7 +91,7 @@ class ProcurementOutgoingIndex extends Component
     public function updated(string $propertyName)
     {
         $this->validateOnly($propertyName);
-        if (in_array($propertyName, ['search', 'filterMonth', 'filterEndUser', 'filterReceivedby'])) { // Added other filters to trigger resetPage
+        if (in_array($propertyName, ['search', 'filterMonth', 'filterEndUser', 'filterReceivedby'])) {
             $this->performSearch();
         }
     }
@@ -99,10 +105,10 @@ class ProcurementOutgoingIndex extends Component
     {
         $this->showNotification = false;
         $this->notificationMessage = '';
-        $this->notificationType = 'success';
+        $this->notificationType = 'success'; // Reset to default success type
     }
 
-    // Close modals
+    // Close modals and reset form/notification state
     public function closeModal()
     {
         $this->isAddModalOpen = false;
@@ -119,10 +125,10 @@ class ProcurementOutgoingIndex extends Component
             'responsibility',
             'received_by',
             'editOutgoingId',
-            'isEditModalOpen',
-            'isDeleteModalOpen',
-            'deletingOutgoingId', // Added this to reset on close
+            'deletingOutgoingId',
         ]);
+        $this->resetValidation(); // Clear validation errors
+        $this->dismissNotification(); // Clear and hide notification
     }
 
     // Save Outgoing (Create or Update)
@@ -138,13 +144,14 @@ class ProcurementOutgoingIndex extends Component
     public function addOutgoing()
     {
         try {
-            $amount = str_replace(',', '', $this->amount);
-            $this->amount = $amount;
+            // Remove commas from amount before validation and saving
+            $this->amount = str_replace(',', '', $this->amount);
 
-            // Always parse and format the received_date for consistency
-            // The datetime-local input sends YYYY-MM-DDTHH:MM, Carbon::parse handles 'T'
+            // Format received_date for consistency if not empty
             if (!empty($this->received_date)) {
-                $this->received_date = Carbon::parse($this->received_date)->format('Y-m-d H:i:s'); // Added seconds for full precision
+                $this->received_date = Carbon::parse($this->received_date)->format('Y-m-d H:i:s');
+            } else {
+                $this->received_date = null; // Ensure null if empty for nullable database column
             }
 
             $validatedData = $this->validate();
@@ -152,20 +159,30 @@ class ProcurementOutgoingIndex extends Component
             ProcurementOutgoing::create($validatedData);
 
             $this->closeModal();
-            $this->resetFields();
-            $this->dispatch('notify', message: 'Procurement record added successfully!');
-            $this->dispatch('refreshProcurementOutgoing');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->dispatch('notify', message: 'Validation error occurred.', type: 'error');
-            Log::error('Validation error adding outgoing record: ' . $e->getMessage());
+            $this->notificationType = 'success'; // Set success type
+            $this->notificationMessage = 'Procurement record added successfully!';
+            $this->showNotification = true;
+            // No need for resetFields() here, closeModal() already calls reset on properties
+            $this->dispatch('refreshProcurementOutgoing'); // Dispatch to refresh table
+        } catch (ValidationException $e) {
+            Log::error('Validation error adding outgoing record: ' . json_encode($e->errors()));
+            $this->notificationType = 'error'; // Set error type
+            $this->notificationMessage = 'Validation failed. Please check the form for errors.';
+            $this->showNotification = true;
+            throw $e; // Re-throw to make Livewire display errors next to fields
         } catch (\Exception $e) {
             Log::error('Error adding procurement record: ' . $e->getMessage());
-            $this->dispatch('notify', message: 'Error adding procurement record.', type: 'error');
+            $this->notificationType = 'error'; // Set error type
+            $this->notificationMessage = 'Error adding procurement record: ' . $e->getMessage();
+            $this->showNotification = true;
         }
     }
 
     public function openAddModal()
     {
+        $this->resetFields(); // Ensure fields are clear
+        $this->resetValidation(); // Clear any previous validation errors
+        $this->dismissNotification(); // Clear and hide notification
         $this->isAddModalOpen = true;
     }
 
@@ -176,7 +193,7 @@ class ProcurementOutgoingIndex extends Component
             $this->editOutgoingId = $outgoingId;
             $this->received_date = $outgoing->received_date
                 ? (Carbon::parse($outgoing->received_date))->format('Y-m-d\TH:i')
-                : null;
+                : null; // Use null for empty date to correctly display in datetime-local input
             $this->end_user = $outgoing->end_user;
             $this->pr_no = $outgoing->pr_no;
             $this->particulars = $outgoing->particulars;
@@ -186,9 +203,13 @@ class ProcurementOutgoingIndex extends Component
             $this->responsibility = $outgoing->responsibility;
             $this->received_by = $outgoing->received_by;
 
+            $this->resetValidation(); // Clear any previous validation errors
+            $this->dismissNotification(); // Clear and hide notification
             $this->isEditModalOpen = true;
         } else {
-            $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
+            $this->notificationType = 'error'; // Set error type
+            $this->notificationMessage = 'Procurement record not found.';
+            $this->showNotification = true;
         }
     }
 
@@ -196,8 +217,11 @@ class ProcurementOutgoingIndex extends Component
     public function updateOutgoing()
     {
         try {
+            // Format received_date for consistency if not empty
             if (!empty($this->received_date)) {
                 $this->received_date = Carbon::parse($this->received_date)->format('Y-m-d H:i:s');
+            } else {
+                $this->received_date = null; // Ensure null if empty for nullable database column
             }
 
             // Remove commas before saving to DB
@@ -209,17 +233,26 @@ class ProcurementOutgoingIndex extends Component
                 $outgoing->update($validatedData);
                 $this->resetFields();
                 $this->closeModal();
-                $this->dispatch('notify', message: 'Procurement record updated successfully!');
+                $this->notificationType = 'success'; // Set success type
+                $this->notificationMessage = 'Procurement record updated successfully!';
+                $this->showNotification = true;
                 $this->dispatch('refreshProcurementOutgoing');
             } else {
-                $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
+                $this->notificationType = 'error'; // Set error type
+                $this->notificationMessage = 'Procurement record not found.';
+                $this->showNotification = true;
             }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->dispatch('notify', message: 'Validation error occurred.', type: 'error');
-            Log::error('Validation error updating outgoing record: ' . $e->getMessage());
+        } catch (ValidationException $e) {
+            Log::error('Validation error updating outgoing record: ' . json_encode($e->errors()));
+            $this->notificationType = 'error'; // Set error type
+            $this->notificationMessage = 'Validation failed. Please check the form for errors.';
+            $this->showNotification = true;
+            throw $e; // Re-throw to make Livewire display errors next to fields
         } catch (\Exception $e) {
             Log::error('Error updating procurement record: ' . $e->getMessage());
-            $this->dispatch('notify', message: 'Error updating procurement record.', type: 'error');
+            $this->notificationType = 'error'; // Set error type
+            $this->notificationMessage = 'Error updating procurement record: ' . $e->getMessage();
+            $this->showNotification = true;
         }
     }
 
@@ -227,6 +260,7 @@ class ProcurementOutgoingIndex extends Component
     {
         $this->deletingOutgoingId = $outgoingId;
         $this->isDeleteModalOpen = true;
+        $this->dismissNotification(); // Clear and hide notification
     }
 
     public function deleteOutgoing()
@@ -236,14 +270,20 @@ class ProcurementOutgoingIndex extends Component
             if ($outgoing) {
                 $outgoing->delete();
                 $this->closeModal();
-                $this->dispatch('notify', message: 'Procurement record deleted successfully!');
-                $this->dispatch('refreshProcurementOutgoing'); // Added dispatch for refresh
+                $this->notificationType = 'success'; // Set success type
+                $this->notificationMessage = 'Procurement record deleted successfully!';
+                $this->showNotification = true;
+                $this->dispatch('refreshProcurementOutgoing'); // Dispatch to refresh table
             } else {
-                $this->dispatch('notify', message: 'Procurement record not found.', type: 'error');
+                $this->notificationType = 'error'; // Set error type
+                $this->notificationMessage = 'Procurement record not found.';
+                $this->showNotification = true;
             }
         } catch (\Exception $e) {
             Log::error('Error deleting procurement record: ' . $e->getMessage());
-            $this->dispatch('notify', message: 'Error deleting procurement record.', type: 'error');
+            $this->notificationType = 'error'; // Set error type
+            $this->notificationMessage = 'Error deleting procurement record: ' . $e->getMessage();
+            $this->showNotification = true;
         }
     }
 
@@ -270,18 +310,23 @@ class ProcurementOutgoingIndex extends Component
     {
         $query = ProcurementOutgoing::query()
             ->when($this->search, function ($query) {
-                $query->where('received_date', 'like', '%' . $this->search . '%')
-                    ->orWhere('end_user', 'like', '%' . $this->search . '%')
-                    ->orWhere('pr_no', 'like', '%' . $this->search . '%')
-                    ->orWhere('particulars', 'like', '%' . $this->search . '%')
-                    ->orWhere('amount', 'like', '%' . $this->search . '%')
-                    ->orWhere('creditor', 'like', '%' . $this->search . '%')
-                    ->orWhere('remarks', 'like', '%' . $this->search . '%')
-                    ->orWhere('responsibility', 'like', '%' . $this->search . '%')
-                    ->orWhere('received_by', 'like', '%' . $this->search . '%');
+                $searchLower = strtolower($this->search);
+                $query->where(function ($query) use ($searchLower) {
+                    $query->where('received_date', 'like', '%' . $searchLower . '%')
+                        ->orWhereRaw('LOWER(end_user) LIKE ?', ['%' . $searchLower . '%'])
+                        ->orWhereRaw('LOWER(pr_no) LIKE ?', ['%' . $searchLower . '%'])
+                        ->orWhereRaw('LOWER(particulars) LIKE ?', ['%' . $searchLower . '%'])
+                        ->orWhereRaw('LOWER(amount) LIKE ?', ['%' . $searchLower . '%'])
+                        ->orWhereRaw('LOWER(creditor) LIKE ?', ['%' . $searchLower . '%'])
+                        ->orWhereRaw('LOWER(remarks) LIKE ?', ['%' . $searchLower . '%'])
+                        ->orWhereRaw('LOWER(responsibility) LIKE ?', ['%' . $searchLower . '%'])
+                        ->orWhereRaw('LOWER(received_by) LIKE ?', ['%' . $searchLower . '%']);
+                });
             })
             ->when($this->filterMonth, function ($query) {
-                $query->whereMonth('received_date', date('m', strtotime($this->filterMonth)));
+                // Assuming filterMonth is 'YYYY-MM' format, or just 'MM'
+                // For 'MM', you'd need the current year context if applicable
+                $query->whereMonth('received_date', Carbon::parse($this->filterMonth)->month);
             });
 
         if ($this->filterEndUser) {
@@ -320,47 +365,60 @@ class ProcurementOutgoingIndex extends Component
     // --- EXCEL EXPORT ---
     public function exportToExcel()
     {
-        // Get the filtered query
-        $exportQuery = $this->buildOutgoingQuery();
+        try {
+            // Get the filtered query
+            $exportQuery = $this->buildOutgoingQuery();
 
-        Log::info('Exporting ' . $exportQuery->count() . ' ProcurementOutgoing items to Excel.');
+            Log::info('Exporting ' . $exportQuery->count() . ' ProcurementOutgoing items to Excel.');
 
-        // Use the OutgoingExport class with the filtered query
-        // Ensure that Maatwebsite\Excel is correctly imported: use Maatwebsite\Excel\Facades\Excel;
-        return Excel::download(new OutgoingExport($exportQuery), 'procurement_outgoing.xlsx');
+            // Use the OutgoingExport class with the filtered query
+            return Excel::download(new OutgoingExport($exportQuery), 'procurement_outgoing.xlsx');
+        } catch (\Exception $e) {
+            Log::error('Error exporting items to Excel: ' . $e->getMessage());
+            $this->notificationType = 'error';
+            $this->notificationMessage = 'Failed to export to Excel: ' . $e->getMessage();
+            $this->showNotification = true;
+        }
     }
 
     // --- PDF EXPORT ---
     public function exportToPDF()
     {
-        // Get the filtered query and retrieve the data
-        $data = $this->buildOutgoingQuery()->get();
+        try {
+            // Get the filtered query and retrieve the data
+            $data = $this->buildOutgoingQuery()->get();
 
-        Log::info('Exporting ' . $data->count() . ' ProcurementOutgoing items to PDF.');
+            Log::info('Exporting ' . $data->count() . ' ProcurementOutgoing items to PDF.');
 
-        // Setup Dompdf options
-        $options = new Options();
-        $options->set('defaultFont', 'DejaVu Sans');
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true); // Enable loading remote assets (images, CSS)
+            // Setup Dompdf options
+            $options = new Options();
+            $options->set('defaultFont', 'DejaVu Sans');
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isRemoteEnabled', true); // Enable loading remote assets (images, CSS)
 
-        $dompdf = new Dompdf($options);
+            $dompdf = new Dompdf($options);
 
-        // Load the view for the PDF content
-        // Make sure you create this Blade view: resources/views/exports/outgoing_pdf.blade.php
-        $html = view('exports.outgoing_pdf', compact('data'))->render();
+            // Load the view for the PDF content
+            // Make sure you create this Blade view: resources/views/exports/outgoing_pdf.blade.php
+            $html = view('exports.outgoing_pdf', compact('data'))->render();
 
-        $dompdf->loadHtml($html);
+            $dompdf->loadHtml($html);
 
-        // (Optional) Set paper size and orientation
-        $dompdf->setPaper('A4', 'landscape'); // or 'portrait' - adjust as needed for many columns
+            // (Optional) Set paper size and orientation
+            $dompdf->setPaper('A4', 'landscape'); // or 'portrait' - adjust as needed for many columns
 
-        // Render the HTML as PDF
-        $dompdf->render();
+            // Render the HTML as PDF
+            $dompdf->render();
 
-        // Stream the file to the browser
-        return response()->streamDownload(function () use ($dompdf) {
-            echo $dompdf->output();
-        }, 'procurement_outgoing.pdf');
+            // Stream the file to the browser
+            return response()->streamDownload(function () use ($dompdf) {
+                echo $dompdf->output();
+            }, 'procurement_outgoing.pdf');
+        } catch (\Exception $e) {
+            Log::error('Error exporting items to PDF: ' . $e->getMessage());
+            $this->notificationType = 'error';
+            $this->notificationMessage = 'Failed to export to PDF: ' . $e->getMessage();
+            $this->showNotification = true;
+        }
     }
 }

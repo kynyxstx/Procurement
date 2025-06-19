@@ -1,26 +1,24 @@
 <div>
     @if ($showNotification)
-        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Success!</strong>
-            <span class="block sm:inline">{{ $notificationMessage }}</span>
-            <div class="mt-2 flex justify-end">
-                <button wire:click="dismissNotification"
-                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
-                </button>
-            </div>
-        </div>
-    @endif
-    @if (session()->has('error'))
-        <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Error!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-            <div class="mt-2 flex justify-end">
-                <button onclick="this.parentNode.parentNode.remove();"
-                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
+        <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
+                        @if($notificationType === 'success') bg-green-500 text-white
+                        @elseif($notificationType === 'error') bg-red-500 text-white
+                        @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }"
+            x-show="open" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-2" @click.away="open = false"
+            x-init="setTimeout(() => { open = false; }, 5000);">
+            <div class="flex items-center justify-between">
+                <span>{{ $notificationMessage }}</span>
+                <button @click="open = false" class="ml-4 text-white hover:text-gray-200 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -329,21 +327,6 @@
                         });
                     </script>
 
-
-                    @if ($showNotification)
-                        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
-                            role="alert">
-                            <strong class="font-bold">Success!</strong>
-                            <span class="block sm:inline">{{ $notificationMessage }}</span>
-                            <div class="mt-2 flex justify-end">
-                                <button wire:click="dismissNotification"
-                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                    OK
-                                </button>
-                            </div>
-                        </div>
-                    @endif
-
                     @if ($isAddModalOpen)
                         <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-2 sm:p-0"
                             wire:ignore>
@@ -424,12 +407,15 @@
                                         <div class="mb-2">
                                             <label for="date_endorsement"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date
-                                                of
-                                                Endorsement</label>
-                                            <input wire:model="date_endorsement" type="date" id="date_endorsement"
+                                                of Endorsement</label>
+                                            <input wire:model.lazy="date_endorsement" type="date" id="date_endorsement"
                                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                                 min="1900-01-01" max="2099-12-31" pattern="\d{4}-\d{2}-\d{2}"
-                                                oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);">
+                                                oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);" />
+                                            <button type="button" class="mt-1 text-xs text-blue-600 underline"
+                                                wire:click="$set('date_endorsement', '')">
+                                                Clear Date
+                                            </button>
                                             @error('date_endorsement')
                                                 <p class="text-red-500 text-sm">
                                                     {{ $errors->first('date_endorsement') }}
@@ -492,7 +478,7 @@
                                         <div class="mb-2">
                                             <label for="title"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
-                                            <textarea wire:model="title" type="text" id="title"
+                                            <textarea wire:model="title" id="title"
                                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Title" required></textarea>
                                             @error('title')
@@ -582,6 +568,7 @@
                             </div>
                         </div>
                     @endif
+
                     @if ($isDeleteModalOpen)
                         <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
                             <div

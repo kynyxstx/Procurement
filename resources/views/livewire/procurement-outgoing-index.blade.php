@@ -1,30 +1,29 @@
 <div>
     @if ($showNotification)
-        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Success!</strong>
-            <span class="block sm:inline">{{ $notificationMessage }}</span>
-            <div class="mt-2 flex justify-end">
-                <button wire:click="dismissNotification"
-                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
+        <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
+            @if($notificationType === 'success') bg-green-500 text-white
+            @elseif($notificationType === 'error') bg-red-500 text-white
+            @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }" x-show="open"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-2" @click.away="open = false"
+            x-init="setTimeout(() => { open = false; }, 5000);">
+            <div class="flex items-center justify-between">
+                <span>{{ $notificationMessage }}</span>
+                <button @click="open = false" class="ml-4 text-white hover:text-gray-200 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
         </div>
     @endif
-    @if (session()->has('error'))
-        <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-md z-50"
-            role="alert">
-            <strong class="font-bold">Error!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-            <div class="mt-2 flex justify-end">
-                <button onclick="this.parentNode.parentNode.remove();"
-                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    OK
-                </button>
-            </div>
-        </div>
-    @endif
+
 
     <div>
         <div>
@@ -243,7 +242,7 @@
                                     @endforeach
                                     @if ($outgoings->isEmpty())
                                         <tr>
-                                            <td colspan="9" class="text-center py-4">No suppliers found.</td>
+                                            <td colspan="9" class="text-center py-4">No procurement outgoing found.</td>
                                         </tr>
                                     @endif
                                 </tbody>
@@ -380,7 +379,7 @@
                                     </button>
                                 </div>
                                 <div>
-                                    <form wire:submit.prevent="saveOutgoing" novalidate>
+                                    <form wire:submit.prevent="saveOutgoing">
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                                             <div>
                                                 <label for="received_date"
@@ -420,7 +419,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Creditor</label>
                                                 <input wire:model="creditor" type="text" id="creditor"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Creditor" required />
+                                                    placeholder="Enter Creditor" />
                                                 @error('creditor')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('creditor') }}</p>
                                                 @enderror
@@ -430,7 +429,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
                                                 <input wire:model="amount" type="text" id="amount"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
+                                                    placeholder="Enter Amount" pattern="^\d*\.?\d*$"
                                                     oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                                                 @error('amount')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('amount') }}</p>
@@ -444,7 +443,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Responsibility</label>
                                                 <input wire:model="responsibility" type="text" id="responsibility"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Responsibility" required />
+                                                    placeholder="Enter Responsibility" />
                                                 @error('responsibility')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('responsibility') }}
                                                     </p>
@@ -455,7 +454,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Particulars</label>
                                                 <textarea wire:model="particulars" id="particulars"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Particulars" required rows="2"></textarea>
+                                                    placeholder="Enter Particulars" rows="2"></textarea>
                                                 @error('particulars')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('particulars') }}</p>
                                                 @enderror
@@ -465,7 +464,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
                                                 <textarea wire:model="remarks" id="remarks"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Remarks" required rows="2"></textarea>
+                                                    placeholder="Enter Remarks" rows="2"></textarea>
                                                 @error('remarks')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('remarks') }}</p>
                                                 @enderror
@@ -476,7 +475,7 @@
                                                     By</label>
                                                 <input wire:model="received_by" type="text" id="received_by"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Received By" required />
+                                                    placeholder="Enter Received By" />
                                                 @error('received_by')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('received_by') }}</p>
                                                 @enderror
@@ -560,7 +559,7 @@
                                     </button>
                                 </div>
                                 <div>
-                                    <form wire:submit.prevent="updateOutgoing" novalidate>
+                                    <form wire:submit.prevent="updateOutgoing">
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                                             <div>
                                                 <label for="received_date"
@@ -600,7 +599,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Creditor</label>
                                                 <input wire:model="creditor" type="text" id="creditor"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Creditor" required />
+                                                    placeholder="Enter Creditor" />
                                                 @error('creditor')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('creditor') }}</p>
                                                 @enderror
@@ -610,7 +609,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
                                                 <input wire:model="amount" type="text" id="amount"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Amount" required pattern="^\d*\.?\d*$"
+                                                    placeholder="Enter Amount" pattern="^\d*\.?\d*$"
                                                     oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
                                                 @error('amount')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('amount') }}</p>
@@ -621,7 +620,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Responsibility</label>
                                                 <input wire:model="responsibility" type="text" id="responsibility"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Responsibility" required />
+                                                    placeholder="Enter Responsibility" />
                                                 @error('responsibility')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('responsibility') }}
                                                     </p>
@@ -632,7 +631,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Particulars</label>
                                                 <textarea wire:model="particulars" id="particulars"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Particulars" required rows="2"></textarea>
+                                                    placeholder="Enter Particulars" rows="2"></textarea>
                                                 @error('particulars')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('particulars') }}</p>
                                                 @enderror
@@ -642,7 +641,7 @@
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
                                                 <textarea wire:model="remarks" id="remarks"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Remarks" required rows="2"></textarea>
+                                                    placeholder="Enter Remarks" rows="2"></textarea>
                                                 @error('remarks')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('remarks') }}</p>
                                                 @enderror
@@ -653,7 +652,7 @@
                                                     By</label>
                                                 <input wire:model="received_by" type="text" id="received_by"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Received By" required />
+                                                    placeholder="Enter Received By" />
                                                 @error('received_by')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('received_by') }}</p>
                                                 @enderror

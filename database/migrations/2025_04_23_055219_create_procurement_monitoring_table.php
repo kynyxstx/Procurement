@@ -15,10 +15,11 @@ return new class extends Migration {
             $table->string('pr_no');
             $table->string('title');
             $table->string('processor');
-            $table->string('supplier');
-            $table->string('end-user');
-            $table->string('status');
-            $table->dateTime('date_endorsement');
+            $table->string('supplier')->nullable();
+            $table->string('end-user')->nullable();
+            $table->string('status')->nullable();
+            $table->dateTime('date_endorsement')->nullable();
+            $table->text('specific_notes')->nullable();
             $table->timestamps();
         });
     }
