@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException; // Import ValidationException
+use Illuminate\Validation\ValidationException;
 
 class ProcurementMonitoringIndex extends Component
 {
@@ -23,7 +23,7 @@ class ProcurementMonitoringIndex extends Component
     public $supplier = '';
     public $end_user = '';
     public $status = '';
-    public $date_endorsement = ''; // Keep as empty string for HTML input type="date"
+    public $date_endorsement = '';
     public $specific_notes = '';
 
     public $monitoringId;
