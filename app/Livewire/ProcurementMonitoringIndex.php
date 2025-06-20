@@ -38,7 +38,7 @@ class ProcurementMonitoringIndex extends Component
     public $isAddModalOpen = false;
     public $showNotification = false;
     public $notificationMessage = '';
-    public $notificationType = 'success'; // Add this property for message box styling
+    public $notificationType = 'success';
 
     public $selectedYear;
     public $selectedMonth;
@@ -313,8 +313,7 @@ class ProcurementMonitoringIndex extends Component
                     ->orWhere('status', 'like', "%{$searchMonitoring}%")
                     ->orWhere('specific_notes', 'like', "%{$searchMonitoring}%");
 
-                // Special handling for date_endorsement search:
-                // If search input looks like a date, try to match it directly
+
                 if (strtotime($searchMonitoring) !== false) {
                     $query->orWhereDate('date_endorsement', 'like', "%{$searchMonitoring}%");
                 }

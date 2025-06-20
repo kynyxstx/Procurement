@@ -1,9 +1,9 @@
 <div>
     @if ($showNotification)
         <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
-                        @if($notificationType === 'success') bg-green-500 text-white
-                        @elseif($notificationType === 'error') bg-red-500 text-white
-                        @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }"
+                                    @if($notificationType === 'success') bg-green-500 text-white
+                                    @elseif($notificationType === 'error') bg-red-500 text-white
+                                    @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }"
             x-show="open" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 transform translate-y-2"
             x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -54,7 +54,7 @@
                                     <option value="Bernadette De Castro">Bernadette</option>
                                     <option value="Chester Aranda">Chester</option>
                                     <option value="Darryl Ivan Bernardo">DADA</option>
-                                    <option value="Jeremiah Canlas">Jeremiah</option>
+                                    <option value="Jeremiah Canlas">Jeremy</option>
                                     <option value="Joshua Mhir Aviñante">JM</option>
                                     <option value="Ma. Christina Millan">MC</option>
                                     <option value="Norven Abejuela">Norven</option>
