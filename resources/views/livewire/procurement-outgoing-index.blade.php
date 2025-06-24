@@ -1,9 +1,10 @@
 <div>
     @if ($showNotification)
         <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
-            @if($notificationType === 'success') bg-green-500 text-white
-            @elseif($notificationType === 'error') bg-red-500 text-white
-            @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }" x-show="open"
+                                        @if($notificationType === 'success') bg-green-500 text-white
+                                        @elseif($notificationType === 'error') bg-red-500 text-white
+                                        @else bg-blue-500 text-white @endif"
+            x-data=" { open: @entangle('showNotification') }" x-show="open"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 transform translate-y-2"
             x-transition:enter-end="opacity-100 transform translate-y-0"
@@ -531,22 +532,32 @@
                         </style>
                     @endif
 
-                    <script>
-                        document.addEventListener('livewire:load', function () {
-                            const amountInput = document.getElementById('amount');
-
-                            if (amountInput) {
-                                amountInput.addEventListener('blur', function () {
-                                    this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
-                                    @this.set('amount', this.value);
-                                });
-                            }
-                        });
-                    </script>
-
                     @if ($isEditModalOpen)
                         <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0"
-                            wire:ignore>
+                            x-data="{
+                                                        amountValue: @entangle('amount'), // Bind to Livewire's amount property
+                                                        formatAmount(value) {
+                                                            const numericValue = parseFloat(String(value).replace(/[^0-9.]/g, ''));
+                                                            if (isNaN(numericValue)) {
+                                                                return '';
+                                                            }
+                                                            return numericValue.toLocaleString('en-US', {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            });
+                                                        },
+                                                        init() {
+                                                            // Listen for the event dispatched when modal opens to set initial formatted value
+                                                            Livewire.on('outgoingEditModalOpened', ({ amount }) => {
+                                                                this.$nextTick(() => { // Ensure DOM is updated before trying to set value
+                                                                    const amountInput = document.getElementById('amount');
+                                                                    if (amountInput) {
+                                                                        amountInput.value = this.formatAmount(amount);
+                                                                    }
+                                                                });
+                                                            });
+                                                        }
+                                                    }" x-init="init()">
                             <div
                                 class="bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto max-h-[95vh] overflow-y-auto">
                                 <div class="flex justify-between items-center mb-2 sm:mb-4">
@@ -607,10 +618,14 @@
                                             <div>
                                                 <label for="amount"
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
-                                                <input wire:model="amount" type="text" id="amount"
+                                                <input x-model="amountValue" {{-- Use x-model for display, wire:model is
+                                                    removed --}}
+                                                    @blur="amountValue = formatAmount(amountValue); $wire.set('amount', parseFloat(String(amountValue).replace(/[^0-9.]/g, '')).toFixed(2))"
+                                                    {{-- On blur, format for display and send clean to Livewire --}}
+                                                    @focus="amountValue = String(amountValue).replace(/,/g, '')" {{-- On
+                                                    focus, remove commas for editing --}} type="text" id="amount"
                                                     class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Amount" pattern="^\d*\.?\d*$"
-                                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
+                                                    placeholder="Enter Amount" />
                                                 @error('amount')
                                                     <p class="text-red-500 text-xs">{{ $errors->first('amount') }}</p>
                                                 @enderror
@@ -670,42 +685,42 @@
                                     </form>
                                 </div>
                             </div>
+                            <style>
+                                @media (max-width: 640px) {
+                                    .max-w-lg {
+                                        max-width: 99vw !important;
+                                    }
+
+                                    .p-2,
+                                    .sm\:p-4 {
+                                        padding: 0.5rem !important;
+                                    }
+
+                                    .text-base,
+                                    .sm\:text-lg {
+                                        font-size: 1rem !important;
+                                    }
+
+                                    .text-lg,
+                                    .sm\:text-xl {
+                                        font-size: 1.1rem !important;
+                                    }
+
+                                    input,
+                                    textarea {
+                                        font-size: 1rem !important;
+                                    }
+
+                                    label {
+                                        font-size: 0.95rem !important;
+                                    }
+
+                                    .rounded-lg {
+                                        border-radius: 0.75rem !important;
+                                    }
+                                }
+                            </style>
                         </div>
-                        <style>
-                            @media (max-width: 640px) {
-                                .max-w-lg {
-                                    max-width: 99vw !important;
-                                }
-
-                                .p-2,
-                                .sm\:p-4 {
-                                    padding: 0.5rem !important;
-                                }
-
-                                .text-base,
-                                .sm\:text-lg {
-                                    font-size: 1rem !important;
-                                }
-
-                                .text-lg,
-                                .sm\:text-xl {
-                                    font-size: 1.1rem !important;
-                                }
-
-                                input,
-                                textarea {
-                                    font-size: 1rem !important;
-                                }
-
-                                label {
-                                    font-size: 0.95rem !important;
-                                }
-
-                                .rounded-lg {
-                                    border-radius: 0.75rem !important;
-                                }
-                            }
-                        </style>
                     @endif
 
                     @if ($isDeleteModalOpen)

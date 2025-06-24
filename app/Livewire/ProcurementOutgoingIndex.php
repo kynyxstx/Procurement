@@ -11,7 +11,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-use Illuminate\Validation\ValidationException; // Import ValidationException
+use Illuminate\Validation\ValidationException;
 
 class ProcurementOutgoingIndex extends Component
 {
@@ -40,10 +40,14 @@ class ProcurementOutgoingIndex extends Component
 
     public $showNotification = false;
     public string $notificationMessage = '';
-    public string $notificationType = 'success'; // Already present, which is great!
+    public string $notificationType = 'success';
+    public $no_changes = null; // Add this property for the "no changes" message
 
     public $sortBy = 'received_date';
     public $sortDirection = 'asc';
+
+    // *** Add this public property for storing original data ***
+    public $originalOutgoingData = [];
 
     public function setSortBy($sortField)
     {
@@ -76,21 +80,12 @@ class ProcurementOutgoingIndex extends Component
         ];
     }
 
-    protected $listeners = [
-        'refreshProcurementOutgoing' => '$refresh', // Changed listener name for consistency
-        // If you were dispatching 'notify' from other components and want it to trigger this Livewire component's notification,
-        // you would add a method like public function notify($message, $type = 'success') and listen to 'notify' here.
-        // For now, we're making this component self-contained for its notifications.
-    ];
-
-    public function mount(): void
-    {
-        $this->resetPage();
-    }
-
     public function updated(string $propertyName)
     {
-        $this->validateOnly($propertyName);
+        // Only validate if a validation rule exists for the property
+        if (array_key_exists($propertyName, $this->rules())) {
+            $this->validateOnly($propertyName);
+        }
         if (in_array($propertyName, ['search', 'filterMonth', 'filterEndUser', 'filterReceivedby'])) {
             $this->performSearch();
         }
@@ -114,6 +109,7 @@ class ProcurementOutgoingIndex extends Component
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
+        // Reset properties explicitly or use reset method
         $this->reset([
             'received_date',
             'end_user',
@@ -126,8 +122,10 @@ class ProcurementOutgoingIndex extends Component
             'received_by',
             'editOutgoingId',
             'deletingOutgoingId',
+            'originalOutgoingData', // *** Ensure this is reset too ***
         ]);
         $this->resetValidation(); // Clear validation errors
+        $this->no_changes = null; // Clear the no changes message
         $this->dismissNotification(); // Clear and hide notification
     }
 
@@ -180,7 +178,21 @@ class ProcurementOutgoingIndex extends Component
 
     public function openAddModal()
     {
-        $this->resetFields(); // Ensure fields are clear
+        // *** REMOVED: $this->resetFields(); ***
+        $this->reset([ // Reset all relevant properties here, same as in closeModal
+            'received_date',
+            'end_user',
+            'pr_no',
+            'particulars',
+            'amount',
+            'creditor',
+            'remarks',
+            'responsibility',
+            'received_by',
+            'editOutgoingId', // Reset edit ID in case it was somehow set
+            'deletingOutgoingId', // Reset delete ID
+            'originalOutgoingData', // Reset original data
+        ]);
         $this->resetValidation(); // Clear any previous validation errors
         $this->dismissNotification(); // Clear and hide notification
         $this->isAddModalOpen = true;
@@ -191,20 +203,39 @@ class ProcurementOutgoingIndex extends Component
         $outgoing = ProcurementOutgoing::find($outgoingId);
         if ($outgoing) {
             $this->editOutgoingId = $outgoingId;
+
+            // Assign values to public properties
             $this->received_date = $outgoing->received_date
                 ? (Carbon::parse($outgoing->received_date))->format('Y-m-d\TH:i')
                 : null; // Use null for empty date to correctly display in datetime-local input
             $this->end_user = $outgoing->end_user;
             $this->pr_no = $outgoing->pr_no;
             $this->particulars = $outgoing->particulars;
-            $this->amount = is_numeric($outgoing->amount) ? number_format($outgoing->amount, 2) : $outgoing->amount;
+            // Format amount for display, but keep original if not numeric for string comparison
+            $this->amount = is_numeric($outgoing->amount) ? number_format($outgoing->amount, 2, '.', '') : (string) $outgoing->amount;
             $this->creditor = $outgoing->creditor;
             $this->remarks = $outgoing->remarks;
             $this->responsibility = $outgoing->responsibility;
             $this->received_by = $outgoing->received_by;
 
+            // *** Store original data for comparison ***
+            $this->originalOutgoingData = [
+                'received_date' => (string) ($outgoing->received_date ? Carbon::parse($outgoing->received_date)->format('Y-m-d H:i:s') : ''),
+                'end_user' => (string) $outgoing->end_user,
+                'pr_no' => (string) $outgoing->pr_no,
+                'particulars' => (string) $outgoing->particulars,
+                'amount' => (string) $outgoing->amount, // Store raw amount for accurate comparison with validated amount
+                'creditor' => (string) $outgoing->creditor,
+                'remarks' => (string) $outgoing->remarks,
+                'responsibility' => (string) $outgoing->responsibility,
+                'received_by' => (string) $outgoing->received_by,
+            ];
+
+            Log::debug('Original Outgoing Data stored: ', $this->originalOutgoingData);
+
             $this->resetValidation(); // Clear any previous validation errors
             $this->dismissNotification(); // Clear and hide notification
+            $this->no_changes = null; // Clear any previous "no changes" message
             $this->isEditModalOpen = true;
         } else {
             $this->notificationType = 'error'; // Set error type
@@ -217,31 +248,83 @@ class ProcurementOutgoingIndex extends Component
     public function updateOutgoing()
     {
         try {
-            // Format received_date for consistency if not empty
+            $outgoing = ProcurementOutgoing::find($this->editOutgoingId);
+
+            if (!$outgoing) {
+                $this->notificationType = 'error';
+                $this->notificationMessage = 'Procurement record not found.';
+                $this->showNotification = true;
+                return;
+            }
+
+            // Prepare current data for comparison, ensuring nulls are handled consistently as empty strings
+            // and amount has commas removed for comparison with original DB value
+            $currentData = [
+                'received_date' => (string) ($this->received_date ? Carbon::parse($this->received_date)->format('Y-m-d H:i:s') : ''),
+                'end_user' => (string) $this->end_user,
+                'pr_no' => (string) $this->pr_no,
+                'particulars' => (string) $this->particulars,
+                'amount' => (string) str_replace(',', '', $this->amount), // Remove commas for comparison
+                'creditor' => (string) $this->creditor,
+                'remarks' => (string) $this->remarks,
+                'responsibility' => (string) $this->responsibility,
+                'received_by' => (string) $this->received_by,
+            ];
+
+            Log::debug('Current Outgoing Data for comparison: ', $currentData);
+            Log::debug('Original Outgoing Data for comparison: ', $this->originalOutgoingData);
+
+            $changesMade = false;
+            foreach ($currentData as $key => $currentValue) {
+                $originalValue = (string) ($this->originalOutgoingData[$key] ?? '');
+                $currentValue = (string) ($currentValue ?? '');
+
+                // Special handling for date comparison:
+                // If both are empty strings, they are considered same.
+                // Otherwise, compare as strings.
+                if ($key === 'received_date') {
+                    if (empty($originalValue) && empty($currentValue)) {
+                        // Both are empty, no change
+                        continue;
+                    }
+                }
+
+                Log::debug("Comparing {$key}: Original='{$originalValue}' | Current='{$currentValue}'");
+
+                if ($originalValue !== $currentValue) {
+                    Log::debug("Difference detected for {$key}: Original='{$originalValue}' vs Current='{$currentValue}'");
+                    $changesMade = true;
+                    break;
+                }
+            }
+
+            if (!$changesMade) {
+                $this->no_changes = 'No changes were made to the procurement record.';
+                $this->notificationType = 'info';
+                $this->notificationMessage = 'No changes were made to the procurement record.';
+                $this->showNotification = true;
+                return;
+            }
+
+            // Remove commas before final validation and saving
+            $this->amount = str_replace(',', '', $this->amount);
+
+            // Format received_date again just before validation, in case it was re-typed
             if (!empty($this->received_date)) {
                 $this->received_date = Carbon::parse($this->received_date)->format('Y-m-d H:i:s');
             } else {
-                $this->received_date = null; // Ensure null if empty for nullable database column
+                $this->received_date = null;
             }
 
-            // Remove commas before saving to DB
-            $this->amount = str_replace(',', '', $this->amount);
-            $validatedData = $this->validate();
-            $outgoing = ProcurementOutgoing::find($this->editOutgoingId);
+            $validatedData = $this->validate(); // Validate after cleaning amount and date
 
-            if ($outgoing) {
-                $outgoing->update($validatedData);
-                $this->resetFields();
-                $this->closeModal();
-                $this->notificationType = 'success'; // Set success type
-                $this->notificationMessage = 'Procurement record updated successfully!';
-                $this->showNotification = true;
-                $this->dispatch('refreshProcurementOutgoing');
-            } else {
-                $this->notificationType = 'error'; // Set error type
-                $this->notificationMessage = 'Procurement record not found.';
-                $this->showNotification = true;
-            }
+            $outgoing->update($validatedData);
+
+            $this->closeModal();
+            $this->notificationType = 'success'; // Set success type
+            $this->notificationMessage = 'Procurement record updated successfully!';
+            $this->showNotification = true;
+            $this->dispatch('refreshProcurementOutgoing');
         } catch (ValidationException $e) {
             Log::error('Validation error updating outgoing record: ' . json_encode($e->errors()));
             $this->notificationType = 'error'; // Set error type
@@ -292,18 +375,19 @@ class ProcurementOutgoingIndex extends Component
         $this->resetPage(); // Reset pagination when searching
     }
 
-    private function resetFields()
-    {
-        $this->received_date = '';
-        $this->end_user = '';
-        $this->pr_no = '';
-        $this->particulars = '';
-        $this->amount = '';
-        $this->creditor = '';
-        $this->remarks = '';
-        $this->responsibility = '';
-        $this->received_by = '';
-    }
+    // The private resetFields method is no longer needed since closeModal() (and now openAddModal) handles it
+    // private function resetFields()
+    // {
+    //     $this->received_date = '';
+    //     $this->end_user = '';
+    //     $this->pr_no = '';
+    //     $this->particulars = '';
+    //     $this->amount = '';
+    //     $this->creditor = '';
+    //     $this->remarks = '';
+    //     $this->responsibility = '';
+    //     $this->received_by = '';
+    // }
 
     // --- Helper method to build the base query with all filters ---
     private function buildOutgoingQuery()
@@ -312,7 +396,7 @@ class ProcurementOutgoingIndex extends Component
             ->when($this->search, function ($query) {
                 $searchLower = strtolower($this->search);
                 $query->where(function ($query) use ($searchLower) {
-                    $query->where('received_date', 'like', '%' . $searchLower . '%')
+                    $query->where('received_date', 'like', '%' . $searchLower . '%') // Dates should be handled carefully with LIKE if not exact
                         ->orWhereRaw('LOWER(end_user) LIKE ?', ['%' . $searchLower . '%'])
                         ->orWhereRaw('LOWER(pr_no) LIKE ?', ['%' . $searchLower . '%'])
                         ->orWhereRaw('LOWER(particulars) LIKE ?', ['%' . $searchLower . '%'])
@@ -324,9 +408,13 @@ class ProcurementOutgoingIndex extends Component
                 });
             })
             ->when($this->filterMonth, function ($query) {
-                // Assuming filterMonth is 'YYYY-MM' format, or just 'MM'
-                // For 'MM', you'd need the current year context if applicable
-                $query->whereMonth('received_date', Carbon::parse($this->filterMonth)->month);
+                try {
+                    $date = Carbon::parse($this->filterMonth);
+                    $query->whereYear('received_date', $date->year)
+                        ->whereMonth('received_date', $date->month);
+                } catch (\Exception $e) {
+                    Log::warning('Invalid filterMonth format: ' . $this->filterMonth);
+                }
             });
 
         if ($this->filterEndUser) {

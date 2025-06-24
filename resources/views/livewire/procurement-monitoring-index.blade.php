@@ -1,10 +1,11 @@
 <div>
     @if ($showNotification)
         <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
-                                    @if($notificationType === 'success') bg-green-500 text-white
-                                    @elseif($notificationType === 'error') bg-red-500 text-white
-                                    @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }"
-            x-show="open" x-transition:enter="transition ease-out duration-300"
+                                                                                                                                        @if($notificationType === 'success') bg-green-500 text-white
+                                                                                                                                        @elseif($notificationType === 'error') bg-red-500 text-white
+                                                                                                                                        @else bg-blue-500 text-white @endif"
+            x-data=" { open: @entangle('showNotification') }" x-show="open"
+            x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 transform translate-y-2"
             x-transition:enter-end="opacity-100 transform translate-y-0"
             x-transition:leave="transition ease-in duration-200"
@@ -70,7 +71,7 @@
                                 </button>
                                 <button wire:click="openAddModal"
                                     class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300 w-full sm:w-auto">
-                                    Add Supplier
+                                    Add Monitoring
                                 </button>
                             </div>
                         </div>
@@ -331,13 +332,13 @@
                         <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-2 sm:p-0"
                             wire:ignore>
                             <div
-                                class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-lg mx-2 sm:mx-0">
-                                <div class="flex justify-between items-center mb-4">
+                                class="bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto max-h-[95vh] overflow-y-auto">
+                                <div class="flex justify-between items-center mb-2 sm:mb-4">
                                     <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
                                         Add Procurement
                                     </h3>
                                     <button wire:click="closeModal"
-                                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
+                                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 text-xl">
                                         &#x2715;
                                     </button>
                                 </div>
@@ -348,7 +349,7 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">PR
                                                 No.</label>
                                             <input wire:model="pr_no" type="text" id="pr_no"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter PR No." required />
                                             @error('pr_no')
                                                 <p class="text-red-500 text-sm">{{ $errors->first('pr_no') }}</p>
@@ -358,7 +359,7 @@
                                             <label for="title"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
                                             <textarea wire:model="title" id="title"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Title" required></textarea>
                                             @error('title')
                                                 <p class="text-red-500 text-sm">{{ $errors->first('title') }}</p>
@@ -368,7 +369,7 @@
                                             <label for="processor"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Processor</label>
                                             <input wire:model="processor" id="processor"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Processor" required />
                                             @error('processor')
                                                 <p class="text-red-500 text-sm">{{ $errors->first('processor') }}</p>
@@ -378,7 +379,7 @@
                                             <label for="supplier"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Supplier</label>
                                             <input wire:model="supplier" type="text" id="supplier"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Supplier" />
                                             @error('supplier')
                                                 <p class="text-red-500 text-sm">{{ $errors->first('supplier') }}</p>
@@ -386,10 +387,11 @@
                                         </div>
                                         <div class="mb-2">
                                             <label for="end_user"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">End_User</label>
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">End
+                                                User</label>
                                             <input wire:model="end_user" type="text" id="end_user"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                placeholder="Enter End_User" />
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                placeholder="Enter End-User" />
                                             @error('end_user')
                                                 <p class="text-red-500 text-sm">{{ $errors->first('end_user') }}</p>
                                             @enderror
@@ -398,7 +400,7 @@
                                             <label for="status"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                                             <textarea wire:model="status" id="status"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Status"></textarea>
                                             @error('status')
                                                 <p class="text-red-500 text-sm">{{ $errors->first('status') }}</p>
@@ -409,7 +411,7 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date
                                                 of Endorsement</label>
                                             <input wire:model.lazy="date_endorsement" type="date" id="date_endorsement"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 min="1900-01-01" max="2099-12-31" pattern="\d{4}-\d{2}-\d{2}"
                                                 oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);" />
                                             <button type="button" class="mt-1 text-xs text-blue-600 underline"
@@ -427,18 +429,18 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Specific
                                                 Notes</label>
                                             <textarea wire:model="specific_notes" id="specific_notes"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Specific Notes"></textarea>
                                             @error('specific_notes')
                                                 <p class="text-red-500 text-sm">{{ $errors->first('specific_notes') }}</p>
                                             @enderror
                                         </div>
                                         <div
-                                            class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
+                                            class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
                                             <button type="button" wire:click="closeModal"
-                                                class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 w-full sm:w-auto">Cancel</button>
+                                                class="px-6 py-3 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-base font-semibold">Cancel</button>
                                             <button type="submit"
-                                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 w-full sm:w-auto">
+                                                class="px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 w-full sm:w-auto text-base font-semibold">
                                                 Add Procurement
                                             </button>
                                         </div>
@@ -446,19 +448,54 @@
                                 </div>
                             </div>
                         </div>
+                        <style>
+                            @media (max-width: 640px) {
+                                .max-w-lg {
+                                    max-width: 99vw !important;
+                                }
+
+                                .p-2,
+                                .sm\:p-4 {
+                                    padding: 0.5rem !important;
+                                }
+
+                                .text-base,
+                                .sm\:text-lg {
+                                    font-size: 1rem !important;
+                                }
+
+                                .text-lg,
+                                .sm\:text-xl {
+                                    font-size: 1.1rem !important;
+                                }
+
+                                input,
+                                textarea {
+                                    font-size: 1rem !important;
+                                }
+
+                                label {
+                                    font-size: 0.95rem !important;
+                                }
+
+                                .rounded-lg {
+                                    border-radius: 0.75rem !important;
+                                }
+                            }
+                        </style>
                     @endif
 
                     @if ($isEditModalOpen)
-                        <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-2 sm:p-0"
+                        <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0"
                             wire:ignore>
                             <div
-                                class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-lg mx-2 sm:mx-0">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
+                                class="bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto max-h-[95vh] overflow-y-auto">
+                                <div class="flex justify-between items-center mb-2 sm:mb-4">
+                                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                                         Edit Procurement
                                     </h3>
                                     <button wire:click="closeModal"
-                                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
+                                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 text-xl">
                                         &#x2715;
                                     </button>
                                 </div>

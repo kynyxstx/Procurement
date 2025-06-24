@@ -8,7 +8,8 @@ use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SuppliersExport;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Validation\ValidationException; // IMPORTANT: Add this import
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log; // Import the Log facade
 
 class SupplierDirectoryIndex extends Component
 {
@@ -35,11 +36,10 @@ class SupplierDirectoryIndex extends Component
     public $deletingSupplierId;
     public $isAddModalOpen = false;
 
-    // Notification properties
-    public $no_changes; // This will hold the "no changes" message
+    // Notification properties (keep these two central)
     public $showNotification = false;
     public $notificationMessage = '';
-    public $notificationType = 'success'; // Add this property: 'success' or 'error'
+    public $notificationType = 'success'; // 'success', 'error', 'info'
 
     // Sorting properties
     public $sortFields = [
@@ -55,8 +55,7 @@ class SupplierDirectoryIndex extends Component
     public $sortDirection = 'asc';
     public $sortField = 'supplier_name';
 
-    // Property to store original data for comparison during edit
-    protected $originalSupplierData = [];
+    public $originalSupplierData = [];
 
     protected $paginationTheme = 'tailwind';
     protected $perPage = 20;
@@ -75,7 +74,7 @@ class SupplierDirectoryIndex extends Component
             'items' => 'required|string|max:500',
             'contact_person' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            'mobile_no' => 'nullable|digits:11', // This rule is correct
+            'mobile_no' => 'nullable|digits:11',
             'telephone_no' => 'nullable|string|max:15',
             'email_address' => 'nullable|email',
         ];
@@ -87,22 +86,19 @@ class SupplierDirectoryIndex extends Component
         'items.required' => 'Please specify the items.',
         'contact_person.required' => 'Contact person is required.',
         'position.required' => 'Position is required.',
-        'mobile_no.digits' => 'Mobile number must be 11 digits.', // This message is crucial
+        'mobile_no.digits' => 'Mobile number must be 11 digits.',
         'email_address.email' => 'Enter a valid email address.',
     ];
 
-    // Listeners for events (if you have them)
     protected $listeners = ['refreshSupplier' => '$refresh'];
 
     public function mount(): void
     {
         $this->resetPage();
 
-        // Initialize search from query string if present
         if (request()->has('search')) {
             $this->search = request()->query('search');
         }
-        // Initialize sort field and direction from query string if present
         if (request()->has('sortField') && in_array(request()->query('sortField'), $this->sortFields)) {
             $this->sortField = request()->query('sortField');
         }
@@ -124,7 +120,13 @@ class SupplierDirectoryIndex extends Component
 
     public function updated($propertyName)
     {
-        $this->validateOnly($propertyName);
+        // Only validate if a validation rule exists for the property
+        if (array_key_exists($propertyName, $this->rules())) {
+            $this->validateOnly($propertyName);
+        }
+        if ($propertyName === 'search') {
+            $this->resetPage();
+        }
     }
 
     public function applyFilters($query)
@@ -156,20 +158,22 @@ class SupplierDirectoryIndex extends Component
     // Close modals and reset form fields
     public function closeModal()
     {
+        Log::info('closeModal method called.');
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
-        $this->resetFields(); // Reset all form-related properties
-        $this->resetValidation(); // Clear validation errors
-        $this->no_changes = null; // Clear the "no changes" message
-        $this->showNotification = false; // Hide success/error notifications
-        $this->notificationMessage = ''; // Clear notification message
-        $this->notificationType = 'success'; // Reset notification type to default
+        $this->resetFields(); // This calls the reset that clears originalSupplierData
+        $this->resetValidation();
+        // Crucially, reset notification state here
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+        $this->notificationType = 'success';
     }
 
     // Save supplier (Create or Update)
     public function saveSupplier()
     {
+        Log::info('saveSupplier method called. editSupplierId: ' . ($this->editSupplierId ?? 'null'));
         if ($this->editSupplierId) {
             $this->updateSupplier();
         } else {
@@ -179,8 +183,15 @@ class SupplierDirectoryIndex extends Component
 
     public function addSupplier()
     {
+        Log::info('addSupplier method called. Attempting to add new supplier.');
+        // Reset notification state at the beginning of the action
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+        $this->notificationType = 'success';
+
         try {
             $this->validate();
+            Log::info('addSupplier: Validation successful.');
 
             SupplierDirectory::create([
                 'supplier_name' => $this->supplier_name,
@@ -193,43 +204,49 @@ class SupplierDirectoryIndex extends Component
                 'email_address' => $this->email_address,
             ]);
 
-            $this->closeModal();
-            $this->notificationType = 'success'; // Set notification type
+            Log::info('addSupplier: Supplier created successfully.');
+
+            $this->closeModal(); // This will also reset the notification state
+            $this->notificationType = 'success';
             $this->notificationMessage = 'Supplier added successfully!';
             $this->showNotification = true;
             $this->dispatch('supplierAdded');
-        } catch (ValidationException $e) { // Catch validation exceptions specifically
-            $this->notificationType = 'error'; // Set notification type
-            $this->notificationMessage = $e->validator->errors()->first('mobile_no') ?? 'Validation failed. Please check the form for errors.';
+        } catch (ValidationException $e) {
+            $this->notificationType = 'error';
+            $this->notificationMessage = $e->validator->errors()->first() ?? 'Validation failed. Please check the form for errors.';
             $this->showNotification = true;
-            \Log::error('Validation error adding Supplier: ' . json_encode($e->errors()));
-            throw $e; // Re-throw to make Livewire display errors next to fields
-        } catch (\Exception $e) { // Catch other general exceptions
-            $this->notificationType = 'error'; // Set notification type
+            Log::error('Validation error adding Supplier: ' . json_encode($e->errors()));
+            // No need to throw $e if you're showing a notification, Livewire handles the validation errors.
+        } catch (\Exception $e) {
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Error adding Supplier: ' . $e->getMessage();
             $this->showNotification = true;
-            \Log::error('Error adding Supplier: ' . $e->getMessage());
+            Log::error('Error adding Supplier: ' . $e->getMessage());
             $this->dispatch('supplierAddFailed');
         }
     }
 
     public function openAddModal()
     {
-        $this->resetFields(); // Clear fields when opening add modal
-        $this->resetValidation(); // Clear any previous validation errors
-        $this->no_changes = null; // Clear "no changes" message
-        $this->showNotification = false; // Ensure notification is hidden
-        $this->notificationMessage = ''; // Clear notification message
-        $this->notificationType = 'success'; // Reset notification type
+        Log::info('openAddModal method called. Setting isAddModalOpen to true.');
+        $this->resetFields();
+        $this->resetValidation();
+        // Ensure notification is cleared when opening the modal
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+        $this->notificationType = 'success';
         $this->isAddModalOpen = true;
     }
 
     public function openEditModal($supplierId)
     {
+        Log::info('openEditModal method called for supplier ID: ' . $supplierId);
         $supplier = SupplierDirectory::find($supplierId);
 
         if ($supplier) {
             $this->editSupplierId = $supplierId;
+
+            // Assign values to public properties
             $this->supplier_name = $supplier->supplier_name;
             $this->address = $supplier->address;
             $this->items = $supplier->items;
@@ -239,137 +256,171 @@ class SupplierDirectoryIndex extends Component
             $this->telephone_no = $supplier->telephone_no;
             $this->email_address = $supplier->email_address;
 
-            // Store original data for comparison
-            $this->originalSupplierData = $supplier->toArray();
+            // Store original data from the *Livewire properties themselves*
+            // Cast to string to ensure consistent comparison with input values later.
+            $this->originalSupplierData = [
+                'supplier_name' => (string) $this->supplier_name,
+                'address' => (string) $this->address,
+                'items' => (string) $this->items,
+                'contact_person' => (string) $this->contact_person,
+                'position' => (string) $this->position,
+                'mobile_no' => (string) ($this->mobile_no ?? ''),
+                'telephone_no' => (string) ($this->telephone_no ?? ''),
+                'email_address' => (string) ($this->email_address ?? ''),
+            ];
+
+            Log::debug('Original Supplier Data stored (after property assignment): ', $this->originalSupplierData);
 
             $this->isEditModalOpen = true;
             $this->resetValidation();
-            $this->no_changes = null;
-            $this->showNotification = false; // Ensure notification is hidden
-            $this->notificationMessage = ''; // Clear notification message
-            $this->notificationType = 'success'; // Reset notification type
+            // Ensure notification is cleared when opening the modal
+            $this->showNotification = false;
+            $this->notificationMessage = '';
+            $this->notificationType = 'success';
         } else {
-            $this->notificationType = 'error'; // Set notification type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Supplier not found.';
             $this->showNotification = true;
+            // No need to open modal if supplier not found
         }
     }
 
     public function updateSupplier()
     {
+        Log::info('updateSupplier method called.');
+        // Reset notification state at the beginning of the action
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+        $this->notificationType = 'success';
+
         try {
             $validatedData = $this->validate();
 
             $supplier = SupplierDirectory::find($this->editSupplierId);
 
             if (!$supplier) {
-                $this->notificationType = 'error'; // Set notification type
+                $this->notificationType = 'error';
                 $this->notificationMessage = 'Supplier not found.';
                 $this->showNotification = true;
                 $this->dispatch('supplierUpdateFailed');
                 return;
             }
 
-            // Prepare current data from Livewire properties
+            Log::debug('Original Supplier Data in updateSupplier (before comparison): ', $this->originalSupplierData);
+
+            // Prepare current data for comparison, ensuring nulls are handled consistently as empty strings
             $currentData = [
-                'supplier_name' => $this->supplier_name,
-                'address' => $this->address,
-                'items' => $this->items,
-                'contact_person' => $this->contact_person,
-                'position' => $this->position,
-                'mobile_no' => $this->mobile_no,
-                'telephone_no' => $this->telephone_no,
-                'email_address' => $this->email_address,
+                'supplier_name' => (string) $this->supplier_name,
+                'address' => (string) $this->address,
+                'items' => (string) $this->items,
+                'contact_person' => (string) $this->contact_person,
+                'position' => (string) $this->position,
+                'mobile_no' => (string) $this->mobile_no,
+                'telephone_no' => (string) $this->telephone_no,
+                'email_address' => (string) $this->email_address,
             ];
 
-            // Compare current data with original data
             $changesMade = false;
-            foreach ($currentData as $key => $value) {
-                // Important: Cast to string for comparison to handle null vs empty string consistently
-                // and ensure all values are comparable types.
-                $originalValue = (string) ($this->originalSupplierData[$key] ?? ''); // Use empty string if key doesn't exist
-                $currentValue = (string) ($value ?? '');
+            foreach ($currentData as $key => $currentValue) {
+                $originalValue = (string) ($this->originalSupplierData[$key] ?? ''); // Ensure it's a string, default to empty
+                $currentValue = (string) ($currentValue ?? ''); // Ensure it's a string, default to empty
+
+                Log::debug("Comparing {$key}: Original='{$originalValue}' | Current='{$currentValue}'");
 
                 if ($originalValue !== $currentValue) {
+                    Log::debug("Difference detected for {$key}: Original='{$originalValue}' vs Current='{$currentValue}'");
                     $changesMade = true;
                     break;
                 }
             }
 
             if (!$changesMade) {
-                $this->no_changes = 'No changes were made to the supplier information.'; // This will be displayed if you have a specific element for it
-                $this->notificationType = 'info'; // You might want an 'info' type for no changes
+                // Only set one notification type here
+                $this->notificationType = 'info';
                 $this->notificationMessage = 'No changes were made to the supplier information.';
                 $this->showNotification = true;
-                return; // Stop execution if no changes
+                return; // Keep modal open and show notification
             }
 
-            // Only update if changes were detected
             $supplier->update($validatedData);
 
             $this->resetFields();
-            $this->closeModal();
-            $this->notificationType = 'success'; // Set notification type
+            $this->closeModal(); // This will also reset the notification state
+            $this->notificationType = 'success';
             $this->notificationMessage = 'Supplier updated successfully!';
             $this->showNotification = true;
             $this->dispatch('supplierUpdated');
-        } catch (ValidationException $e) { // Catch validation exceptions specifically
-            $this->notificationType = 'error'; // Set notification type
-            $this->notificationMessage = $e->validator->errors()->first('mobile_no') ?? 'Validation failed. Please check the form for errors.';
+        } catch (ValidationException $e) {
+            $this->notificationType = 'error';
+            // Get the first validation error message to display
+            $this->notificationMessage = $e->validator->errors()->first() ?? 'Validation failed. Please check the form for errors.';
             $this->showNotification = true;
-            \Log::error('Validation error updating Supplier: ' . json_encode($e->errors()));
-            throw $e; // Re-throw to make Livewire display errors next to fields
-        } catch (\Exception $e) { // Catch other general exceptions
-            $this->notificationType = 'error'; // Set notification type
+            Log::error('Validation error updating Supplier: ' . json_encode($e->errors()));
+            // No need to throw $e if you're showing a notification, Livewire handles the validation errors.
+        } catch (\Exception $e) {
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Error updating Supplier: ' . $e->getMessage();
             $this->showNotification = true;
-            \Log::error('Error updating Supplier: ' . $e->getMessage());
+            Log::error('Error updating Supplier: ' . $e->getMessage());
             $this->dispatch('supplierUpdateFailed');
         }
     }
 
     public function openDeleteModal($supplierId)
     {
+        Log::info('openDeleteModal method called for supplier ID: ' . $supplierId);
         $this->deletingSupplierId = $supplierId;
         $this->isDeleteModalOpen = true;
+        // Ensure notification is cleared when opening the modal
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+        $this->notificationType = 'success';
     }
 
     public function deleteSupplier()
     {
+        Log::info('deleteSupplier method called for supplier ID: ' . $this->deletingSupplierId);
+        // Reset notification state at the beginning of the action
+        $this->showNotification = false;
+        $this->notificationMessage = '';
+        $this->notificationType = 'success';
+
         try {
             $supplier = SupplierDirectory::find($this->deletingSupplierId);
 
             if ($supplier) {
                 $supplier->delete();
-                $this->closeModal();
-                $this->notificationType = 'success'; // Set notification type
+                $this->closeModal(); // This will also reset the notification state
+                $this->notificationType = 'success';
                 $this->notificationMessage = 'Supplier deleted successfully!';
                 $this->showNotification = true;
                 $this->dispatch('supplierDeleted');
             } else {
-                $this->notificationType = 'error'; // Set notification type
+                $this->notificationType = 'error';
                 $this->notificationMessage = 'Supplier not found.';
                 $this->showNotification = true;
                 $this->dispatch('supplierDeleteFailed');
             }
         } catch (\Exception $e) {
-            $this->notificationType = 'error'; // Set notification type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Error deleting supplier: ' . $e->getMessage();
             $this->showNotification = true;
-            \Log::error('Error deleting supplier: ' . $e->getMessage());
+            Log::error('Error deleting supplier: ' . $e->getMessage());
             $this->dispatch('supplierDeleteFailed');
         }
     }
 
     public function dismissNotification()
     {
+        Log::info('dismissNotification method called.');
         $this->showNotification = false;
         $this->notificationMessage = '';
-        $this->notificationType = 'success'; // Reset notification type when dismissed
+        $this->notificationType = 'success';
     }
 
     public function updatedSearch()
     {
+        Log::info('updatedSearch method called. Search term: ' . $this->search);
         $this->resetPage();
     }
 
@@ -395,8 +446,9 @@ class SupplierDirectoryIndex extends Component
     // For Excel
     public function exportToExcel()
     {
+        Log::info('exportToExcel method called.');
         $query = SupplierDirectory::query(); // Start a fresh query instance
-        $this->applyFilters($query);        // Apply your search/filters to this query
+        $this->applyFilters($query);         // Apply your search/filters to this query
 
         // Pass the query builder instance directly to your export class
         return Excel::download(new SuppliersExport($query), 'suppliers directory.xlsx');
@@ -405,9 +457,10 @@ class SupplierDirectoryIndex extends Component
     // For PDF
     public function exportToPDF()
     {
+        Log::info('exportToPDF method called.');
         $query = SupplierDirectory::query();
-        $this->applyFilters($query); // Apply the same filters
-        $suppliers = $query->get();  // Get the collection of filtered data
+        $this->applyFilters($query);
+        $suppliers = $query->get();
 
         $pdf = Pdf::loadView('exports.suppliers_pdf', ['suppliers' => $suppliers]);
         return response()->streamDownload(function () use ($pdf) {
@@ -417,11 +470,13 @@ class SupplierDirectoryIndex extends Component
 
     public function performSearch()
     {
+        Log::info('performSearch method called. Search term: ' . $this->search);
         $this->resetPage();
     }
 
     private function resetFields()
     {
+        Log::info('resetFields method called.');
         $this->supplier_name = '';
         $this->address = '';
         $this->items = '';

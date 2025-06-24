@@ -1,16 +1,15 @@
 <div>
     @if ($showNotification)
         <div class="fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg
-                            @if($notificationType === 'success') bg-green-500 text-white
-                            @elseif($notificationType === 'error') bg-red-500 text-white
-                            @else bg-blue-500 text-white @endif" 
-            x-data="{ open: @entangle('showNotification') }" x-show="open"
-            x-transition:enter="transition ease-out duration-300"
+                        @if($notificationType === 'success') bg-green-500 text-white
+                        @elseif($notificationType === 'error') bg-red-500 text-white
+                        @else bg-blue-500 text-white @endif" x-data=" { open: @entangle('showNotification') }"
+            x-show="open" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 transform translate-y-2"
             x-transition:enter-end="opacity-100 transform translate-y-0"
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 transform translate-y-0"
-            x-transition:leave-end="opacity-0 transform translate-y-2" @click.away="open = false" 
+            x-transition:leave-end="opacity-0 transform translate-y-2" @click.away="open = false"
             x-init="setTimeout(() => { open = false; }, 5000);">
             <div class="flex items-center justify-between">
                 <span>{{ $notificationMessage }}</span>
@@ -386,8 +385,9 @@
                     @if ($isAddModalOpen)
                         <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0"
                             wire:ignore>
-                            <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg max-w-lg w-full mx-auto">
-                                <div class="flex justify-between items-center mb-4">
+                            <div
+                                class="bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto max-h-[95vh] overflow-y-auto">
+                                <div class="flex justify-between items-center mb-2 sm:mb-4">
                                     <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
                                         Add Supplier
                                     </h3>
@@ -413,7 +413,7 @@
                                             <label for="address"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
                                             <input wire:model="address" type="text" id="address"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Address" required />
                                             @error('address')
                                                 <p class="text-red-500 text-xs">{{ $errors->first('address') }}</p>
@@ -424,7 +424,7 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Items
                                                 Supplied</label>
                                             <textarea wire:model="items" id="items"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Items" required></textarea>
                                             @error('items')
                                                 <p class="text-red-500 text-xs">{{ $errors->first('items') }}</p>
@@ -435,7 +435,7 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact
                                                 Person</label>
                                             <input wire:model="contact_person" type="text" id="contact_person"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Contact Person" required />
                                             @error('contact_person')
                                                 <p class="text-red-500 text-xs">{{ $errors->first('contact_person') }}</p>
@@ -445,7 +445,7 @@
                                             <label for="position"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Position</label>
                                             <input wire:model="position" type="text" id="position"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Position" required />
                                             @error('position')
                                                 <p class="text-red-500 text-xs">{{ $errors->first('position') }}</p>
@@ -456,73 +456,64 @@
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mobile
                                                 No. (Must be 11 digits)</label>
                                             <input wire:model="mobile_no" type="text" id="mobile_no"
-                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
                                                 placeholder="Enter Mobile No." pattern="[0-9]*" inputmode="numeric"
                                                 maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                             @error('mobile_no')
                                                 <p class="text-red-500 text-xs">{{ $errors->first('mobile_no') }}</p>
                                             @enderror
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="telephone_no"
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telephone
-                                                    No.</label>
-                                                <input wire:model="telephone_no" type="text" id="telephone_no"
-                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Telephone No." />
-                                                @if(!empty($telephone_no) && preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
-                                                    <span class="text-red-500 text-xs">Telephone number should only contain
-                                                        numbers.</span>
-                                                @endif
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="email_address"
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email
-                                                    Address</label>
-                                                <input wire:model="email_address" type="email" id="email_address"
-                                                    class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg"
-                                                    placeholder="Enter Email Address" />
-                                                @error('email_address')
-                                                    <p class="text-red-500 text-xs">{{ $errors->first('email_address') }}</p>
-                                                @enderror
-                                            </div>
-                                            <div
-                                                class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
-                                                <button type="button" wire:click="closeModal"
-                                                    class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-sm">Cancel</button>
-                                                <button type="submit"
-                                                    class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 w-full sm:w-auto text-sm">
-                                                    Add Supplier
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="telephone_no"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telephone
+                                                No.</label>
+                                            <input wire:model="telephone_no" type="text" id="telephone_no"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                placeholder="Enter Telephone No." />
+                                            @if(!empty($telephone_no) && preg_match('/[a-zA-Z]/', $telephone_no ?? ''))
+                                                <span class="text-red-500 text-xs">Telephone number should only contain
+                                                    numbers.</span>
+                                            @endif
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="email_address"
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email
+                                                Address</label>
+                                            <input wire:model="email_address" type="email" id="email_address"
+                                                class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-200 text-base sm:text-lg"
+                                                placeholder="Enter Email Address" />
+                                            @error('email_address')
+                                                <p class="text-red-500 text-xs">{{ $errors->first('email_address') }}</p>
+                                            @enderror
+                                        </div>
+                                        <div
+                                            class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
+                                            <button type="button" wire:click="closeModal"
+                                                class="px-6 py-3 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-base font-semibold">Cancel</button>
+                                            <button type="submit"
+                                                class="px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 w-full sm:w-auto text-base font-semibold">
+                                                Add Supplier
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
+                        </div>
                     @endif
-
                     @if ($isEditModalOpen)
-                        <div
-                            class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0">
-                            <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-lg mx-auto">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
-                                        Edit Supplier
-                                    </h3>
-                                    <button wire:click="closeModal"
-                                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 text-xl">
-                                        &#x2715;
-                                    </button>
-                                </div>
-
-                                <div>
-                                    @if ($no_changes)
-                                        <div
-                                            class="mb-4 text-yellow-700 bg-yellow-100 border border-yellow-400 rounded px-4 py-2">
-                                            {{ $no_changes }}
-                                        </div>
-                                    @endif
-
+                            <div
+                                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-2 sm:px-0">
+                                <div
+                                    class="bg-white dark:bg-gray-800 p-2 sm:p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto max-h-[95vh] overflow-y-auto">
+                                    <div class="flex justify-between items-center mb-2 sm:mb-4">
+                                        <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                            Edit Supplier
+                                        </h3>
+                                        <button wire:click="closeModal"
+                                            class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 text-xl">
+                                            &#x2715;
+                                        </button>
+                                    </div>
                                     <form wire:submit.prevent="saveSupplier">
                                         <div class="mb-3">
                                             <label for="editSupplierName"
@@ -534,18 +525,15 @@
                                             @error('supplier_name') <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="editAddress"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
-                                            <input wire:model="address" id="editAddress" type="text"
-                                                placeholder="Enter Address"
+                                            <input wire:model="address" id="editAddress" type="text" placeholder="Enter Address"
                                                 class="w-full mt-1 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 text-base sm:text-lg" />
                                             @error('address') <span
                                                 class="text-red-500 text-xs">{{ $errors->first('address') }}</span>
                                             @enderror
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="editItems"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Items</label>
@@ -555,7 +543,6 @@
                                                 class="text-red-500 text-xs">{{ $errors->first('items') }}</span>
                                             @enderror
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="editContactPerson"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact
@@ -567,7 +554,6 @@
                                                 class="text-red-500 text-xs">{{ $errors->first('contact_person') }}</span>
                                             @enderror
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="editPosition"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Position</label>
@@ -578,7 +564,6 @@
                                                 class="text-red-500 text-xs">{{ $errors->first('position') }}</span>
                                             @enderror
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="editMobileNo"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mobile
@@ -592,8 +577,7 @@
                                                 <span class="text-red-500 text-xs">{{ $errors->first('mobile_no') }}</span>
                                             @enderror
                                         </div>
-
-                                        <div class="mb-3">
+                                        <div class="sm:col-span-2">
                                             <label for="editTelephoneNo"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telephone
                                                 No.</label>
@@ -609,8 +593,7 @@
                                                 <span class="text-red-500 text-xs">{{ $errors->first('telephone_no') }}</span>
                                             @enderror
                                         </div>
-
-                                        <div class="mb-3">
+                                        <div class="sm:col-span-2">
                                             <label for="editEmailAddress"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email
                                                 Address</label>
@@ -621,14 +604,12 @@
                                                 class="text-red-500 text-xs">{{ $errors->first('email_address') }}</span>
                                             @enderror
                                         </div>
-
                                         <div
                                             class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 mt-4">
                                             <button type="button" wire:click="closeModal"
-                                                class="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-sm">Cancel</button>
+                                                class="px-6 py-3 text-white bg-gray-600 rounded-lg hover:bg-gray-700 w-full sm:w-auto text-base font-semibold">Cancel</button>
                                             <button type="submit"
-                                                class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 w-full sm:w-auto text-sm {{ $no_changes ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                                {{ $no_changes ? 'disabled' : '' }}>
+                                                class="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 w-full sm:w-auto text-base font-semibold">
                                                 Save Changes
                                             </button>
                                         </div>
@@ -656,32 +637,40 @@
                                 textarea {
                                     font-size: 1rem !important;
                                 }
+
+                                label {
+                                    font-size: 0.95rem !important;
+                                }
+
+                                .rounded-lg {
+                                    border-radius: 0.75rem !important;
+                                }
                             }
                         </style>
                     @endif
 
-                    @if ($isDeleteModalOpen)
-                        <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" wire:ignore>
-                            <div
-                                class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 sm:mx-0 text-center">
-                                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion</h3>
-                                <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this
-                                    supplier?
-                                </p>
-                                <div class="mt-6 flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
-                                    <button wire:click="closeModal"
-                                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 w-full sm:w-auto">Cancel</button>
-                                    <button wire:click="deleteSupplier"
-                                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 w-full sm:w-auto">Delete</button>
-                                </div>
+                @if ($isDeleteModalOpen)
+                    <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                        <div
+                            class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 sm:mx-0 text-center">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Deletion</h3>
+                            <p class="mt-2 text-gray-600 dark:text-gray-300">Are you sure you want to delete this
+                                supplier?
+                            </p>
+                            <div class="mt-6 flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
+                                <button wire:click="closeModal"
+                                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 w-full sm:w-auto">Cancel</button>
+                                <button wire:click="deleteSupplier"
+                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 w-full sm:w-auto">Delete</button>
                             </div>
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
         </div>
-        <footer class="mt-4 border-t pt-4 text-center text-gray-600 text-sm" style="min-height: 0.7in;">
-            <span class="font-semibold">Procurement Management Section 2025</span>
-        </footer>
     </div>
+    <footer class="mt-4 border-t pt-4 text-center text-gray-600 text-sm" style="min-height: 0.7in;">
+        <span class="font-semibold">Procurement Management Section 2025</span>
+    </footer>
+</div>
 </div>
