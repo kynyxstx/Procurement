@@ -41,12 +41,11 @@ class ProcurementOutgoingIndex extends Component
     public $showNotification = false;
     public string $notificationMessage = '';
     public string $notificationType = 'success';
-    public $no_changes = null; // Add this property for the "no changes" message
+    public $no_changes = null;
 
     public $sortBy = 'received_date';
     public $sortDirection = 'asc';
 
-    // *** Add this public property for storing original data ***
     public $originalOutgoingData = [];
 
     public function setSortBy($sortField)
@@ -63,7 +62,7 @@ class ProcurementOutgoingIndex extends Component
 
 
     protected $paginationTheme = 'tailwind';
-    protected $perPage = 100;
+    protected $perPage = 250;
 
     public function rules()
     {
@@ -72,7 +71,7 @@ class ProcurementOutgoingIndex extends Component
             'end_user' => 'required|string|max:255',
             'pr_no' => 'required|string|max:255',
             'particulars' => 'nullable|string|max:500',
-            'amount' => 'nullable|string', // Keeping as string due to possibility of non-numeric values or commas
+            'amount' => 'nullable|string',
             'creditor' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:500',
             'responsibility' => 'nullable|string|max:255',
@@ -82,7 +81,6 @@ class ProcurementOutgoingIndex extends Component
 
     public function updated(string $propertyName)
     {
-        // Only validate if a validation rule exists for the property
         if (array_key_exists($propertyName, $this->rules())) {
             $this->validateOnly($propertyName);
         }
@@ -100,16 +98,15 @@ class ProcurementOutgoingIndex extends Component
     {
         $this->showNotification = false;
         $this->notificationMessage = '';
-        $this->notificationType = 'success'; // Reset to default success type
+        $this->notificationType = 'success';
     }
 
-    // Close modals and reset form/notification state
     public function closeModal()
     {
         $this->isAddModalOpen = false;
         $this->isEditModalOpen = false;
         $this->isDeleteModalOpen = false;
-        // Reset properties explicitly or use reset method
+
         $this->reset([
             'received_date',
             'end_user',
@@ -122,11 +119,11 @@ class ProcurementOutgoingIndex extends Component
             'received_by',
             'editOutgoingId',
             'deletingOutgoingId',
-            'originalOutgoingData', // *** Ensure this is reset too ***
+            'originalOutgoingData',
         ]);
-        $this->resetValidation(); // Clear validation errors
-        $this->no_changes = null; // Clear the no changes message
-        $this->dismissNotification(); // Clear and hide notification
+        $this->resetValidation();
+        $this->no_changes = null;
+        $this->dismissNotification();
     }
 
     // Save Outgoing (Create or Update)
@@ -142,14 +139,12 @@ class ProcurementOutgoingIndex extends Component
     public function addOutgoing()
     {
         try {
-            // Remove commas from amount before validation and saving
             $this->amount = str_replace(',', '', $this->amount);
 
-            // Format received_date for consistency if not empty
             if (!empty($this->received_date)) {
                 $this->received_date = Carbon::parse($this->received_date)->format('Y-m-d H:i:s');
             } else {
-                $this->received_date = null; // Ensure null if empty for nullable database column
+                $this->received_date = null;
             }
 
             $validatedData = $this->validate();
@@ -157,20 +152,20 @@ class ProcurementOutgoingIndex extends Component
             ProcurementOutgoing::create($validatedData);
 
             $this->closeModal();
-            $this->notificationType = 'success'; // Set success type
+            $this->notificationType = 'success';
             $this->notificationMessage = 'Procurement record added successfully!';
             $this->showNotification = true;
-            // No need for resetFields() here, closeModal() already calls reset on properties
-            $this->dispatch('refreshProcurementOutgoing'); // Dispatch to refresh table
+
+            $this->dispatch('refreshProcurementOutgoing');
         } catch (ValidationException $e) {
             Log::error('Validation error adding outgoing record: ' . json_encode($e->errors()));
-            $this->notificationType = 'error'; // Set error type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Validation failed. Please check the form for errors.';
             $this->showNotification = true;
-            throw $e; // Re-throw to make Livewire display errors next to fields
+            throw $e;
         } catch (\Exception $e) {
             Log::error('Error adding procurement record: ' . $e->getMessage());
-            $this->notificationType = 'error'; // Set error type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Error adding procurement record: ' . $e->getMessage();
             $this->showNotification = true;
         }
@@ -179,7 +174,7 @@ class ProcurementOutgoingIndex extends Component
     public function openAddModal()
     {
         // *** REMOVED: $this->resetFields(); ***
-        $this->reset([ // Reset all relevant properties here, same as in closeModal
+        $this->reset([
             'received_date',
             'end_user',
             'pr_no',
@@ -189,12 +184,12 @@ class ProcurementOutgoingIndex extends Component
             'remarks',
             'responsibility',
             'received_by',
-            'editOutgoingId', // Reset edit ID in case it was somehow set
-            'deletingOutgoingId', // Reset delete ID
-            'originalOutgoingData', // Reset original data
+            'editOutgoingId',
+            'deletingOutgoingId',
+            'originalOutgoingData',
         ]);
-        $this->resetValidation(); // Clear any previous validation errors
-        $this->dismissNotification(); // Clear and hide notification
+        $this->resetValidation();
+        $this->dismissNotification();
         $this->isAddModalOpen = true;
     }
 
@@ -224,7 +219,7 @@ class ProcurementOutgoingIndex extends Component
                 'end_user' => (string) $outgoing->end_user,
                 'pr_no' => (string) $outgoing->pr_no,
                 'particulars' => (string) $outgoing->particulars,
-                'amount' => (string) $outgoing->amount, // Store raw amount for accurate comparison with validated amount
+                'amount' => (string) $outgoing->amount,
                 'creditor' => (string) $outgoing->creditor,
                 'remarks' => (string) $outgoing->remarks,
                 'responsibility' => (string) $outgoing->responsibility,
@@ -233,12 +228,12 @@ class ProcurementOutgoingIndex extends Component
 
             Log::debug('Original Outgoing Data stored: ', $this->originalOutgoingData);
 
-            $this->resetValidation(); // Clear any previous validation errors
-            $this->dismissNotification(); // Clear and hide notification
-            $this->no_changes = null; // Clear any previous "no changes" message
+            $this->resetValidation();
+            $this->dismissNotification();
+            $this->no_changes = null;
             $this->isEditModalOpen = true;
         } else {
-            $this->notificationType = 'error'; // Set error type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Procurement record not found.';
             $this->showNotification = true;
         }
@@ -257,14 +252,12 @@ class ProcurementOutgoingIndex extends Component
                 return;
             }
 
-            // Prepare current data for comparison, ensuring nulls are handled consistently as empty strings
-            // and amount has commas removed for comparison with original DB value
             $currentData = [
                 'received_date' => (string) ($this->received_date ? Carbon::parse($this->received_date)->format('Y-m-d H:i:s') : ''),
                 'end_user' => (string) $this->end_user,
                 'pr_no' => (string) $this->pr_no,
                 'particulars' => (string) $this->particulars,
-                'amount' => (string) str_replace(',', '', $this->amount), // Remove commas for comparison
+                'amount' => (string) str_replace(',', '', $this->amount),
                 'creditor' => (string) $this->creditor,
                 'remarks' => (string) $this->remarks,
                 'responsibility' => (string) $this->responsibility,
@@ -279,12 +272,8 @@ class ProcurementOutgoingIndex extends Component
                 $originalValue = (string) ($this->originalOutgoingData[$key] ?? '');
                 $currentValue = (string) ($currentValue ?? '');
 
-                // Special handling for date comparison:
-                // If both are empty strings, they are considered same.
-                // Otherwise, compare as strings.
                 if ($key === 'received_date') {
                     if (empty($originalValue) && empty($currentValue)) {
-                        // Both are empty, no change
                         continue;
                     }
                 }
@@ -306,7 +295,6 @@ class ProcurementOutgoingIndex extends Component
                 return;
             }
 
-            // Remove commas before final validation and saving
             $this->amount = str_replace(',', '', $this->amount);
 
             // Format received_date again just before validation, in case it was re-typed
@@ -316,24 +304,24 @@ class ProcurementOutgoingIndex extends Component
                 $this->received_date = null;
             }
 
-            $validatedData = $this->validate(); // Validate after cleaning amount and date
+            $validatedData = $this->validate();
 
             $outgoing->update($validatedData);
 
             $this->closeModal();
-            $this->notificationType = 'success'; // Set success type
+            $this->notificationType = 'success';
             $this->notificationMessage = 'Procurement record updated successfully!';
             $this->showNotification = true;
             $this->dispatch('refreshProcurementOutgoing');
         } catch (ValidationException $e) {
             Log::error('Validation error updating outgoing record: ' . json_encode($e->errors()));
-            $this->notificationType = 'error'; // Set error type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Validation failed. Please check the form for errors.';
             $this->showNotification = true;
-            throw $e; // Re-throw to make Livewire display errors next to fields
+            throw $e;
         } catch (\Exception $e) {
             Log::error('Error updating procurement record: ' . $e->getMessage());
-            $this->notificationType = 'error'; // Set error type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Error updating procurement record: ' . $e->getMessage();
             $this->showNotification = true;
         }
@@ -343,7 +331,7 @@ class ProcurementOutgoingIndex extends Component
     {
         $this->deletingOutgoingId = $outgoingId;
         $this->isDeleteModalOpen = true;
-        $this->dismissNotification(); // Clear and hide notification
+        $this->dismissNotification();
     }
 
     public function deleteOutgoing()
@@ -353,18 +341,18 @@ class ProcurementOutgoingIndex extends Component
             if ($outgoing) {
                 $outgoing->delete();
                 $this->closeModal();
-                $this->notificationType = 'success'; // Set success type
+                $this->notificationType = 'success';
                 $this->notificationMessage = 'Procurement record deleted successfully!';
                 $this->showNotification = true;
-                $this->dispatch('refreshProcurementOutgoing'); // Dispatch to refresh table
+                $this->dispatch('refreshProcurementOutgoing');
             } else {
-                $this->notificationType = 'error'; // Set error type
+                $this->notificationType = 'error';
                 $this->notificationMessage = 'Procurement record not found.';
                 $this->showNotification = true;
             }
         } catch (\Exception $e) {
             Log::error('Error deleting procurement record: ' . $e->getMessage());
-            $this->notificationType = 'error'; // Set error type
+            $this->notificationType = 'error';
             $this->notificationMessage = 'Error deleting procurement record: ' . $e->getMessage();
             $this->showNotification = true;
         }
@@ -372,22 +360,8 @@ class ProcurementOutgoingIndex extends Component
 
     public function performSearch()
     {
-        $this->resetPage(); // Reset pagination when searching
+        $this->resetPage();
     }
-
-    // The private resetFields method is no longer needed since closeModal() (and now openAddModal) handles it
-    // private function resetFields()
-    // {
-    //     $this->received_date = '';
-    //     $this->end_user = '';
-    //     $this->pr_no = '';
-    //     $this->particulars = '';
-    //     $this->amount = '';
-    //     $this->creditor = '';
-    //     $this->remarks = '';
-    //     $this->responsibility = '';
-    //     $this->received_by = '';
-    // }
 
     // --- Helper method to build the base query with all filters ---
     private function buildOutgoingQuery()
@@ -396,7 +370,7 @@ class ProcurementOutgoingIndex extends Component
             ->when($this->search, function ($query) {
                 $searchLower = strtolower($this->search);
                 $query->where(function ($query) use ($searchLower) {
-                    $query->where('received_date', 'like', '%' . $searchLower . '%') // Dates should be handled carefully with LIKE if not exact
+                    $query->where('received_date', 'like', '%' . $searchLower . '%')
                         ->orWhereRaw('LOWER(end_user) LIKE ?', ['%' . $searchLower . '%'])
                         ->orWhereRaw('LOWER(pr_no) LIKE ?', ['%' . $searchLower . '%'])
                         ->orWhereRaw('LOWER(particulars) LIKE ?', ['%' . $searchLower . '%'])

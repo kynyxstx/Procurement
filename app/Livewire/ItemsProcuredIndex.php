@@ -8,7 +8,7 @@ use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ItemsProcuredExport;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log; // Added for logging
+use Illuminate\Support\Facades\Log;
 
 class ItemsProcuredIndex extends Component
 {
@@ -33,12 +33,11 @@ class ItemsProcuredIndex extends Component
     public $showNotification = false;
     public $notificationMessage = '';
     public $notificationType = 'success';
-    public $no_changes = null; // *** Added for "no changes" notification ***
+    public $no_changes = null;
 
     public $sortField = 'supplier';
     public $sortDirection = 'asc';
 
-    // *** Added to store original data for comparison ***
     public $originalItemData = [];
 
     public function sortBy($field)
@@ -116,10 +115,10 @@ class ItemsProcuredIndex extends Component
             'month',
             'editItemId',
             'deletingItemId',
-            'originalItemData', // *** Reset original data here ***
+            'originalItemData',
         ]);
         $this->resetValidation();
-        $this->no_changes = null; // *** Reset no_changes here ***
+        $this->no_changes = null;
         $this->showNotification = false;
         $this->notificationMessage = '';
         $this->notificationType = 'success';
@@ -178,16 +177,6 @@ class ItemsProcuredIndex extends Component
         $this->notificationType = 'success';
     }
 
-    // *** This method is now redundant and commented out ***
-    // private function resetInputFields()
-    // {
-    //     $this->supplier = '';
-    //     $this->item_project = '';
-    //     $this->unit_cost = '';
-    //     $this->year = '';
-    //     $this->month = '';
-    // }
-
     public function openAddModal()
     {
         // *** Replaced resetInputFields() with direct reset() call ***
@@ -197,12 +186,12 @@ class ItemsProcuredIndex extends Component
             'unit_cost',
             'year',
             'month',
-            'editItemId', // Ensure edit ID is reset
-            'deletingItemId', // Ensure delete ID is reset
-            'originalItemData', // Ensure original data is reset
+            'editItemId',
+            'deletingItemId',
+            'originalItemData',
         ]);
         $this->resetValidation();
-        $this->no_changes = null; // *** Reset no_changes here ***
+        $this->no_changes = null;
         $this->showNotification = false;
         $this->notificationMessage = '';
         $this->notificationType = 'success';
@@ -225,7 +214,7 @@ class ItemsProcuredIndex extends Component
             $this->originalItemData = [
                 'supplier' => (string) $item->supplier,
                 'item_project' => (string) $item->item_project,
-                'unit_cost' => (string) $item->unit_cost, // Cast to string for consistent comparison
+                'unit_cost' => (string) $item->unit_cost,
                 'year' => (string) $item->year,
                 'month' => (string) $item->month,
             ];
@@ -234,7 +223,7 @@ class ItemsProcuredIndex extends Component
 
             $this->isEditModalOpen = true;
             $this->resetValidation();
-            $this->no_changes = null; // *** Reset no_changes here ***
+            $this->no_changes = null;
             $this->showNotification = false;
             $this->notificationMessage = '';
             $this->notificationType = 'success';
@@ -261,7 +250,7 @@ class ItemsProcuredIndex extends Component
             $currentData = [
                 'supplier' => (string) $this->supplier,
                 'item_project' => (string) $this->item_project,
-                'unit_cost' => (string) $this->unit_cost, // Cast to string for consistent comparison
+                'unit_cost' => (string) $this->unit_cost,
                 'year' => (string) $this->year,
                 'month' => (string) $this->month,
             ];
@@ -271,7 +260,6 @@ class ItemsProcuredIndex extends Component
 
             $changesMade = false;
             foreach ($currentData as $key => $currentValue) {
-                // Ensure original value is also cast to string and defaults to empty string if missing
                 $originalValue = (string) ($this->originalItemData[$key] ?? '');
                 $currentValue = (string) ($currentValue ?? '');
 
@@ -289,17 +277,14 @@ class ItemsProcuredIndex extends Component
                 $this->notificationType = 'info';
                 $this->notificationMessage = 'No changes were made to the item record.';
                 $this->showNotification = true;
-                // *** REMOVED: $this->closeModal(); and return; ***
-                // The modal will now stay open, and the notification will be visible.
-                // The user can then manually close the modal.
                 return;
             }
 
-            $validatedData = $this->validate(); // Validate only if changes are made
+            $validatedData = $this->validate();
 
             $item->update($validatedData);
             // *** Removed resetInputFields() here, closeModal() handles it ***
-            $this->closeModal(); // Close modal only if update actually happens
+            $this->closeModal();
             $this->notificationType = 'success';
             $this->notificationMessage = 'Item updated successfully!';
             $this->showNotification = true;
@@ -398,13 +383,13 @@ class ItemsProcuredIndex extends Component
         }
 
         if ($this->search) {
-            $searchItem = strtolower($this->search); // Convert search term to lowercase once
+            $searchItem = strtolower($this->search);
             $query->where(function ($query) use ($searchItem) {
                 $query->whereRaw('LOWER(supplier) LIKE ?', ["%{$searchItem}%"])
                     ->orWhereRaw('LOWER(item_project) LIKE ?', ["%{$searchItem}%"])
-                    ->orWhereRaw('LOWER(unit_cost) LIKE ?', ["%{$searchItem}%"]) // Unit cost might be numeric, but stored as string. Lowercasing may impact. Careful here.
+                    ->orWhereRaw('LOWER(unit_cost) LIKE ?', ["%{$searchItem}%"])
                     ->orWhereRaw('LOWER(year) LIKE ?', ["%{$searchItem}%"])
-                    ->orWhereRaw('LOWER(month) LIKE ?', ['%' . $searchItem . '%']); // Already lowercased searchItem
+                    ->orWhereRaw('LOWER(month) LIKE ?', ['%' . $searchItem . '%']);
             });
             Log::info("Applying Search: {$this->search}");
             Log::info('Applying Search: ' . $this->search);
@@ -413,10 +398,6 @@ class ItemsProcuredIndex extends Component
         if ($this->sortField && in_array($this->sortField, ['supplier', 'item_project', 'unit_cost', 'year', 'month'])) {
             $query->orderBy($this->sortField, $this->sortDirection);
         }
-
-        // Only log SQL query if debugging is active, it can be resource intensive
-        // Log::info('SQL Query: ' . $query->toSql());
-        // Log::info('SQL Bindings: ' . json_encode($query->getBindings()));
 
         $items = $query->paginate($this->perPage);
 
